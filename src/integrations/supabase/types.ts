@@ -14,7 +14,242 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      absences: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          date: string
+          employee_id: string
+          id: string
+          observations: string | null
+          reason: string
+          supervisor_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          date: string
+          employee_id: string
+          id?: string
+          observations?: string | null
+          reason: string
+          supervisor_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          date?: string
+          employee_id?: string
+          id?: string
+          observations?: string | null
+          reason?: string
+          supervisor_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "absences_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "absences_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "absences_supervisor_id_fkey"
+            columns: ["supervisor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      condominiums: {
+        Row: {
+          address: string | null
+          created_at: string | null
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      employees: {
+        Row: {
+          active: boolean | null
+          condominium_id: string
+          created_at: string | null
+          id: string
+          name: string
+          position_id: string
+          shift: Database["public"]["Enums"]["shift_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          condominium_id: string
+          created_at?: string | null
+          id?: string
+          name: string
+          position_id: string
+          shift: Database["public"]["Enums"]["shift_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          condominium_id?: string
+          created_at?: string | null
+          id?: string
+          name?: string
+          position_id?: string
+          shift?: Database["public"]["Enums"]["shift_type"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employees_condominium_id_fkey"
+            columns: ["condominium_id"]
+            isOneToOne: false
+            referencedRelation: "condominiums"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_position_id_fkey"
+            columns: ["position_id"]
+            isOneToOne: false
+            referencedRelation: "positions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      positions: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      worked_leaves: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          date: string
+          employee_id: string
+          id: string
+          observations: string | null
+          supervisor_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          date: string
+          employee_id: string
+          id?: string
+          observations?: string | null
+          supervisor_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          date?: string
+          employee_id?: string
+          id?: string
+          observations?: string | null
+          supervisor_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "worked_leaves_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "worked_leaves_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "worked_leaves_supervisor_id_fkey"
+            columns: ["supervisor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +258,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      shift_type: "manha" | "tarde" | "noite" | "madrugada"
+      user_role: "supervisor" | "gestor" | "gerente"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +386,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      shift_type: ["manha", "tarde", "noite", "madrugada"],
+      user_role: ["supervisor", "gestor", "gerente"],
+    },
   },
 } as const
