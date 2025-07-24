@@ -101,7 +101,9 @@ export type Database = {
           active: boolean | null
           condominium_id: string
           created_at: string | null
+          first_name: string
           id: string
+          last_name: string | null
           name: string
           position_id: string
           shift: Database["public"]["Enums"]["shift_type"]
@@ -111,7 +113,9 @@ export type Database = {
           active?: boolean | null
           condominium_id: string
           created_at?: string | null
+          first_name: string
           id?: string
+          last_name?: string | null
           name: string
           position_id: string
           shift: Database["public"]["Enums"]["shift_type"]
@@ -121,7 +125,9 @@ export type Database = {
           active?: boolean | null
           condominium_id?: string
           created_at?: string | null
+          first_name?: string
           id?: string
+          last_name?: string | null
           name?: string
           position_id?: string
           shift?: Database["public"]["Enums"]["shift_type"]
@@ -171,7 +177,10 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string | null
+          email: string | null
+          first_name: string
           id: string
+          last_name: string | null
           name: string
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string | null
@@ -179,7 +188,10 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          email?: string | null
+          first_name: string
           id?: string
+          last_name?: string | null
           name: string
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string | null
@@ -187,7 +199,10 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          email?: string | null
+          first_name?: string
           id?: string
+          last_name?: string | null
           name?: string
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string | null
