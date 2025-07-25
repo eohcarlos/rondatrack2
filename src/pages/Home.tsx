@@ -15,9 +15,11 @@ import {
   UserPlus
 } from 'lucide-react';
 import { RegisterForm } from '@/components/RegisterForm';
+import { useNavigate } from 'react-router-dom';
 
 export const Home = () => {
   const [showRegister, setShowRegister] = useState(false);
+  const navigate = useNavigate();
 
   const features = [
     {
@@ -93,13 +95,22 @@ export const Home = () => {
             </div>
           </div>
 
-          <Button 
-            onClick={() => setShowRegister(true)} 
-            className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white"
-          >
-            <UserPlus className="h-4 w-4 mr-2" />
-            Começar Agora
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/dashboard')}
+              className="border-primary text-primary hover:bg-primary/5"
+            >
+              Login
+            </Button>
+            <Button 
+              onClick={() => setShowRegister(true)} 
+              className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white"
+            >
+              <UserPlus className="h-4 w-4 mr-2" />
+              Começar Agora
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -125,19 +136,20 @@ export const Home = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Button 
                 size="lg" 
+                onClick={() => navigate('/dashboard')}
+                variant="outline"
+                className="border-primary text-primary hover:bg-primary/5 px-8 py-6 text-lg"
+              >
+                <Shield className="h-5 w-5 mr-2" />
+                Fazer Login
+              </Button>
+              <Button 
+                size="lg" 
                 onClick={() => setShowRegister(true)}
                 className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white px-8 py-6 text-lg"
               >
                 <UserPlus className="h-5 w-5 mr-2" />
                 Cadastrar Agora
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline"
-                className="border-primary text-primary hover:bg-primary/5 px-8 py-6 text-lg"
-              >
-                <FileText className="h-5 w-5 mr-2" />
-                Ver Demonstração
               </Button>
             </div>
 
