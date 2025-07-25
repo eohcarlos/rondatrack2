@@ -61,19 +61,19 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         if (error) throw error;
 
         data = ftData?.map(item => ({
-          Data: new Date(item.date).toLocaleDateString('pt-BR'),
-          Nome: item.employees?.name || '',
-          Cargo: item.employees?.positions?.title || '',
-          Condomínio: item.employees?.condominiums?.name || '',
-          Turno: getShiftLabel(item.employees?.shift || ''),
-          'Supervisor do Dia': item.supervisor_profile?.name || '',
-          Observações: item.observations || '',
-          'Registrado por': item.created_by_profile?.name || '',
-          'Data de Registro': new Date(item.created_at).toLocaleDateString('pt-BR')
+          'Data da Folga Trabalhada': new Date(item.date).toLocaleDateString('pt-BR'),
+          'Nome Completo do Funcionário': item.employees?.name || '',
+          'Cargo / Função': item.employees?.positions?.title || '',
+          'Condomínio Atual': item.employees?.condominiums?.name || '',
+          'Turno de Trabalho': getShiftLabel(item.employees?.shift || ''),
+          'Supervisor Responsável': item.supervisor_profile?.name || '',
+          'Observações Gerais': item.observations || 'Sem observações',
+          'Registrado Por': item.created_by_profile?.name || '',
+          'Data do Registro': new Date(item.created_at).toLocaleDateString('pt-BR')
         }));
 
         filename = `folgas_trabalhadas_${startDate}_${endDate}`;
-        headers = ['Data', 'Nome', 'Cargo', 'Condomínio', 'Turno', 'Supervisor do Dia', 'Observações', 'Registrado por', 'Data de Registro'];
+        headers = ['Data da Folga Trabalhada', 'Nome Completo do Funcionário', 'Cargo / Função', 'Condomínio Atual', 'Turno de Trabalho', 'Supervisor Responsável', 'Observações Gerais', 'Registrado Por', 'Data do Registro'];
 
       } else {
         const { data: absenceData, error } = await supabase
@@ -99,20 +99,20 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         if (error) throw error;
 
         data = absenceData?.map(item => ({
-          Data: new Date(item.date).toLocaleDateString('pt-BR'),
-          Nome: item.employees?.name || '',
-          Cargo: item.employees?.positions?.title || '',
-          Condomínio: item.employees?.condominiums?.name || '',
-          Turno: getShiftLabel(item.employees?.shift || ''),
-          Motivo: item.reason,
-          Observações: item.observations || '',
-          'Supervisor do Dia': item.supervisor_profile?.name || '',
-          'Registrado por': item.created_by_profile?.name || '',
-          'Data de Registro': new Date(item.created_at).toLocaleDateString('pt-BR')
+          'Data da Falta': new Date(item.date).toLocaleDateString('pt-BR'),
+          'Nome Completo do Funcionário': item.employees?.name || '',
+          'Cargo / Função': item.employees?.positions?.title || '',
+          'Condomínio Atual': item.employees?.condominiums?.name || '',
+          'Turno de Trabalho': getShiftLabel(item.employees?.shift || ''),
+          'Motivo da Ausência': getReasonLabel(item.reason),
+          'Observações Gerais': item.observations || 'Sem observações',
+          'Supervisor Responsável': item.supervisor_profile?.name || '',
+          'Registrado Por': item.created_by_profile?.name || '',
+          'Data do Registro': new Date(item.created_at).toLocaleDateString('pt-BR')
         }));
 
         filename = `faltas_${startDate}_${endDate}`;
-        headers = ['Data', 'Nome', 'Cargo', 'Condomínio', 'Turno', 'Motivo', 'Observações', 'Supervisor do Dia', 'Registrado por', 'Data de Registro'];
+        headers = ['Data da Falta', 'Nome Completo do Funcionário', 'Cargo / Função', 'Condomínio Atual', 'Turno de Trabalho', 'Motivo da Ausência', 'Observações Gerais', 'Supervisor Responsável', 'Registrado Por', 'Data do Registro'];
       }
 
       if (!data || data.length === 0) {
@@ -153,6 +153,18 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
       madrugada: 'Madrugada'
     };
     return shifts[shift as keyof typeof shifts] || shift;
+  };
+
+  const getReasonLabel = (reason: string) => {
+    const labels: { [key: string]: string } = {
+      'doenca': 'Doença',
+      'atestado': 'Atestado Médico',
+      'falta_injustificada': 'Falta Injustificada',
+      'licenca': 'Licença',
+      'ferias': 'Férias',
+      'outros': 'Outros'
+    };
+    return labels[reason] || reason;
   };
 
   const downloadCSV = (data: any[], headers: string[], filename: string) => {
@@ -312,16 +324,16 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
               {reportType === 'ft' ? 'Campos do Relatório de FT:' : 'Campos do Relatório de Faltas:'}
             </h4>
             <div className="text-sm text-muted-foreground space-y-1">
-              <p>• Data</p>
-              <p>• Nome do funcionário</p>
-              <p>• Cargo</p>
-              <p>• Condomínio</p>
-              <p>• Turno</p>
-              {reportType === 'absences' && <p>• Motivo da falta</p>}
-              <p>• Observações</p>
-              <p>• Supervisor do dia</p>
-              <p>• Registrado por</p>
-              <p>• Data de registro</p>
+              <p>• {reportType === 'ft' ? 'Data da Folga Trabalhada' : 'Data da Falta'}</p>
+              <p>• Nome Completo do Funcionário</p>
+              <p>• Cargo / Função</p>
+              <p>• Condomínio Atual</p>
+              <p>• Turno de Trabalho</p>
+              {reportType === 'absences' && <p>• Motivo da Ausência</p>}
+              <p>• Observações Gerais</p>
+              <p>• Supervisor Responsável</p>
+              <p>• Registrado Por</p>
+              <p>• Data do Registro</p>
             </div>
           </div>
 

@@ -11,6 +11,8 @@ import { AbsenceForm } from './AbsenceForm';
 import { ReportsPanel } from './ReportsPanel';
 import { EmployeeManagement } from './EmployeeManagement';
 import { CondominiumManagement } from './CondominiumManagement';
+import { WorkedLeavesTab } from './WorkedLeavesTab';
+import { AbsencesTab } from './AbsencesTab';
 
 interface DashboardProps {
   onLogout: () => void;
@@ -199,7 +201,7 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:grid-cols-4">
+          <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:grid-cols-6">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <Building2 className="h-4 w-4" />
               <span className="hidden sm:inline">Dashboard</span>
@@ -211,6 +213,14 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
             <TabsTrigger value="condominiums" className="flex items-center gap-2">
               <Building2 className="h-4 w-4" />
               <span className="hidden sm:inline">Condomínios</span>
+            </TabsTrigger>
+            <TabsTrigger value="worked-leaves" className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              <span className="hidden sm:inline">FT</span>
+            </TabsTrigger>
+            <TabsTrigger value="absences" className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              <span className="hidden sm:inline">Faltas</span>
             </TabsTrigger>
             <TabsTrigger value="reports" className="flex items-center gap-2">
               <Download className="h-4 w-4" />
@@ -343,6 +353,14 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
 
           <TabsContent value="condominiums">
             <CondominiumManagement />
+          </TabsContent>
+
+          <TabsContent value="worked-leaves">
+            <WorkedLeavesTab />
+          </TabsContent>
+
+          <TabsContent value="absences">
+            <AbsencesTab />
           </TabsContent>
 
           <TabsContent value="reports">
