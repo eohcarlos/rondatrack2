@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,8 +18,29 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
   const [format, setFormat] = useState<'xlsx' | 'csv'>('xlsx');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
+  const [employees, setEmployees] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    loadEmployees();
+  }, []);
+
+  const loadEmployees = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('employees')
+        .select('id, first_name, last_name')
+        .eq('active', true)
+        .order('first_name');
+
+      if (error) throw error;
+      setEmployees(data || []);
+    } catch (error) {
+      console.error('Erro ao carregar funcionários:', error);
+    }
+  };
 
   const handleExport = async () => {
     if (!startDate || !endDate) {
@@ -39,14 +60,17 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
       let headers;
 
       if (reportType === 'ft') {
-        const { data: ftData, error } = await supabase
+        let query = supabase
           .from('worked_leaves')
           .select(`
             date,
             observations,
+            amount,
+            work_shift,
             created_at,
             employees (
-              name,
+              first_name,
+              last_name,
               positions (title),
               condominiums (name),
               shift
@@ -55,28 +79,34 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
             created_by_profile:profiles!created_by (name)
           `)
           .gte('date', startDate)
-          .lte('date', endDate)
-          .order('date', { ascending: false });
+          .lte('date', endDate);
+
+        if (selectedEmployeeId) {
+          query = query.eq('employee_id', selectedEmployeeId);
+        }
+
+        const { data: ftData, error } = await query.order('date', { ascending: false });
 
         if (error) throw error;
 
         data = ftData?.map(item => ({
           'Data da Folga Trabalhada': new Date(item.date).toLocaleDateString('pt-BR'),
-          'Nome Completo do Funcionário': item.employees?.name || '',
+          'Nome Completo do Funcionário': `${item.employees?.first_name || ''} ${item.employees?.last_name || ''}`,
           'Cargo / Função': item.employees?.positions?.title || '',
           'Condomínio Atual': item.employees?.condominiums?.name || '',
           'Turno de Trabalho': getShiftLabel(item.employees?.shift || ''),
+          'Valor': item.amount ? `R$ ${Number(item.amount).toFixed(2)}` : 'Não informado',
           'Supervisor Responsável': item.supervisor_profile?.name || '',
           'Observações Gerais': item.observations || 'Sem observações',
           'Registrado Por': item.created_by_profile?.name || '',
           'Data do Registro': new Date(item.created_at).toLocaleDateString('pt-BR')
         }));
 
-        filename = `folgas_trabalhadas_${startDate}_${endDate}`;
-        headers = ['Data da Folga Trabalhada', 'Nome Completo do Funcionário', 'Cargo / Função', 'Condomínio Atual', 'Turno de Trabalho', 'Supervisor Responsável', 'Observações Gerais', 'Registrado Por', 'Data do Registro'];
+        filename = `folgas_trabalhadas_${startDate}_${endDate}${selectedEmployeeId ? '_funcionario_especifico' : ''}`;
+        headers = ['Data da Folga Trabalhada', 'Nome Completo do Funcionário', 'Cargo / Função', 'Condomínio Atual', 'Turno de Trabalho', 'Valor', 'Supervisor Responsável', 'Observações Gerais', 'Registrado Por', 'Data do Registro'];
 
       } else {
-        const { data: absenceData, error } = await supabase
+        let query = supabase
           .from('absences')
           .select(`
             date,
@@ -84,7 +114,8 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
             observations,
             created_at,
             employees (
-              name,
+              first_name,
+              last_name,
               positions (title),
               condominiums (name),
               shift
@@ -93,14 +124,19 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
             created_by_profile:profiles!created_by (name)
           `)
           .gte('date', startDate)
-          .lte('date', endDate)
-          .order('date', { ascending: false });
+          .lte('date', endDate);
+
+        if (selectedEmployeeId) {
+          query = query.eq('employee_id', selectedEmployeeId);
+        }
+
+        const { data: absenceData, error } = await query.order('date', { ascending: false });
 
         if (error) throw error;
 
         data = absenceData?.map(item => ({
           'Data da Falta': new Date(item.date).toLocaleDateString('pt-BR'),
-          'Nome Completo do Funcionário': item.employees?.name || '',
+          'Nome Completo do Funcionário': `${item.employees?.first_name || ''} ${item.employees?.last_name || ''}`,
           'Cargo / Função': item.employees?.positions?.title || '',
           'Condomínio Atual': item.employees?.condominiums?.name || '',
           'Turno de Trabalho': getShiftLabel(item.employees?.shift || ''),
@@ -111,7 +147,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
           'Data do Registro': new Date(item.created_at).toLocaleDateString('pt-BR')
         }));
 
-        filename = `faltas_${startDate}_${endDate}`;
+        filename = `faltas_${startDate}_${endDate}${selectedEmployeeId ? '_funcionario_especifico' : ''}`;
         headers = ['Data da Falta', 'Nome Completo do Funcionário', 'Cargo / Função', 'Condomínio Atual', 'Turno de Trabalho', 'Motivo da Ausência', 'Observações Gerais', 'Supervisor Responsável', 'Registrado Por', 'Data do Registro'];
       }
 
@@ -249,6 +285,26 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
                 </CardContent>
               </Card>
             </div>
+          </div>
+
+          <Separator />
+
+          {/* Filtro por Funcionário */}
+          <div className="space-y-4">
+            <Label className="text-base font-medium">Filtro por Funcionário (Opcional)</Label>
+            <Select onValueChange={setSelectedEmployeeId} value={selectedEmployeeId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Todos os funcionários" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Todos os funcionários</SelectItem>
+                {employees.map(employee => (
+                  <SelectItem key={employee.id} value={employee.id}>
+                    {employee.first_name} {employee.last_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <Separator />

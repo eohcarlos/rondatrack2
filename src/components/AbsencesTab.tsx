@@ -3,9 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, AlertTriangle, User, MapPin } from 'lucide-react';
+import { Search, AlertTriangle, User, MapPin, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { EmployeeDetailsModal } from './EmployeeDetailsModal';
 
 interface Absence {
   id: string;
@@ -14,6 +16,7 @@ interface Absence {
   observations: string | null;
   created_at: string;
   employees: {
+    id: string;
     first_name: string;
     last_name: string;
     positions: { title: string };
@@ -29,6 +32,8 @@ export const AbsencesTab = () => {
   const [absences, setAbsences] = useState<Absence[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
+  const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -64,6 +69,7 @@ export const AbsencesTab = () => {
         .select(`
           *,
           employees!inner(
+            id,
             first_name,
             last_name,
             shift,
@@ -193,6 +199,7 @@ export const AbsencesTab = () => {
                   <TableHead>Motivo</TableHead>
                   <TableHead>Supervisor</TableHead>
                   <TableHead>Observações</TableHead>
+                  <TableHead>Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -228,6 +235,19 @@ export const AbsencesTab = () => {
                         {item.observations || 'Sem observações'}
                       </div>
                     </TableCell>
+                    <TableCell>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedEmployeeId(item.employees.id);
+                          setShowEmployeeModal(true);
+                        }}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        Ver Detalhes
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -241,6 +261,15 @@ export const AbsencesTab = () => {
           )}
         </CardContent>
       </Card>
+
+      <EmployeeDetailsModal
+        employeeId={selectedEmployeeId}
+        isOpen={showEmployeeModal}
+        onClose={() => {
+          setShowEmployeeModal(false);
+          setSelectedEmployeeId(null);
+        }}
+      />
     </div>
   );
 };

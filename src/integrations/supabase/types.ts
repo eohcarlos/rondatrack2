@@ -96,6 +96,47 @@ export type Database = {
         }
         Relationships: []
       }
+      employee_details: {
+        Row: {
+          age: number | null
+          company_time_months: number | null
+          created_at: string | null
+          driver_license: string | null
+          employee_id: string | null
+          id: string
+          phone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          age?: number | null
+          company_time_months?: number | null
+          created_at?: string | null
+          driver_license?: string | null
+          employee_id?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          age?: number | null
+          company_time_months?: number | null
+          created_at?: string | null
+          driver_license?: string | null
+          employee_id?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_details_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: true
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employees: {
         Row: {
           active: boolean | null
@@ -188,6 +229,9 @@ export type Database = {
       }
       profiles: {
         Row: {
+          approved: boolean | null
+          approved_at: string | null
+          approved_by: string | null
           created_at: string | null
           email: string | null
           first_name: string
@@ -199,6 +243,9 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          approved?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string | null
           email?: string | null
           first_name: string
@@ -210,6 +257,9 @@ export type Database = {
           user_id: string
         }
         Update: {
+          approved?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string | null
           email?: string | null
           first_name?: string
@@ -220,7 +270,15 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       worked_leaves: {
         Row: {

@@ -3,16 +3,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Calendar, User, MapPin } from 'lucide-react';
+import { Search, Calendar, User, MapPin, Eye, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { EmployeeDetailsModal } from './EmployeeDetailsModal';
 
 interface WorkedLeave {
   id: string;
   date: string;
   observations: string | null;
+  amount: number | null;
+  work_shift: string | null;
   created_at: string;
+  employee_id: string;
   employees: {
+    id: string;
     first_name: string;
     last_name: string;
     positions: { title: string };
@@ -28,6 +34,8 @@ export const WorkedLeavesTab = () => {
   const [workedLeaves, setWorkedLeaves] = useState<WorkedLeave[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
+  const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -63,6 +71,7 @@ export const WorkedLeavesTab = () => {
         .select(`
           *,
           employees!inner(
+            id,
             first_name,
             last_name,
             shift,
@@ -164,8 +173,10 @@ export const WorkedLeavesTab = () => {
                   <TableHead>Condomínio</TableHead>
                   <TableHead>Turno</TableHead>
                   <TableHead>Data da Folga</TableHead>
+                  <TableHead>Valor</TableHead>
                   <TableHead>Supervisor</TableHead>
                   <TableHead>Observações</TableHead>
+                  <TableHead>Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -190,11 +201,36 @@ export const WorkedLeavesTab = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>{formatDate(item.date)}</TableCell>
+                    <TableCell>
+                      {item.amount ? (
+                        <div className="flex items-center gap-1">
+                          <DollarSign className="h-4 w-4 text-green-600" />
+                          <span className="font-medium text-green-700">
+                            R$ {Number(item.amount).toFixed(2)}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">Não informado</span>
+                      )}
+                    </TableCell>
                     <TableCell>{item.supervisor?.name || 'N/A'}</TableCell>
                     <TableCell>
                       <div className="max-w-xs truncate" title={item.observations || ''}>
                         {item.observations || 'Sem observações'}
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedEmployeeId(item.employees.id);
+                          setShowEmployeeModal(true);
+                        }}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        Ver Detalhes
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -209,6 +245,15 @@ export const WorkedLeavesTab = () => {
           )}
         </CardContent>
       </Card>
+
+      <EmployeeDetailsModal
+        employeeId={selectedEmployeeId}
+        isOpen={showEmployeeModal}
+        onClose={() => {
+          setShowEmployeeModal(false);
+          setSelectedEmployeeId(null);
+        }}
+      />
     </div>
   );
 };

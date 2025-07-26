@@ -13,6 +13,7 @@ import { EmployeeManagement } from './EmployeeManagement';
 import { CondominiumManagement } from './CondominiumManagement';
 import { WorkedLeavesTab } from './WorkedLeavesTab';
 import { AbsencesTab } from './AbsencesTab';
+import { ApprovalTab } from './ApprovalTab';
 
 interface DashboardProps {
   onLogout: () => void;
@@ -208,7 +209,7 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:grid-cols-7">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <Building2 className="h-4 w-4" />
               <span className="hidden sm:inline">Dashboard</span>
@@ -228,6 +229,10 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
             <TabsTrigger value="absences" className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
               <span className="hidden sm:inline">Faltas</span>
+            </TabsTrigger>
+            <TabsTrigger value="approval" className="flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              <span className="hidden sm:inline">Aprovações</span>
             </TabsTrigger>
             <TabsTrigger value="reports" className="flex items-center gap-2">
               <Download className="h-4 w-4" />
@@ -379,6 +384,10 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
 
           <TabsContent value="absences">
             <AbsencesTab />
+          </TabsContent>
+
+          <TabsContent value="approval">
+            <ApprovalTab />
           </TabsContent>
 
           <TabsContent value="reports">
