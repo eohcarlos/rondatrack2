@@ -73,11 +73,11 @@ export const Home = () => {
       <header className="bg-white/80 backdrop-blur-md shadow-lg border-b sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 flex items-center justify-center">
               <img 
                 src="/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png" 
                 alt="RondaTrack Logo" 
-                className="w-8 h-8 object-contain"
+                className="w-10 h-10 object-contain"
                 onError={(e) => {
                   const img = e.currentTarget as HTMLImageElement;
                   img.style.display = 'none';
@@ -85,7 +85,7 @@ export const Home = () => {
                   if (icon) icon.style.display = 'flex';
                 }}
               />
-              <Shield className="h-6 w-6 text-white hidden" />
+              <Shield className="h-6 w-6 text-primary hidden" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-foreground">

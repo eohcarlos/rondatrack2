@@ -39,6 +39,7 @@ export const EmployeeManagement = () => {
   const [condominiums, setCondominiums] = useState<Condominium[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [condominiumFilter, setCondominiumFilter] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [formData, setFormData] = useState({
@@ -46,7 +47,11 @@ export const EmployeeManagement = () => {
     lastName: '',
     positionId: '',
     condominiumId: '',
-    shift: ''
+    shift: '',
+    phone: '',
+    age: '',
+    companyTimeMonths: '',
+    driverLicense: 'Nenhuma'
   });
   const { toast } = useToast();
 
@@ -148,6 +153,10 @@ export const EmployeeManagement = () => {
         position_id: formData.positionId,
         condominium_id: formData.condominiumId,
         shift: formData.shift as 'manha' | 'tarde' | 'noite' | 'madrugada',
+        phone: formData.phone,
+        age: formData.age ? parseInt(formData.age) : null,
+        company_time_months: formData.companyTimeMonths ? parseInt(formData.companyTimeMonths) : null,
+        driver_license: formData.driverLicense,
         active: true
       };
 
@@ -197,7 +206,11 @@ export const EmployeeManagement = () => {
       lastName: employee.last_name,
       positionId: employee.position_id,
       condominiumId: employee.condominium_id,
-      shift: employee.shift
+      shift: employee.shift,
+      phone: (employee as any).phone || '',
+      age: (employee as any).age ? String((employee as any).age) : '',
+      companyTimeMonths: (employee as any).company_time_months ? String((employee as any).company_time_months) : '',
+      driverLicense: (employee as any).driver_license || 'Nenhuma'
     });
     setShowAddForm(true);
   };
@@ -232,7 +245,11 @@ export const EmployeeManagement = () => {
       lastName: '',
       positionId: '',
       condominiumId: '',
-      shift: ''
+      shift: '',
+      phone: '',
+      age: '',
+      companyTimeMonths: '',
+      driverLicense: 'Nenhuma'
     });
   };
 
@@ -261,7 +278,8 @@ export const EmployeeManagement = () => {
     (employee.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
      employee.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
      employee.positions?.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     employee.condominiums?.name.toLowerCase().includes(searchTerm.toLowerCase()))
+     employee.condominiums?.name.toLowerCase().includes(searchTerm.toLowerCase())) &&
+    (condominiumFilter === '' || employee.condominium_id === condominiumFilter)
   );
 
   return (
@@ -364,6 +382,55 @@ export const EmployeeManagement = () => {
                 </Select>
               </div>
 
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Telefone</Label>
+                  <Input
+                    id="phone"
+                    value={formData.phone}
+                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                    placeholder="(11) 99999-9999"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="age">Idade</Label>
+                  <Input
+                    id="age"
+                    type="number"
+                    value={formData.age}
+                    onChange={(e) => setFormData(prev => ({ ...prev, age: e.target.value }))}
+                    placeholder="25"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="companyTime">Tempo de Empresa (meses)</Label>
+                  <Input
+                    id="companyTime"
+                    type="number"
+                    value={formData.companyTimeMonths}
+                    onChange={(e) => setFormData(prev => ({ ...prev, companyTimeMonths: e.target.value }))}
+                    placeholder="12"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="driverLicense">Habilitação</Label>
+                  <Select value={formData.driverLicense} onValueChange={(value) => setFormData(prev => ({ ...prev, driverLicense: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a habilitação" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Nenhuma">Nenhuma</SelectItem>
+                      <SelectItem value="A">Habilitado A (Moto)</SelectItem>
+                      <SelectItem value="B">Habilitado B (Carro)</SelectItem>
+                      <SelectItem value="AB">Habilitado A + B</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
               <div className="flex gap-2 pt-4">
                 <Button type="submit" disabled={loading} className="flex-1">
                   {loading ? 'Salvando...' : (editingEmployee ? 'Atualizar' : 'Cadastrar')}
@@ -377,14 +444,29 @@ export const EmployeeManagement = () => {
         </Dialog>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <Search className="h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Buscar funcionários..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
-        />
+      <div className="flex items-center space-x-2 flex-wrap gap-2">
+        <div className="flex items-center space-x-2">
+          <Search className="h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar funcionários..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="max-w-sm"
+          />
+        </div>
+        <Select value={condominiumFilter} onValueChange={setCondominiumFilter}>
+          <SelectTrigger className="max-w-sm">
+            <SelectValue placeholder="Filtrar por condomínio" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">Todos os condomínios</SelectItem>
+            {condominiums.map(condominium => (
+              <SelectItem key={condominium.id} value={condominium.id}>
+                {condominium.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <Card>

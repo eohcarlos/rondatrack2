@@ -34,6 +34,8 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
   const [date, setDate] = useState('');
   const [supervisorId, setSupervisorId] = useState('');
   const [observations, setObservations] = useState('');
+  const [amount, setAmount] = useState('');
+  const [workShift, setWorkShift] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -108,6 +110,8 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
           date,
           supervisor_id: supervisorId,
           observations,
+          amount: amount ? parseFloat(amount) : null,
+          work_shift: workShift,
           created_by: profile.id,
         });
 
@@ -207,6 +211,31 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
                       {supervisor.name}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="amount">Valor (R$)</Label>
+              <Input
+                id="amount"
+                type="number"
+                step="0.01"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0,00"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="workShift">Turno de Trabalho *</Label>
+              <Select value={workShift} onValueChange={setWorkShift} required>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o turno" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="diurno">Diurno (06:00 - 18:00)</SelectItem>
+                  <SelectItem value="noturno">Noturno (18:00 - 06:00)</SelectItem>
                 </SelectContent>
               </Select>
             </div>

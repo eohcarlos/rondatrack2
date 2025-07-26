@@ -31,12 +31,13 @@ interface Stats {
   totalEmployees: number;
   monthlyWorkedLeaves: number;
   monthlyAbsences: number;
+  totalAbsences: number;
   totalCondominiums: number;
 }
 
 export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [stats, setStats] = useState<Stats>({ totalEmployees: 0, monthlyWorkedLeaves: 0, monthlyAbsences: 0, totalCondominiums: 0 });
+  const [stats, setStats] = useState<Stats>({ totalEmployees: 0, monthlyWorkedLeaves: 0, monthlyAbsences: 0, totalAbsences: 0, totalCondominiums: 0 });
   const [activeForm, setActiveForm] = useState<'ft' | 'absence' | 'reports' | null>(null);
   const [activeTab, setActiveTab] = useState('dashboard');
   const { toast } = useToast();
@@ -107,6 +108,11 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
         .gte('date', `${currentMonth}-01`)
         .lt('date', `${currentMonth}-32`);
 
+      // Total de faltas
+      const { count: totalAbsencesCount } = await supabase
+        .from('absences')
+        .select('*', { count: 'exact', head: true });
+
       // Total de condomínios
       const { count: condominiumsCount } = await supabase
         .from('condominiums')
@@ -116,6 +122,7 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
         totalEmployees: employeesCount || 0,
         monthlyWorkedLeaves: ftCount || 0,
         monthlyAbsences: absencesCount || 0,
+        totalAbsences: totalAbsencesCount || 0,
         totalCondominiums: condominiumsCount || 0,
       });
     } catch (error: any) {
@@ -154,11 +161,11 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
       <header className="bg-white shadow-lg border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="w-10 h-10 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 flex items-center justify-center">
               <img 
                 src="/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png" 
                 alt="RondaTrack Logo" 
-                className="w-6 h-6 object-contain"
+                className="w-8 h-8 object-contain"
                 onError={(e) => {
                   const img = e.currentTarget as HTMLImageElement;
                   img.style.display = 'none';
@@ -166,7 +173,7 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
                   if (icon) icon.style.display = 'flex';
                 }}
               />
-              <Shield className="h-6 w-6 text-white hidden" />
+              <Shield className="h-6 w-6 text-primary hidden" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-foreground">
@@ -230,7 +237,7 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
 
           <TabsContent value="dashboard" className="space-y-8">
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
               <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Funcionários Ativos</CardTitle>
@@ -261,6 +268,17 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
                 <CardContent>
                   <div className="text-2xl font-bold text-destructive">{stats.monthlyAbsences}</div>
                   <p className="text-xs text-muted-foreground">Faltas registradas no mês atual</p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total de Faltas</CardTitle>
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-destructive">{stats.totalAbsences}</div>
+                  <p className="text-xs text-muted-foreground">Todas as faltas registradas</p>
                 </CardContent>
               </Card>
 

@@ -99,36 +99,48 @@ export type Database = {
       employees: {
         Row: {
           active: boolean | null
+          age: number | null
+          company_time_months: number | null
           condominium_id: string
           created_at: string | null
+          driver_license: string | null
           first_name: string
           id: string
           last_name: string | null
           name: string
+          phone: string | null
           position_id: string
           shift: Database["public"]["Enums"]["shift_type"]
           updated_at: string | null
         }
         Insert: {
           active?: boolean | null
+          age?: number | null
+          company_time_months?: number | null
           condominium_id: string
           created_at?: string | null
+          driver_license?: string | null
           first_name: string
           id?: string
           last_name?: string | null
           name: string
+          phone?: string | null
           position_id: string
           shift: Database["public"]["Enums"]["shift_type"]
           updated_at?: string | null
         }
         Update: {
           active?: boolean | null
+          age?: number | null
+          company_time_months?: number | null
           condominium_id?: string
           created_at?: string | null
+          driver_license?: string | null
           first_name?: string
           id?: string
           last_name?: string | null
           name?: string
+          phone?: string | null
           position_id?: string
           shift?: Database["public"]["Enums"]["shift_type"]
           updated_at?: string | null
@@ -212,6 +224,7 @@ export type Database = {
       }
       worked_leaves: {
         Row: {
+          amount: number | null
           created_at: string | null
           created_by: string
           date: string
@@ -220,8 +233,10 @@ export type Database = {
           observations: string | null
           supervisor_id: string
           updated_at: string | null
+          work_shift: string | null
         }
         Insert: {
+          amount?: number | null
           created_at?: string | null
           created_by: string
           date: string
@@ -230,8 +245,10 @@ export type Database = {
           observations?: string | null
           supervisor_id: string
           updated_at?: string | null
+          work_shift?: string | null
         }
         Update: {
+          amount?: number | null
           created_at?: string | null
           created_by?: string
           date?: string
@@ -240,6 +257,7 @@ export type Database = {
           observations?: string | null
           supervisor_id?: string
           updated_at?: string | null
+          work_shift?: string | null
         }
         Relationships: [
           {
