@@ -39,7 +39,7 @@ export const EmployeeManagement = () => {
   const [condominiums, setCondominiums] = useState<Condominium[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [condominiumFilter, setCondominiumFilter] = useState('');
+  const [condominiumFilter, setCondominiumFilter] = useState('all');
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [formData, setFormData] = useState({
@@ -279,7 +279,7 @@ export const EmployeeManagement = () => {
      employee.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
      employee.positions?.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
      employee.condominiums?.name.toLowerCase().includes(searchTerm.toLowerCase())) &&
-    (condominiumFilter === '' || employee.condominium_id === condominiumFilter)
+    (condominiumFilter === 'all' || condominiumFilter === '' || employee.condominium_id === condominiumFilter)
   );
 
   return (
@@ -459,7 +459,7 @@ export const EmployeeManagement = () => {
             <SelectValue placeholder="Filtrar por condomínio" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todos os condomínios</SelectItem>
+            <SelectItem value="all">Todos os condomínios</SelectItem>
             {condominiums.map(condominium => (
               <SelectItem key={condominium.id} value={condominium.id}>
                 {condominium.name}
