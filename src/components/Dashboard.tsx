@@ -210,40 +210,42 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 mb-8">
-            <TabsTrigger value="dashboard" className="flex items-center gap-2 p-3">
-              <Building2 className="h-4 w-4" />
-              <span className="hidden sm:inline">Dashboard</span>
-            </TabsTrigger>
-            <TabsTrigger value="employees" className="flex items-center gap-2 p-3">
-              <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">Funcionários</span>
-            </TabsTrigger>
-            <TabsTrigger value="condominiums" className="flex items-center gap-2 p-3">
-              <Building2 className="h-4 w-4" />
-              <span className="hidden sm:inline">Condomínios</span>
-            </TabsTrigger>
-            <TabsTrigger value="worked-leaves" className="flex items-center gap-2 p-3">
-              <Clock className="h-4 w-4" />
-              <span className="hidden sm:inline">FT</span>
-            </TabsTrigger>
-            <TabsTrigger value="absences" className="flex items-center gap-2 p-3">
-              <Calendar className="h-4 w-4" />
-              <span className="hidden sm:inline">Faltas</span>
-            </TabsTrigger>
-            <TabsTrigger value="approval" className="flex items-center gap-2 p-3">
-              <Shield className="h-4 w-4" />
-              <span className="hidden sm:inline">Aprovações</span>
-            </TabsTrigger>
-            <TabsTrigger value="reports" className="flex items-center gap-2 p-3">
-              <Download className="h-4 w-4" />
-              <span className="hidden sm:inline">Relatórios</span>
-            </TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto mb-8">
+            <TabsList className="grid grid-cols-7 min-w-fit w-full gap-1 p-1 bg-muted">
+              <TabsTrigger value="dashboard" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">
+                <Building2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span>Dashboard</span>
+              </TabsTrigger>
+              <TabsTrigger value="employees" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">
+                <Users className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span>Funcionários</span>
+              </TabsTrigger>
+              <TabsTrigger value="condominiums" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">
+                <Building2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span>Condomínios</span>
+              </TabsTrigger>
+              <TabsTrigger value="worked-leaves" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">
+                <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span>FT</span>
+              </TabsTrigger>
+              <TabsTrigger value="absences" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">
+                <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span>Faltas</span>
+              </TabsTrigger>
+              <TabsTrigger value="approval" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">
+                <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span>Aprovações</span>
+              </TabsTrigger>
+              <TabsTrigger value="reports" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">
+                <Download className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span>Relatórios</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="dashboard" className="space-y-8">
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 lg:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
               <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-blue-900">Funcionários Ativos</CardTitle>
@@ -254,32 +256,6 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
                 <CardContent>
                   <div className="text-3xl font-bold text-blue-700">{stats.totalEmployees}</div>
                   <p className="text-xs text-blue-600">Total de funcionários cadastrados</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-green-900">FTs do Mês</CardTitle>
-                  <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
-                    <Clock className="h-4 w-4 text-white" />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-green-700">{stats.monthlyWorkedLeaves}</div>
-                  <p className="text-xs text-green-600">Folgas trabalhadas no mês atual</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-red-900">Faltas do Mês</CardTitle>
-                  <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
-                    <Calendar className="h-4 w-4 text-white" />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-red-700">{stats.monthlyAbsences}</div>
-                  <p className="text-xs text-red-600">Faltas registradas no mês atual</p>
                 </CardContent>
               </Card>
 
@@ -311,7 +287,7 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
             </div>
 
             {/* Action Buttons */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
               <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group" onClick={() => setActiveForm('ft')}>
                 <CardHeader>
                   <div className="flex items-center space-x-4">
