@@ -14,6 +14,7 @@ import { CondominiumManagement } from './CondominiumManagement';
 import { WorkedLeavesTab } from './WorkedLeavesTab';
 import { AbsencesTab } from './AbsencesTab';
 import { ApprovalTab } from './ApprovalTab';
+import { PWAInstallPrompt } from './PWAInstallPrompt';
 
 interface DashboardProps {
   onLogout: () => void;
@@ -405,6 +406,8 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
           </TabsContent>
         </Tabs>
       </div>
+      
+      <PWAInstallPrompt />
     </div>
   );
 };
