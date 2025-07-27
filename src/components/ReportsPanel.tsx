@@ -81,7 +81,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
           .gte('date', startDate)
           .lte('date', endDate);
 
-        if (selectedEmployeeId) {
+        if (selectedEmployeeId && selectedEmployeeId !== 'all') {
           query = query.eq('employee_id', selectedEmployeeId);
         }
 
@@ -126,7 +126,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
           .gte('date', startDate)
           .lte('date', endDate);
 
-        if (selectedEmployeeId) {
+        if (selectedEmployeeId && selectedEmployeeId !== 'all') {
           query = query.eq('employee_id', selectedEmployeeId);
         }
 
@@ -297,7 +297,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
                 <SelectValue placeholder="Todos os funcionários" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os funcionários</SelectItem>
+                <SelectItem value="all">Todos os funcionários</SelectItem>
                 {employees.map(employee => (
                   <SelectItem key={employee.id} value={employee.id}>
                     {employee.first_name} {employee.last_name}
