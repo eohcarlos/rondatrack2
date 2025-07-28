@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { X, Download, FileText, Clock, Calendar } from 'lucide-react';
+import { X, Download, FileText, Clock, Calendar, File } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface ReportsPanelProps {
   onClose: () => void;
@@ -15,9 +16,7 @@ interface ReportsPanelProps {
 
 export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
   const [reportType, setReportType] = useState<'ft' | 'absences'>('ft');
-  const [format, setFormat] = useState<'xlsx' | 'csv'>('xlsx');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [format, setFormat] = useState<'xlsx' | 'csv' | 'pdf'>('xlsx');
   const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
   const [employees, setEmployees] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,7 +30,13 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
     try {
       const { data, error } = await supabase
         .from('employees')
-        .select('id, first_name, last_name')
+        .select(`
+          id, 
+          first_name, 
+          last_name,
+          positions (title),
+          condominiums (name, address)
+        `)
         .eq('active', true)
         .order('first_name');
 
@@ -43,10 +48,10 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
   };
 
   const handleExport = async () => {
-    if (!startDate || !endDate) {
+    if (!selectedEmployeeId) {
       toast({
         title: "Erro",
-        description: "Por favor, selecione as datas de início e fim.",
+        description: "Por favor, selecione um funcionário.",
         variant: "destructive",
       });
       return;
@@ -59,8 +64,14 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
       let filename;
       let headers;
 
+      // Buscar informações do funcionário selecionado
+      const selectedEmployee = employees.find(emp => emp.id === selectedEmployeeId);
+      if (!selectedEmployee) {
+        throw new Error('Funcionário não encontrado');
+      }
+
       if (reportType === 'ft') {
-        let query = supabase
+        const { data: ftData, error } = await supabase
           .from('worked_leaves')
           .select(`
             date,
@@ -72,20 +83,14 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
               first_name,
               last_name,
               positions (title),
-              condominiums (name),
+              condominiums (name, address),
               shift
             ),
             supervisor_profile:profiles!supervisor_id (name),
             created_by_profile:profiles!created_by (name)
           `)
-          .gte('date', startDate)
-          .lte('date', endDate);
-
-        if (selectedEmployeeId && selectedEmployeeId !== 'all') {
-          query = query.eq('employee_id', selectedEmployeeId);
-        }
-
-        const { data: ftData, error } = await query.order('date', { ascending: false });
+          .eq('employee_id', selectedEmployeeId)
+          .order('date', { ascending: false });
 
         if (error) throw error;
 
@@ -93,7 +98,8 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
           'Data da Folga Trabalhada': new Date(item.date).toLocaleDateString('pt-BR'),
           'Nome Completo do Funcionário': `${item.employees?.first_name || ''} ${item.employees?.last_name || ''}`,
           'Cargo / Função': item.employees?.positions?.title || '',
-          'Condomínio Atual': item.employees?.condominiums?.name || '',
+          'Local de Trabalho': item.employees?.condominiums?.name || '',
+          'Endereço do Local': item.employees?.condominiums?.address || '',
           'Turno de Trabalho': getShiftLabel(item.employees?.shift || ''),
           'Valor': item.amount ? `R$ ${Number(item.amount).toFixed(2)}` : 'Não informado',
           'Supervisor Responsável': item.supervisor_profile?.name || '',
@@ -102,11 +108,11 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
           'Data do Registro': new Date(item.created_at).toLocaleDateString('pt-BR')
         }));
 
-        filename = `folgas_trabalhadas_${startDate}_${endDate}${selectedEmployeeId ? '_funcionario_especifico' : ''}`;
-        headers = ['Data da Folga Trabalhada', 'Nome Completo do Funcionário', 'Cargo / Função', 'Condomínio Atual', 'Turno de Trabalho', 'Valor', 'Supervisor Responsável', 'Observações Gerais', 'Registrado Por', 'Data do Registro'];
+        filename = `folgas_trabalhadas_${selectedEmployee.first_name}_${selectedEmployee.last_name}`;
+        headers = ['Data da Folga Trabalhada', 'Nome Completo do Funcionário', 'Cargo / Função', 'Local de Trabalho', 'Endereço do Local', 'Turno de Trabalho', 'Valor', 'Supervisor Responsável', 'Observações Gerais', 'Registrado Por', 'Data do Registro'];
 
       } else {
-        let query = supabase
+        const { data: absenceData, error } = await supabase
           .from('absences')
           .select(`
             date,
@@ -117,20 +123,14 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
               first_name,
               last_name,
               positions (title),
-              condominiums (name),
+              condominiums (name, address),
               shift
             ),
             supervisor_profile:profiles!supervisor_id (name),
             created_by_profile:profiles!created_by (name)
           `)
-          .gte('date', startDate)
-          .lte('date', endDate);
-
-        if (selectedEmployeeId && selectedEmployeeId !== 'all') {
-          query = query.eq('employee_id', selectedEmployeeId);
-        }
-
-        const { data: absenceData, error } = await query.order('date', { ascending: false });
+          .eq('employee_id', selectedEmployeeId)
+          .order('date', { ascending: false });
 
         if (error) throw error;
 
@@ -138,7 +138,8 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
           'Data da Falta': new Date(item.date).toLocaleDateString('pt-BR'),
           'Nome Completo do Funcionário': `${item.employees?.first_name || ''} ${item.employees?.last_name || ''}`,
           'Cargo / Função': item.employees?.positions?.title || '',
-          'Condomínio Atual': item.employees?.condominiums?.name || '',
+          'Local de Trabalho': item.employees?.condominiums?.name || '',
+          'Endereço do Local': item.employees?.condominiums?.address || '',
           'Turno de Trabalho': getShiftLabel(item.employees?.shift || ''),
           'Motivo da Ausência': getReasonLabel(item.reason),
           'Observações Gerais': item.observations || 'Sem observações',
@@ -147,20 +148,22 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
           'Data do Registro': new Date(item.created_at).toLocaleDateString('pt-BR')
         }));
 
-        filename = `faltas_${startDate}_${endDate}${selectedEmployeeId ? '_funcionario_especifico' : ''}`;
-        headers = ['Data da Falta', 'Nome Completo do Funcionário', 'Cargo / Função', 'Condomínio Atual', 'Turno de Trabalho', 'Motivo da Ausência', 'Observações Gerais', 'Supervisor Responsável', 'Registrado Por', 'Data do Registro'];
+        filename = `faltas_${selectedEmployee.first_name}_${selectedEmployee.last_name}`;
+        headers = ['Data da Falta', 'Nome Completo do Funcionário', 'Cargo / Função', 'Local de Trabalho', 'Endereço do Local', 'Turno de Trabalho', 'Motivo da Ausência', 'Observações Gerais', 'Supervisor Responsável', 'Registrado Por', 'Data do Registro'];
       }
 
       if (!data || data.length === 0) {
         toast({
           title: "Nenhum dado encontrado",
-          description: "Não há registros no período selecionado.",
+          description: "Não há registros para este funcionário.",
         });
         return;
       }
 
       if (format === 'csv') {
         downloadCSV(data, headers, filename);
+      } else if (format === 'pdf') {
+        downloadPDF(data, headers, filename, selectedEmployee);
       } else {
         downloadExcel(data, headers, filename);
       }
@@ -217,7 +220,6 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
   };
 
   const downloadExcel = (data: any[], headers: string[], filename: string) => {
-    // Simulação de export Excel (em produção, usar biblioteca como SheetJS)
     const csvContent = [
       headers.join('\t'),
       ...data.map(row => headers.map(header => row[header] || '').join('\t'))
@@ -230,6 +232,44 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
     link.click();
   };
 
+  const downloadPDF = (data: any[], headers: string[], filename: string, employee: any) => {
+    const doc = new jsPDF();
+    
+    // Título
+    doc.setFontSize(18);
+    doc.text(`Relatório de ${reportType === 'ft' ? 'Folgas Trabalhadas' : 'Faltas'}`, 20, 20);
+    
+    // Informações do funcionário
+    doc.setFontSize(12);
+    doc.text(`Funcionário: ${employee.first_name} ${employee.last_name}`, 20, 35);
+    doc.text(`Cargo: ${employee.positions?.title || 'Não informado'}`, 20, 45);
+    doc.text(`Local de Trabalho: ${employee.condominiums?.name || 'Não informado'}`, 20, 55);
+    doc.text(`Endereço: ${employee.condominiums?.address || 'Não informado'}`, 20, 65);
+    doc.text(`Data de Geração: ${new Date().toLocaleDateString('pt-BR')}`, 20, 75);
+
+    // Tabela
+    const tableData = data.map(row => headers.map(header => row[header] || ''));
+    
+    (doc as any).autoTable({
+      head: [headers],
+      body: tableData,
+      startY: 85,
+      styles: {
+        fontSize: 8,
+        cellPadding: 3,
+      },
+      headStyles: {
+        fillColor: [59, 130, 246],
+        textColor: [255, 255, 255],
+      },
+      alternateRowStyles: {
+        fillColor: [245, 247, 250],
+      },
+    });
+
+    doc.save(`${filename}.pdf`);
+  };
+
   return (
     <Card className="border-0 shadow-2xl">
       <CardHeader className="bg-gradient-to-r from-primary to-primary/80 text-white">
@@ -239,7 +279,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
             <div>
               <CardTitle className="text-xl">Exportar Relatórios</CardTitle>
               <CardDescription className="text-primary-foreground/90">
-                Gere relatórios em Excel ou CSV
+                Gere relatórios detalhados por funcionário
               </CardDescription>
             </div>
           </div>
@@ -289,18 +329,17 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
 
           <Separator />
 
-          {/* Filtro por Funcionário */}
+          {/* Seleção de Funcionário */}
           <div className="space-y-4">
-            <Label className="text-base font-medium">Filtro por Funcionário (Opcional)</Label>
+            <Label className="text-base font-medium">Selecionar Funcionário *</Label>
             <Select onValueChange={setSelectedEmployeeId} value={selectedEmployeeId}>
               <SelectTrigger>
-                <SelectValue placeholder="Todos os funcionários" />
+                <SelectValue placeholder="Escolha um funcionário" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos os funcionários</SelectItem>
                 {employees.map(employee => (
                   <SelectItem key={employee.id} value={employee.id}>
-                    {employee.first_name} {employee.last_name}
+                    {employee.first_name} {employee.last_name} - {employee.positions?.title || 'Sem cargo'}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -309,39 +348,10 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
 
           <Separator />
 
-          {/* Período */}
-          <div className="space-y-4">
-            <Label className="text-base font-medium">Período</Label>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="startDate">Data Inicial *</Label>
-                <Input
-                  id="startDate"
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="endDate">Data Final *</Label>
-                <Input
-                  id="endDate"
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
           {/* Formato */}
           <div className="space-y-4">
             <Label className="text-base font-medium">Formato de Exportação</Label>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <Card 
                 className={`cursor-pointer border-2 transition-colors ${
                   format === 'xlsx' 
@@ -352,8 +362,8 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
               >
                 <CardContent className="p-4 text-center">
                   <FileText className="h-8 w-8 mx-auto mb-2 text-primary" />
-                  <p className="font-medium">Excel (.xlsx)</p>
-                  <p className="text-sm text-muted-foreground">Planilha Excel</p>
+                  <p className="font-medium">Excel</p>
+                  <p className="text-sm text-muted-foreground">.xlsx</p>
                 </CardContent>
               </Card>
 
@@ -367,8 +377,23 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
               >
                 <CardContent className="p-4 text-center">
                   <FileText className="h-8 w-8 mx-auto mb-2 text-primary" />
-                  <p className="font-medium">CSV (.csv)</p>
-                  <p className="text-sm text-muted-foreground">Valores separados por vírgula</p>
+                  <p className="font-medium">CSV</p>
+                  <p className="text-sm text-muted-foreground">.csv</p>
+                </CardContent>
+              </Card>
+
+              <Card 
+                className={`cursor-pointer border-2 transition-colors ${
+                  format === 'pdf' 
+                    ? 'border-red-500 bg-red-50' 
+                    : 'border-border hover:border-red-300'
+                }`}
+                onClick={() => setFormat('pdf')}
+              >
+                <CardContent className="p-4 text-center">
+                  <File className="h-8 w-8 mx-auto mb-2 text-red-500" />
+                  <p className="font-medium">PDF</p>
+                  <p className="text-sm text-muted-foreground">.pdf</p>
                 </CardContent>
               </Card>
             </div>
@@ -383,9 +408,10 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
               <p>• {reportType === 'ft' ? 'Data da Folga Trabalhada' : 'Data da Falta'}</p>
               <p>• Nome Completo do Funcionário</p>
               <p>• Cargo / Função</p>
-              <p>• Condomínio Atual</p>
+              <p>• Local de Trabalho (Condomínio)</p>
+              <p>• Endereço do Local</p>
               <p>• Turno de Trabalho</p>
-              {reportType === 'absences' && <p>• Motivo da Ausência</p>}
+              {reportType === 'ft' ? <p>• Valor da FT</p> : <p>• Motivo da Ausência</p>}
               <p>• Observações Gerais</p>
               <p>• Supervisor Responsável</p>
               <p>• Registrado Por</p>

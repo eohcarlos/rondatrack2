@@ -61,7 +61,7 @@ export const RegisterForm = ({ onBack }: RegisterFormProps) => {
 
       toast({
         title: "Cadastro realizado com sucesso!",
-        description: "Verifique seu e-mail para confirmar a conta e fazer login.",
+        description: "Sua conta foi criada e aguarda aprovação do administrador. Verifique seu e-mail para confirmar.",
         variant: "default",
       });
 

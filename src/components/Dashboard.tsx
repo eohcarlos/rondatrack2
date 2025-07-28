@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, Home } from 'lucide-react';
+import { LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, Home, User, UserCheck, Activity } from 'lucide-react';
 import { WorkedLeaveForm } from './WorkedLeaveForm';
 import { AbsenceForm } from './AbsenceForm';
 import { ReportsPanel } from './ReportsPanel';
@@ -15,6 +15,9 @@ import { WorkedLeavesTab } from './WorkedLeavesTab';
 import { AbsencesTab } from './AbsencesTab';
 import { ApprovalTab } from './ApprovalTab';
 import { PWAInstallPrompt } from './PWAInstallPrompt';
+import { ProfileSettings } from './ProfileSettings';
+import { UserApprovalTab } from './UserApprovalTab';
+import { DailyPhrase } from './DailyPhrase';
 
 interface DashboardProps {
   onLogout: () => void;
@@ -26,6 +29,7 @@ interface Profile {
   name: string;
   first_name: string;
   last_name: string;
+  email: string;
   role: 'supervisor' | 'gestor' | 'gerente';
 }
 
@@ -35,12 +39,13 @@ interface Stats {
   monthlyAbsences: number;
   totalAbsences: number;
   totalCondominiums: number;
+  totalWorkedLeaves: number;
 }
 
 export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [stats, setStats] = useState<Stats>({ totalEmployees: 0, monthlyWorkedLeaves: 0, monthlyAbsences: 0, totalAbsences: 0, totalCondominiums: 0 });
-  const [activeForm, setActiveForm] = useState<'ft' | 'absence' | 'reports' | null>(null);
+  const [stats, setStats] = useState<Stats>({ totalEmployees: 0, monthlyWorkedLeaves: 0, monthlyAbsences: 0, totalAbsences: 0, totalCondominiums: 0, totalWorkedLeaves: 0 });
+  const [activeForm, setActiveForm] = useState<'ft' | 'absence' | 'reports' | 'profile' | null>(null);
   const [activeTab, setActiveTab] = useState('dashboard');
   const { toast } = useToast();
 
@@ -120,12 +125,18 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
         .from('condominiums')
         .select('*', { count: 'exact', head: true });
 
+      // Total de FTs (todas)
+      const { count: totalFtCount } = await supabase
+        .from('worked_leaves')
+        .select('*', { count: 'exact', head: true });
+
       setStats({
         totalEmployees: employeesCount || 0,
         monthlyWorkedLeaves: ftCount || 0,
         monthlyAbsences: absencesCount || 0,
         totalAbsences: totalAbsencesCount || 0,
         totalCondominiums: condominiumsCount || 0,
+        totalWorkedLeaves: totalFtCount || 0,
       });
     } catch (error: any) {
       toast({
@@ -196,6 +207,10 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
                 </Badge>
               </div>
             )}
+            <Button onClick={() => setActiveForm('profile')} variant="outline" size="sm">
+              <User className="h-4 w-4 mr-2" />
+              Perfil
+            </Button>
             <Button onClick={onGoHome} variant="outline" size="sm">
               <Home className="h-4 w-4 mr-2" />
               Home
@@ -211,7 +226,7 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="overflow-x-auto mb-8">
-            <TabsList className="grid grid-cols-7 min-w-fit w-full gap-1 p-1 bg-muted">
+            <TabsList className="grid grid-cols-8 min-w-fit w-full gap-1 p-1 bg-muted">
               <TabsTrigger value="dashboard" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">
                 <Building2 className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span>Dashboard</span>
@@ -236,6 +251,12 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
                 <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span>Aprovações</span>
               </TabsTrigger>
+              {profile?.email === 'eohcarlos.itu@gmail.com' && (
+                <TabsTrigger value="user-approval" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">
+                  <UserCheck className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span>Usuários</span>
+                </TabsTrigger>
+              )}
               <TabsTrigger value="reports" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">
                 <Download className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span>Relatórios</span>
@@ -244,6 +265,9 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
           </div>
 
           <TabsContent value="dashboard" className="space-y-8">
+            {/* Frase do Dia */}
+            <DailyPhrase />
+
             {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
               <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
@@ -282,6 +306,19 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
                 <CardContent>
                   <div className="text-3xl font-bold text-purple-700">{stats.totalCondominiums}</div>
                   <p className="text-xs text-purple-600">Total de condomínios cadastrados</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-green-900">Total de FTs</CardTitle>
+                  <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                    <Activity className="h-4 w-4 text-white" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-green-700">{stats.totalWorkedLeaves}</div>
+                  <p className="text-xs text-green-600">Todas as folgas trabalhadas</p>
                 </CardContent>
               </Card>
             </div>
@@ -355,6 +392,10 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
             {activeForm === 'reports' && (
               <ReportsPanel onClose={() => setActiveForm(null)} />
             )}
+
+            {activeForm === 'profile' && (
+              <ProfileSettings onClose={() => setActiveForm(null)} />
+            )}
           </TabsContent>
 
           <TabsContent value="employees">
@@ -376,6 +417,12 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
           <TabsContent value="approval">
             <ApprovalTab />
           </TabsContent>
+
+          {profile?.email === 'eohcarlos.itu@gmail.com' && (
+            <TabsContent value="user-approval">
+              <UserApprovalTab />
+            </TabsContent>
+          )}
 
           <TabsContent value="reports">
             <ReportsPanel onClose={() => setActiveTab('dashboard')} />

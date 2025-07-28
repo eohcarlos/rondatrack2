@@ -96,6 +96,30 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_phrases: {
+        Row: {
+          author: string | null
+          created_at: string
+          date: string
+          id: string
+          phrase: string
+        }
+        Insert: {
+          author?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          phrase: string
+        }
+        Update: {
+          author?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          phrase?: string
+        }
+        Relationships: []
+      }
       employee_details: {
         Row: {
           age: number | null
@@ -232,6 +256,7 @@ export type Database = {
           approved: boolean | null
           approved_at: string | null
           approved_by: string | null
+          avatar_url: string | null
           created_at: string | null
           email: string | null
           first_name: string
@@ -246,6 +271,7 @@ export type Database = {
           approved?: boolean | null
           approved_at?: string | null
           approved_by?: string | null
+          avatar_url?: string | null
           created_at?: string | null
           email?: string | null
           first_name: string
@@ -260,6 +286,7 @@ export type Database = {
           approved?: boolean | null
           approved_at?: string | null
           approved_by?: string | null
+          avatar_url?: string | null
           created_at?: string | null
           email?: string | null
           first_name?: string
