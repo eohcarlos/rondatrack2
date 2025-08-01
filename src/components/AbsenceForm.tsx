@@ -114,11 +114,15 @@ export const AbsenceForm = ({ onClose, onSuccess }: AbsenceFormProps) => {
 
       if (!profile) throw new Error('Perfil não encontrado');
 
+      // Corrigir problema da data - criar objeto Date no UTC
+      const dateObj = new Date(date + 'T00:00:00.000Z');
+      const utcDate = dateObj.toISOString().split('T')[0];
+
       const { error } = await supabase
         .from('absences')
         .insert({
           employee_id: selectedEmployee,
-          date,
+          date: utcDate,
           reason,
           supervisor_id: supervisorId,
           observations,

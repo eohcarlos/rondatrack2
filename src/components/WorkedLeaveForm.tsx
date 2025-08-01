@@ -103,11 +103,15 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
 
       if (!profile) throw new Error('Perfil não encontrado');
 
+      // Corrigir problema da data - criar objeto Date no UTC
+      const dateObj = new Date(date + 'T00:00:00.000Z');
+      const utcDate = dateObj.toISOString().split('T')[0];
+
       const { error } = await supabase
         .from('worked_leaves')
         .insert({
           employee_id: selectedEmployee,
-          date,
+          date: utcDate,
           supervisor_id: supervisorId,
           observations,
           amount: amount ? parseFloat(amount) : null,

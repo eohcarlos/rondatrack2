@@ -122,6 +122,9 @@ export const ProfileSettings = ({ onClose }: ProfileSettingsProps) => {
         if (!avatarUrl) return;
       }
 
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuário não encontrado');
+
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -130,7 +133,7 @@ export const ProfileSettings = ({ onClose }: ProfileSettingsProps) => {
           name: `${formData.first_name} ${formData.last_name}`,
           avatar_url: avatarUrl,
         })
-        .eq('user_id', profile.id);
+        .eq('user_id', user.id);
 
       if (error) throw error;
 

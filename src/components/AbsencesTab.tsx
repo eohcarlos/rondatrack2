@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { Search, AlertTriangle, User, MapPin, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -32,12 +33,16 @@ export const AbsencesTab = () => {
   const [absences, setAbsences] = useState<Absence[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCondominium, setSelectedCondominium] = useState('');
+  const [selectedEmployeeFilter, setSelectedEmployeeFilter] = useState('');
+  const [condominiums, setCondominiums] = useState<{id: string, name: string}[]>([]);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     loadAbsences();
+    loadCondominiums();
     setupRealtimeSubscription();
   }, []);
 
@@ -93,6 +98,24 @@ export const AbsencesTab = () => {
     }
   };
 
+  const loadCondominiums = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('condominiums')
+        .select('id, name')
+        .order('name');
+
+      if (error) throw error;
+      setCondominiums(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Erro ao carregar condomínios",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const getShiftLabel = (shift: string) => {
     const labels: { [key: string]: string } = {
       'manha': 'Manhã',
@@ -141,13 +164,21 @@ export const AbsencesTab = () => {
     return new Date(dateString).toLocaleDateString('pt-BR');
   };
 
-  const filteredAbsences = absences.filter(item =>
-    item.employees.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.employees.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.employees.positions?.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.employees.condominiums?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    getReasonLabel(item.reason).toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredAbsences = absences.filter(item => {
+    const matchesSearch = item.employees.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.employees.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.employees.positions?.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.employees.condominiums?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      getReasonLabel(item.reason).toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesCondominium = selectedCondominium === '' || 
+      item.employees.condominiums?.name === selectedCondominium;
+
+    const matchesEmployee = selectedEmployeeFilter === '' ||
+      `${item.employees.first_name} ${item.employees.last_name}` === selectedEmployeeFilter;
+
+    return matchesSearch && matchesCondominium && matchesEmployee;
+  });
 
   if (loading) {
     return (
@@ -169,14 +200,43 @@ export const AbsencesTab = () => {
         </div>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <Search className="h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Buscar por funcionário, cargo, condomínio ou motivo..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
-        />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="flex items-center space-x-2">
+          <Search className="h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por funcionário, cargo ou motivo..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        
+        <Select value={selectedCondominium} onValueChange={setSelectedCondominium}>
+          <SelectTrigger>
+            <SelectValue placeholder="Filtrar por condomínio" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">Todos os condomínios</SelectItem>
+            {condominiums.map((condo) => (
+              <SelectItem key={condo.id} value={condo.name}>
+                {condo.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={selectedEmployeeFilter} onValueChange={setSelectedEmployeeFilter}>
+          <SelectTrigger>
+            <SelectValue placeholder="Filtrar por funcionário" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">Todos os funcionários</SelectItem>
+            {[...new Set(absences.map(item => `${item.employees.first_name} ${item.employees.last_name}`))].map((name) => (
+              <SelectItem key={name} value={name}>
+                {name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <Card>
