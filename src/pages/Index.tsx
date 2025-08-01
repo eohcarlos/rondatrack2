@@ -34,7 +34,7 @@ const Index = () => {
   return isAuthenticated ? (
     <Dashboard 
       onLogout={() => setIsAuthenticated(false)} 
-      onGoHome={() => window.location.href = '/'}
+      onGoHome={() => {}}
     />
   ) : (
     <LoginForm onSuccess={() => setIsAuthenticated(true)} />

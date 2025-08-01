@@ -233,41 +233,46 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
   };
 
   const downloadPDF = (data: any[], headers: string[], filename: string, employee: any) => {
-    const doc = new jsPDF();
-    
-    // Título
-    doc.setFontSize(18);
-    doc.text(`Relatório de ${reportType === 'ft' ? 'Folgas Trabalhadas' : 'Faltas'}`, 20, 20);
-    
-    // Informações do funcionário
-    doc.setFontSize(12);
-    doc.text(`Funcionário: ${employee.first_name} ${employee.last_name}`, 20, 35);
-    doc.text(`Cargo: ${employee.positions?.title || 'Não informado'}`, 20, 45);
-    doc.text(`Local de Trabalho: ${employee.condominiums?.name || 'Não informado'}`, 20, 55);
-    doc.text(`Endereço: ${employee.condominiums?.address || 'Não informado'}`, 20, 65);
-    doc.text(`Data de Geração: ${new Date().toLocaleDateString('pt-BR')}`, 20, 75);
+    try {
+      const doc = new jsPDF();
+      
+      // Título
+      doc.setFontSize(18);
+      doc.text(`Relatório de ${reportType === 'ft' ? 'Folgas Trabalhadas' : 'Faltas'}`, 20, 20);
+      
+      // Informações do funcionário
+      doc.setFontSize(12);
+      doc.text(`Funcionário: ${employee.first_name} ${employee.last_name}`, 20, 35);
+      doc.text(`Cargo: ${employee.positions?.title || 'Não informado'}`, 20, 45);
+      doc.text(`Local de Trabalho: ${employee.condominiums?.name || 'Não informado'}`, 20, 55);
+      doc.text(`Endereço: ${employee.condominiums?.address || 'Não informado'}`, 20, 65);
+      doc.text(`Data de Geração: ${new Date().toLocaleDateString('pt-BR')}`, 20, 75);
 
-    // Tabela
-    const tableData = data.map(row => headers.map(header => row[header] || ''));
-    
-    (doc as any).autoTable({
-      head: [headers],
-      body: tableData,
-      startY: 85,
-      styles: {
-        fontSize: 8,
-        cellPadding: 3,
-      },
-      headStyles: {
-        fillColor: [59, 130, 246],
-        textColor: [255, 255, 255],
-      },
-      alternateRowStyles: {
-        fillColor: [245, 247, 250],
-      },
-    });
+      // Tabela
+      const tableData = data.map(row => headers.map(header => String(row[header] || '')));
+      
+      autoTable(doc, {
+        head: [headers],
+        body: tableData,
+        startY: 85,
+        styles: {
+          fontSize: 8,
+          cellPadding: 3,
+        },
+        headStyles: {
+          fillColor: [59, 130, 246],
+          textColor: [255, 255, 255],
+        },
+        alternateRowStyles: {
+          fillColor: [245, 247, 250],
+        },
+      });
 
-    doc.save(`${filename}.pdf`);
+      doc.save(`${filename}.pdf`);
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      throw new Error('Erro ao gerar arquivo PDF');
+    }
   };
 
   return (

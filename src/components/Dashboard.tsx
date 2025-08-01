@@ -225,43 +225,100 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="overflow-x-auto mb-8">
-            <TabsList className="grid grid-cols-8 min-w-fit w-full gap-1 p-1 bg-muted">
-              <TabsTrigger value="dashboard" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">
-                <Building2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span>Dashboard</span>
-              </TabsTrigger>
-              <TabsTrigger value="employees" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">
-                <Users className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span>Funcionários</span>
-              </TabsTrigger>
-              <TabsTrigger value="condominiums" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">
-                <Building2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span>Condomínios</span>
-              </TabsTrigger>
-              <TabsTrigger value="worked-leaves" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">
-                <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span>FT</span>
-              </TabsTrigger>
-              <TabsTrigger value="absences" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">
-                <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span>Faltas</span>
-              </TabsTrigger>
-              <TabsTrigger value="approval" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">
-                <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span>Aprovações</span>
-              </TabsTrigger>
-              {profile?.email === 'eohcarlos.itu@gmail.com' && (
-                <TabsTrigger value="user-approval" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">
-                  <UserCheck className="h-3 w-3 sm:h-4 sm:w-4" />
-                  <span>Usuários</span>
+          {/* Mobile Layout - Vertical Stack */}
+          <div className="block md:hidden mb-8">
+            <div className="flex flex-col space-y-2">
+              <TabsList className="grid grid-cols-2 gap-1 p-1 bg-muted">
+                <TabsTrigger value="dashboard" className="flex items-center gap-2 p-3 text-sm">
+                  <Building2 className="h-4 w-4" />
+                  <span>Dashboard</span>
                 </TabsTrigger>
-              )}
-              <TabsTrigger value="reports" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm whitespace-nowrap">
-                <Download className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span>Relatórios</span>
-              </TabsTrigger>
-            </TabsList>
+                <TabsTrigger value="employees" className="flex items-center gap-2 p-3 text-sm">
+                  <Users className="h-4 w-4" />
+                  <span>Funcionários</span>
+                </TabsTrigger>
+              </TabsList>
+              <TabsList className="grid grid-cols-2 gap-1 p-1 bg-muted">
+                <TabsTrigger value="condominiums" className="flex items-center gap-2 p-3 text-sm">
+                  <Building2 className="h-4 w-4" />
+                  <span>Condomínios</span>
+                </TabsTrigger>
+                <TabsTrigger value="worked-leaves" className="flex items-center gap-2 p-3 text-sm">
+                  <Clock className="h-4 w-4" />
+                  <span>FT</span>
+                </TabsTrigger>
+              </TabsList>
+              <TabsList className="grid grid-cols-2 gap-1 p-1 bg-muted">
+                <TabsTrigger value="absences" className="flex items-center gap-2 p-3 text-sm">
+                  <Calendar className="h-4 w-4" />
+                  <span>Faltas</span>
+                </TabsTrigger>
+                <TabsTrigger value="approval" className="flex items-center gap-2 p-3 text-sm">
+                  <Shield className="h-4 w-4" />
+                  <span>Aprovações</span>
+                </TabsTrigger>
+              </TabsList>
+              <TabsList className={`${profile?.email === 'eohcarlos.itu@gmail.com' ? 'grid-cols-2' : 'grid-cols-1'} grid gap-1 p-1 bg-muted`}>
+                {profile?.email === 'eohcarlos.itu@gmail.com' && (
+                  <TabsTrigger value="user-approval" className="flex items-center gap-2 p-3 text-sm">
+                    <UserCheck className="h-4 w-4" />
+                    <span>Usuários</span>
+                  </TabsTrigger>
+                )}
+                <TabsTrigger value="reports" className="flex items-center gap-2 p-3 text-sm">
+                  <Download className="h-4 w-4" />
+                  <span>Relatórios</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
+          </div>
+
+          {/* Desktop Layout - Grid */}
+          <div className="hidden md:block mb-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <TabsList className="flex flex-col h-auto p-1 bg-muted">
+                <TabsTrigger value="dashboard" className="w-full flex items-center gap-2 p-3 text-sm">
+                  <Building2 className="h-4 w-4" />
+                  <span>Dashboard</span>
+                </TabsTrigger>
+                <TabsTrigger value="employees" className="w-full flex items-center gap-2 p-3 text-sm">
+                  <Users className="h-4 w-4" />
+                  <span>Funcionários</span>
+                </TabsTrigger>
+              </TabsList>
+              <TabsList className="flex flex-col h-auto p-1 bg-muted">
+                <TabsTrigger value="condominiums" className="w-full flex items-center gap-2 p-3 text-sm">
+                  <Building2 className="h-4 w-4" />
+                  <span>Condomínios</span>
+                </TabsTrigger>
+                <TabsTrigger value="worked-leaves" className="w-full flex items-center gap-2 p-3 text-sm">
+                  <Clock className="h-4 w-4" />
+                  <span>FT</span>
+                </TabsTrigger>
+              </TabsList>
+              <TabsList className="flex flex-col h-auto p-1 bg-muted">
+                <TabsTrigger value="absences" className="w-full flex items-center gap-2 p-3 text-sm">
+                  <Calendar className="h-4 w-4" />
+                  <span>Faltas</span>
+                </TabsTrigger>
+                <TabsTrigger value="approval" className="w-full flex items-center gap-2 p-3 text-sm">
+                  <Shield className="h-4 w-4" />
+                  <span>Aprovações</span>
+                </TabsTrigger>
+              </TabsList>
+              <TabsList className="flex flex-col h-auto p-1 bg-muted">
+                {profile?.email === 'eohcarlos.itu@gmail.com' && (
+                  <TabsTrigger value="user-approval" className="w-full flex items-center gap-2 p-3 text-sm">
+                    <UserCheck className="h-4 w-4" />
+                    <span>Usuários</span>
+                  </TabsTrigger>
+                )}
+                <TabsTrigger value="reports" className="w-full flex items-center gap-2 p-3 text-sm">
+                  <Download className="h-4 w-4" />
+                  <span>Relatórios</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
           </div>
 
           <TabsContent value="dashboard" className="space-y-8">
