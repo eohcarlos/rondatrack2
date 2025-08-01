@@ -95,21 +95,18 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         if (error) throw error;
 
         data = ftData?.map(item => ({
-          'Data da Folga Trabalhada': new Date(item.date).toLocaleDateString('pt-BR'),
-          'Nome Completo do Funcionário': `${item.employees?.first_name || ''} ${item.employees?.last_name || ''}`,
-          'Cargo / Função': item.employees?.positions?.title || '',
-          'Local de Trabalho': item.employees?.condominiums?.name || '',
-          'Endereço do Local': item.employees?.condominiums?.address || '',
-          'Turno de Trabalho': getShiftLabel(item.employees?.shift || ''),
+          'Data': new Date(item.date).toLocaleDateString('pt-BR'),
+          'Nome': `${item.employees?.first_name || ''} ${item.employees?.last_name || ''}`,
+          'Cargo': item.employees?.positions?.title || '',
+          'Supervisor(a)': item.supervisor_profile?.name || '',
+          'Condomínio': item.employees?.condominiums?.name || '',
           'Valor': item.amount ? `R$ ${Number(item.amount).toFixed(2)}` : 'Não informado',
-          'Supervisor Responsável': item.supervisor_profile?.name || '',
-          'Observações Gerais': item.observations || 'Sem observações',
-          'Registrado Por': item.created_by_profile?.name || '',
+          'Observações': item.observations || 'Sem observações',
           'Data do Registro': new Date(item.created_at).toLocaleDateString('pt-BR')
         }));
 
         filename = `folgas_trabalhadas_${selectedEmployee.first_name}_${selectedEmployee.last_name}`;
-        headers = ['Data da Folga Trabalhada', 'Nome Completo do Funcionário', 'Cargo / Função', 'Local de Trabalho', 'Endereço do Local', 'Turno de Trabalho', 'Valor', 'Supervisor Responsável', 'Observações Gerais', 'Registrado Por', 'Data do Registro'];
+        headers = ['Data', 'Nome', 'Cargo', 'Supervisor(a)', 'Condomínio', 'Valor', 'Observações', 'Data do Registro'];
 
       } else {
         const { data: absenceData, error } = await supabase
@@ -135,21 +132,18 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         if (error) throw error;
 
         data = absenceData?.map(item => ({
-          'Data da Falta': new Date(item.date).toLocaleDateString('pt-BR'),
-          'Nome Completo do Funcionário': `${item.employees?.first_name || ''} ${item.employees?.last_name || ''}`,
-          'Cargo / Função': item.employees?.positions?.title || '',
-          'Local de Trabalho': item.employees?.condominiums?.name || '',
-          'Endereço do Local': item.employees?.condominiums?.address || '',
-          'Turno de Trabalho': getShiftLabel(item.employees?.shift || ''),
-          'Motivo da Ausência': getReasonLabel(item.reason),
-          'Observações Gerais': item.observations || 'Sem observações',
-          'Supervisor Responsável': item.supervisor_profile?.name || '',
-          'Registrado Por': item.created_by_profile?.name || '',
+          'Data': new Date(item.date).toLocaleDateString('pt-BR'),
+          'Nome': `${item.employees?.first_name || ''} ${item.employees?.last_name || ''}`,
+          'Cargo': item.employees?.positions?.title || '',
+          'Supervisor(a)': item.supervisor_profile?.name || '',
+          'Condomínio': item.employees?.condominiums?.name || '',
+          'Motivo': getReasonLabel(item.reason),
+          'Observações': item.observations || 'Sem observações',
           'Data do Registro': new Date(item.created_at).toLocaleDateString('pt-BR')
         }));
 
         filename = `faltas_${selectedEmployee.first_name}_${selectedEmployee.last_name}`;
-        headers = ['Data da Falta', 'Nome Completo do Funcionário', 'Cargo / Função', 'Local de Trabalho', 'Endereço do Local', 'Turno de Trabalho', 'Motivo da Ausência', 'Observações Gerais', 'Supervisor Responsável', 'Registrado Por', 'Data do Registro'];
+        headers = ['Data', 'Nome', 'Cargo', 'Supervisor(a)', 'Condomínio', 'Motivo', 'Observações', 'Data do Registro'];
       }
 
       if (!data || data.length === 0) {
@@ -410,16 +404,13 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
               {reportType === 'ft' ? 'Campos do Relatório de FT:' : 'Campos do Relatório de Faltas:'}
             </h4>
             <div className="text-sm text-muted-foreground space-y-1">
-              <p>• {reportType === 'ft' ? 'Data da Folga Trabalhada' : 'Data da Falta'}</p>
-              <p>• Nome Completo do Funcionário</p>
-              <p>• Cargo / Função</p>
-              <p>• Local de Trabalho (Condomínio)</p>
-              <p>• Endereço do Local</p>
-              <p>• Turno de Trabalho</p>
-              {reportType === 'ft' ? <p>• Valor da FT</p> : <p>• Motivo da Ausência</p>}
-              <p>• Observações Gerais</p>
-              <p>• Supervisor Responsável</p>
-              <p>• Registrado Por</p>
+              <p>• Data</p>
+              <p>• Nome</p>
+              <p>• Cargo</p>
+              <p>• Supervisor(a)</p>
+              <p>• Condomínio</p>
+              {reportType === 'ft' ? <p>• Valor</p> : <p>• Motivo</p>}
+              <p>• Observações</p>
               <p>• Data do Registro</p>
             </div>
           </div>
