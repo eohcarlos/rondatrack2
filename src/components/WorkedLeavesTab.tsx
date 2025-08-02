@@ -148,10 +148,10 @@ export const WorkedLeavesTab = () => {
       item.employees.positions?.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.employees.condominiums?.name.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesCondominium = selectedCondominium === '' || 
+    const matchesCondominium = selectedCondominium === '' || selectedCondominium === 'all' || 
       item.employees.condominiums?.name === selectedCondominium;
 
-    const matchesEmployee = selectedEmployeeFilter === '' ||
+    const matchesEmployee = selectedEmployeeFilter === '' || selectedEmployeeFilter === 'all' ||
       `${item.employees.first_name} ${item.employees.last_name}` === selectedEmployeeFilter;
 
     return matchesSearch && matchesCondominium && matchesEmployee;
@@ -192,7 +192,7 @@ export const WorkedLeavesTab = () => {
             <SelectValue placeholder="Filtrar por condomínio" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todos os condomínios</SelectItem>
+            <SelectItem value="all">Todos os condomínios</SelectItem>
             {condominiums.map((condo) => (
               <SelectItem key={condo.id} value={condo.name}>
                 {condo.name}
@@ -206,7 +206,7 @@ export const WorkedLeavesTab = () => {
             <SelectValue placeholder="Filtrar por funcionário" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todos os funcionários</SelectItem>
+            <SelectItem value="all">Todos os funcionários</SelectItem>
             {[...new Set(workedLeaves.map(item => `${item.employees.first_name} ${item.employees.last_name}`))].map((name) => (
               <SelectItem key={name} value={name}>
                 {name}
