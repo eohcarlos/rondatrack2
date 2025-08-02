@@ -338,7 +338,14 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
               <SelectContent>
                 {employees.map(employee => (
                   <SelectItem key={employee.id} value={employee.id}>
-                    {employee.first_name} {employee.last_name} - {employee.positions?.title || 'Sem cargo'}
+                    <div className="flex flex-col">
+                      <span className="font-medium">
+                        {employee.first_name} {employee.last_name}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {employee.positions?.title || 'Sem cargo'} - {employee.condominiums?.name || 'Sem condomínio'}
+                      </span>
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
