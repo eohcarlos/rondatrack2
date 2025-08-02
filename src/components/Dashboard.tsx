@@ -5,19 +5,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, Home, User, UserCheck, Activity } from 'lucide-react';
-import { WorkedLeaveForm } from './WorkedLeaveForm';
-import { AbsenceForm } from './AbsenceForm';
-import { ReportsPanel } from './ReportsPanel';
+import { LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, UserCheck, Activity } from 'lucide-react';
 import { EmployeeManagement } from './EmployeeManagement';
 import { CondominiumManagement } from './CondominiumManagement';
 import { WorkedLeavesTab } from './WorkedLeavesTab';
 import { AbsencesTab } from './AbsencesTab';
 import { ApprovalTab } from './ApprovalTab';
 import { PWAInstallPrompt } from './PWAInstallPrompt';
-import { ProfileSettings } from './ProfileSettings';
 import { UserApprovalTab } from './UserApprovalTab';
 import { DailyPhrase } from './DailyPhrase';
+import { ProfilePage } from '@/pages/Profile';
+import { ReportsPage } from '@/pages/Reports';
+import { WorkedLeavesPage } from '@/pages/WorkedLeaves';
+import { AbsencesPage } from '@/pages/Absences';
 
 interface DashboardProps {
   onLogout: () => void;
@@ -45,7 +45,7 @@ interface Stats {
 export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState<Stats>({ totalEmployees: 0, monthlyWorkedLeaves: 0, monthlyAbsences: 0, totalAbsences: 0, totalCondominiums: 0, totalWorkedLeaves: 0 });
-  const [activeForm, setActiveForm] = useState<'ft' | 'absence' | 'reports' | 'profile' | null>(null);
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'profile' | 'reports' | 'ft' | 'absence'>('dashboard');
   const [activeTab, setActiveTab] = useState('dashboard');
   const { toast } = useToast();
 
@@ -168,6 +168,23 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
     }
   };
 
+  // Renderizar páginas separadas
+  if (currentPage === 'profile') {
+    return <ProfilePage onGoBack={() => setCurrentPage('dashboard')} />;
+  }
+  
+  if (currentPage === 'reports') {
+    return <ReportsPage onGoBack={() => setCurrentPage('dashboard')} />;
+  }
+  
+  if (currentPage === 'ft') {
+    return <WorkedLeavesPage onGoBack={() => setCurrentPage('dashboard')} />;
+  }
+  
+  if (currentPage === 'absence') {
+    return <AbsencesPage onGoBack={() => setCurrentPage('dashboard')} />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted">
       {/* Header */}
@@ -207,13 +224,9 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
                 </Badge>
               </div>
             )}
-            <Button onClick={() => setActiveForm('profile')} variant="outline" size="sm">
+            <Button onClick={() => setCurrentPage('profile')} variant="outline" size="sm">
               <User className="h-4 w-4 mr-2" />
               Perfil
-            </Button>
-            <Button onClick={onGoHome} variant="outline" size="sm">
-              <Home className="h-4 w-4 mr-2" />
-              Home
             </Button>
             <Button onClick={handleLogout} variant="outline" size="sm">
               <LogOut className="h-4 w-4 mr-2" />
@@ -382,7 +395,7 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
 
             {/* Action Buttons */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-              <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group" onClick={() => setActiveForm('ft')}>
+              <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group" onClick={() => setCurrentPage('ft')}>
                 <CardHeader>
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
@@ -396,7 +409,7 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
                 </CardHeader>
               </Card>
 
-              <Card className="bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group" onClick={() => setActiveForm('absence')}>
+              <Card className="bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group" onClick={() => setCurrentPage('absence')}>
                 <CardHeader>
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
@@ -410,7 +423,7 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
                 </CardHeader>
               </Card>
 
-              <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group" onClick={() => setActiveForm('reports')}>
+              <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group" onClick={() => setCurrentPage('reports')}>
                 <CardHeader>
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
@@ -425,34 +438,6 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
               </Card>
             </div>
 
-            {/* Forms */}
-            {activeForm === 'ft' && (
-              <WorkedLeaveForm 
-                onClose={() => setActiveForm(null)} 
-                onSuccess={() => {
-                  setActiveForm(null);
-                  loadStats();
-                }}
-              />
-            )}
-
-            {activeForm === 'absence' && (
-              <AbsenceForm 
-                onClose={() => setActiveForm(null)} 
-                onSuccess={() => {
-                  setActiveForm(null);
-                  loadStats();
-                }}
-              />
-            )}
-
-            {activeForm === 'reports' && (
-              <ReportsPanel onClose={() => setActiveForm(null)} />
-            )}
-
-            {activeForm === 'profile' && (
-              <ProfileSettings onClose={() => setActiveForm(null)} />
-            )}
           </TabsContent>
 
           <TabsContent value="employees">
@@ -482,7 +467,9 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
           )}
 
           <TabsContent value="reports">
-            <ReportsPanel onClose={() => setActiveTab('dashboard')} />
+            <div className="text-center p-8">
+              <p className="text-muted-foreground">Use os cards na Dashboard para acessar relatórios</p>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
