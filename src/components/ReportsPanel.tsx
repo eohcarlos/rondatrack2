@@ -254,7 +254,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
           cellPadding: 3,
         },
         headStyles: {
-          fillColor: [59, 130, 246],
+          fillColor: reportType === 'absences' ? [220, 53, 69] : [59, 130, 246],
           textColor: [255, 255, 255],
         },
         alternateRowStyles: {

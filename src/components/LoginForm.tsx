@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { User, Mail, Lock } from 'lucide-react';
 
@@ -16,7 +17,9 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [role, setRole] = useState<'supervisor' | 'gestor' | 'gerente'>('supervisor');
   const { toast } = useToast();
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -30,7 +33,9 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
           password,
           options: {
             data: {
-              name,
+              first_name: firstName,
+              last_name: lastName,
+              role: role,
             },
           },
         });
@@ -39,16 +44,36 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
 
         toast({
           title: "Conta criada com sucesso!",
-          description: "Você já pode fazer login no sistema.",
+          description: "Aguarde a aprovação do administrador para acessar o sistema.",
         });
         setIsSignUp(false);
-      } else {
+        } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
         if (error) throw error;
+
+        // Verificar se o usuário está aprovado
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('approved')
+            .eq('user_id', user.id)
+            .single();
+
+          if (!profile?.approved && user.email !== 'eohcarlos.itu@gmail.com') {
+            await supabase.auth.signOut();
+            toast({
+              title: "Acesso negado",
+              description: "Sua conta ainda não foi aprovada pelo administrador.",
+              variant: "destructive",
+            });
+            return;
+          }
+        }
 
         toast({
           title: "Login realizado com sucesso!",
@@ -67,27 +92,6 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
     }
   };
 
-  const handleDemoLogin = async () => {
-    setIsLoading(true);
-    try {
-      const { error } = await supabase.auth.signInAnonymously();
-      if (error) throw error;
-      
-      toast({
-        title: "Acesso demo ativado!",
-        description: "Explore o sistema com dados de demonstração.",
-      });
-      onSuccess();
-    } catch (error: any) {
-      toast({
-        title: "Erro",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-accent p-4">
@@ -105,21 +109,53 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
         <CardContent className="space-y-6">
           <form onSubmit={handleAuth} className="space-y-4">
             {isSignUp && (
-              <div className="space-y-2">
-                <Label htmlFor="name">Nome completo</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="pl-9"
-                    placeholder="Seu nome completo"
-                    required={isSignUp}
-                  />
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">Nome</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="firstName"
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="pl-9"
+                      placeholder="Seu nome"
+                      required={isSignUp}
+                    />
+                  </div>
                 </div>
-              </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Sobrenome</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="lastName"
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="pl-9"
+                      placeholder="Seu sobrenome"
+                      required={isSignUp}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="role">Cargo</Label>
+                  <Select value={role} onValueChange={(value: 'supervisor' | 'gestor' | 'gerente') => setRole(value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione seu cargo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="supervisor">Supervisor</SelectItem>
+                      <SelectItem value="gestor">Gestor</SelectItem>
+                      <SelectItem value="gerente">Gerente</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
             )}
 
             <div className="space-y-2">
@@ -164,23 +200,7 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
             </Button>
           </form>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">ou</span>
-            </div>
-          </div>
 
-          <Button
-            onClick={handleDemoLogin}
-            variant="outline"
-            className="w-full"
-            disabled={isLoading}
-          >
-            Acesso Demo
-          </Button>
 
           <div className="text-center">
             <button
