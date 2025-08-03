@@ -20,6 +20,7 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [role, setRole] = useState<'supervisor' | 'gestor' | 'gerente'>('supervisor');
+  const [accessPassword, setAccessPassword] = useState('');
   const { toast } = useToast();
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -28,6 +29,16 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
 
     try {
       if (isSignUp) {
+        // Verificar senha de acesso
+        if (accessPassword !== '10203040') {
+          toast({
+            title: "Senha de acesso inválida",
+            description: "Entre em contato com o administrador para obter a senha de acesso.",
+            variant: "destructive",
+          });
+          return;
+        }
+
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -44,7 +55,7 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
 
         toast({
           title: "Conta criada com sucesso!",
-          description: "Aguarde a aprovação do administrador para acessar o sistema.",
+          description: "Bem-vindo ao RondaTrack2. Você já pode acessar o sistema.",
         });
         setIsSignUp(false);
         } else {
@@ -54,32 +65,6 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
         });
 
         if (error) throw error;
-
-        // Verificar se o usuário está aprovado
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          // Se for o email do administrador, permitir acesso direto
-          if (user.email === 'eohcarlos.itu@gmail.com') {
-            onSuccess();
-            return;
-          }
-
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('approved, email')
-            .eq('user_id', user.id)
-            .single();
-
-          if (!profile?.approved) {
-            await supabase.auth.signOut();
-            toast({
-              title: "Acesso pendente",
-              description: "Sua conta ainda não foi aprovada pelo administrador. Entre em contato para aprovação.",
-              variant: "destructive",
-            });
-            return;
-          }
-        }
 
         toast({
           title: "Login realizado com sucesso!",
@@ -160,6 +145,25 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
                       <SelectItem value="gerente">Gerente</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="accessPassword">Senha de Acesso</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="accessPassword"
+                      type="password"
+                      value={accessPassword}
+                      onChange={(e) => setAccessPassword(e.target.value)}
+                      className="pl-9"
+                      placeholder="Digite a senha de acesso"
+                      required={isSignUp}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Entre em contato com o administrador para obter a senha de acesso
+                  </p>
                 </div>
               </>
             )}

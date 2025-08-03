@@ -10,9 +10,9 @@ import { EmployeeManagement } from './EmployeeManagement';
 import { CondominiumManagement } from './CondominiumManagement';
 import { WorkedLeavesTab } from './WorkedLeavesTab';
 import { AbsencesTab } from './AbsencesTab';
-import { ApprovalTab } from './ApprovalTab';
+
 import { PWAInstallPrompt } from './PWAInstallPrompt';
-import { UserApprovalTab } from './UserApprovalTab';
+
 import { DailyPhrase } from './DailyPhrase';
 import { ProfilePage } from '@/pages/Profile';
 import { ReportsPage } from '@/pages/Reports';
@@ -266,18 +266,6 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
                   <Calendar className="h-4 w-4" />
                   <span>Faltas</span>
                 </TabsTrigger>
-                <TabsTrigger value="approval" className="flex items-center gap-2 p-3 text-sm">
-                  <Shield className="h-4 w-4" />
-                  <span>Aprovações</span>
-                </TabsTrigger>
-              </TabsList>
-              <TabsList className={`${profile?.email === 'eohcarlos.itu@gmail.com' ? 'grid-cols-2' : 'grid-cols-1'} grid gap-1 p-1 bg-muted`}>
-                {profile?.email === 'eohcarlos.itu@gmail.com' && (
-                  <TabsTrigger value="user-approval" className="flex items-center gap-2 p-3 text-sm">
-                    <UserCheck className="h-4 w-4" />
-                    <span>Usuários</span>
-                  </TabsTrigger>
-                )}
                 <TabsTrigger value="reports" className="flex items-center gap-2 p-3 text-sm">
                   <Download className="h-4 w-4" />
                   <span>Relatórios</span>
@@ -314,18 +302,6 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
                   <Calendar className="h-4 w-4" />
                   <span>Faltas</span>
                 </TabsTrigger>
-                <TabsTrigger value="approval" className="w-full flex items-center gap-2 p-3 text-sm">
-                  <Shield className="h-4 w-4" />
-                  <span>Aprovações</span>
-                </TabsTrigger>
-              </TabsList>
-              <TabsList className="flex flex-col h-auto p-1 bg-muted">
-                {profile?.email === 'eohcarlos.itu@gmail.com' && (
-                  <TabsTrigger value="user-approval" className="w-full flex items-center gap-2 p-3 text-sm">
-                    <UserCheck className="h-4 w-4" />
-                    <span>Usuários</span>
-                  </TabsTrigger>
-                )}
                 <TabsTrigger value="reports" className="w-full flex items-center gap-2 p-3 text-sm">
                   <Download className="h-4 w-4" />
                   <span>Relatórios</span>
@@ -456,15 +432,7 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
             <AbsencesTab />
           </TabsContent>
 
-          <TabsContent value="approval">
-            <ApprovalTab />
-          </TabsContent>
 
-          {profile?.email === 'eohcarlos.itu@gmail.com' && (
-            <TabsContent value="user-approval">
-              <UserApprovalTab />
-            </TabsContent>
-          )}
 
           <TabsContent value="reports">
             <div className="text-center p-8">
