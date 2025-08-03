@@ -241,24 +241,6 @@ export const ProfileSettings = ({ onClose }: ProfileSettingsProps) => {
             />
           </div>
 
-          {/* Status de aprovação */}
-          <div className="p-4 rounded-lg bg-muted/50">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Status da conta:</span>
-              <span className={`text-sm px-2 py-1 rounded-md ${
-                profile.approved 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-orange-100 text-orange-800'
-              }`}>
-                {profile.approved ? 'Aprovada' : 'Aguardando aprovação'}
-              </span>
-            </div>
-            {!profile.approved && (
-              <p className="text-xs text-muted-foreground mt-2">
-                Sua conta está aguardando aprovação. Você só pode editar seu nome e foto.
-              </p>
-            )}
-          </div>
 
           <div className="flex justify-end space-x-4">
             <Button type="button" onClick={onClose} variant="outline">

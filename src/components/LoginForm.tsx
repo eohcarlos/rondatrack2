@@ -20,7 +20,6 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [role, setRole] = useState<'supervisor' | 'gestor' | 'gerente'>('supervisor');
-  const [accessPassword, setAccessPassword] = useState('');
   const { toast } = useToast();
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -29,15 +28,6 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
 
     try {
       if (isSignUp) {
-        // Verificar senha de acesso
-        if (accessPassword !== '10203040') {
-          toast({
-            title: "Senha de acesso inválida",
-            description: "Entre em contato com o administrador para obter a senha de acesso.",
-            variant: "destructive",
-          });
-          return;
-        }
 
         const { error } = await supabase.auth.signUp({
           email,
@@ -55,7 +45,7 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
 
         toast({
           title: "Conta criada com sucesso!",
-          description: "Bem-vindo ao RondaTrack2. Você já pode acessar o sistema.",
+          description: "Agora você precisa inserir o código de acesso para acessar o sistema.",
         });
         setIsSignUp(false);
         } else {
@@ -147,24 +137,6 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="accessPassword">Senha de Acesso</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="accessPassword"
-                      type="password"
-                      value={accessPassword}
-                      onChange={(e) => setAccessPassword(e.target.value)}
-                      className="pl-9"
-                      placeholder="Digite a senha de acesso"
-                      required={isSignUp}
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Entre em contato com o administrador para obter a senha de acesso
-                  </p>
-                </div>
               </>
             )}
 
