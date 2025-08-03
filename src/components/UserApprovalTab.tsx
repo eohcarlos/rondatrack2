@@ -66,27 +66,39 @@ export const UserApprovalTab = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Usuário não autenticado');
 
-      const updateData: any = {
-        approved: approve,
-        approved_at: approve ? new Date().toISOString() : null,
-        approved_by: approve ? user.id : null,
-      };
+      if (approve) {
+        // Aprovando usuário
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            approved: true,
+            approved_at: new Date().toISOString(),
+            approved_by: user.id,
+          })
+          .eq('user_id', userId);
 
-      const { error } = await supabase
-        .from('profiles')
-        .update(updateData)
-        .eq('user_id', userId);
+        if (error) throw error;
 
-      if (error) throw error;
+        toast({
+          title: "Usuário aprovado!",
+          description: "O usuário agora pode acessar o sistema.",
+        });
+      } else {
+        // Rejeitando usuário - remover o perfil e o usuário
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .delete()
+          .eq('user_id', userId);
 
-      toast({
-        title: approve ? "Usuário aprovado!" : "Usuário rejeitado!",
-        description: approve 
-          ? "O usuário agora pode acessar o sistema." 
-          : "O usuário foi rejeitado e não poderá acessar o sistema.",
-      });
+        if (profileError) throw profileError;
 
-      loadPendingUsers();
+        toast({
+          title: "Usuário rejeitado!",
+          description: "O usuário foi removido do sistema.",
+        });
+      }
+
+      await loadPendingUsers();
     } catch (error: any) {
       toast({
         title: "Erro ao processar aprovação",

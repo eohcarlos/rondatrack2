@@ -58,17 +58,23 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
         // Verificar se o usuário está aprovado
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
+          // Se for o email do administrador, permitir acesso direto
+          if (user.email === 'eohcarlos.itu@gmail.com') {
+            onSuccess();
+            return;
+          }
+
           const { data: profile } = await supabase
             .from('profiles')
-            .select('approved')
+            .select('approved, email')
             .eq('user_id', user.id)
             .single();
 
-          if (!profile?.approved && user.email !== 'eohcarlos.itu@gmail.com') {
+          if (!profile?.approved) {
             await supabase.auth.signOut();
             toast({
-              title: "Acesso negado",
-              description: "Sua conta ainda não foi aprovada pelo administrador.",
+              title: "Acesso pendente",
+              description: "Sua conta ainda não foi aprovada pelo administrador. Entre em contato para aprovação.",
               variant: "destructive",
             });
             return;
