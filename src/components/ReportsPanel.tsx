@@ -20,7 +20,6 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
   const [reportType, setReportType] = useState<'ft' | 'absences'>('ft');
   const [exportFormat, setExportFormat] = useState<'xlsx' | 'csv' | 'pdf'>('xlsx');
   const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
-  const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'yyyy-MM'));
   const [employees, setEmployees] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -93,8 +92,6 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
             created_by_profile:profiles!created_by (name)
           `)
           .eq('employee_id', selectedEmployeeId)
-          .gte('date', `${selectedMonth}-01`)
-          .lt('date', `${selectedMonth}-32`)
           .order('date', { ascending: false });
 
         if (error) throw error;
@@ -132,8 +129,6 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
             created_by_profile:profiles!created_by (name)
           `)
           .eq('employee_id', selectedEmployeeId)
-          .gte('date', `${selectedMonth}-01`)
-          .lt('date', `${selectedMonth}-32`)
           .order('date', { ascending: false });
 
         if (error) throw error;
@@ -330,34 +325,6 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
                   <p className="text-sm text-muted-foreground">Relatório de faltas</p>
                 </CardContent>
               </Card>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Seleção de Mês */}
-          <div className="space-y-4">
-            <Label className="text-base font-medium">Período do Relatório</Label>
-            <div className="flex items-center gap-2">
-              <CalendarDays className="h-4 w-4 text-muted-foreground" />
-              <Select onValueChange={setSelectedMonth} value={selectedMonth}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Escolha o mês" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 12 }, (_, i) => {
-                    const date = new Date();
-                    date.setMonth(date.getMonth() - i);
-                    const monthValue = format(date, 'yyyy-MM');
-                    const monthLabel = format(date, 'MMMM yyyy', { locale: ptBR });
-                    return (
-                      <SelectItem key={monthValue} value={monthValue}>
-                        {monthLabel}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
             </div>
           </div>
 

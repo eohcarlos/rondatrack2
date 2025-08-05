@@ -10,9 +10,6 @@ import { EmployeeManagement } from './EmployeeManagement';
 import { CondominiumManagement } from './CondominiumManagement';
 import { WorkedLeavesTab } from './WorkedLeavesTab';
 import { AbsencesTab } from './AbsencesTab';
-import { MonthSelector } from './MonthSelector';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 
 import { PWAInstallPrompt } from './PWAInstallPrompt';
 
@@ -50,7 +47,6 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
   const [stats, setStats] = useState<Stats>({ totalEmployees: 0, monthlyWorkedLeaves: 0, monthlyAbsences: 0, totalAbsences: 0, totalCondominiums: 0, totalWorkedLeaves: 0 });
   const [currentPage, setCurrentPage] = useState<'dashboard' | 'profile' | 'reports' | 'ft' | 'absence'>('dashboard');
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [selectedMonth, setSelectedMonth] = useState(new Date());
   const { toast } = useToast();
 
   useEffect(() => {
@@ -58,10 +54,6 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
     loadStats();
     setupRealtimeSubscription();
   }, []);
-
-  useEffect(() => {
-    loadStats();
-  }, [selectedMonth]);
 
   const setupRealtimeSubscription = () => {
     const channels = [
@@ -108,20 +100,20 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
         .select('*', { count: 'exact', head: true })
         .eq('active', true);
 
-      // FTs do mês selecionado
-      const monthString = format(selectedMonth, 'yyyy-MM');
+      // FTs do mês atual
+      const currentMonth = new Date().toISOString().slice(0, 7);
       const { count: ftCount } = await supabase
         .from('worked_leaves')
         .select('*', { count: 'exact', head: true })
-        .gte('date', `${monthString}-01`)
-        .lt('date', `${monthString}-32`);
+        .gte('date', `${currentMonth}-01`)
+        .lt('date', `${currentMonth}-32`);
 
-      // Faltas do mês selecionado
+      // Faltas do mês atual
       const { count: absencesCount } = await supabase
         .from('absences')
         .select('*', { count: 'exact', head: true })
-        .gte('date', `${monthString}-01`)
-        .lt('date', `${monthString}-32`);
+        .gte('date', `${currentMonth}-01`)
+        .lt('date', `${currentMonth}-32`);
 
       // Total de faltas
       const { count: totalAbsencesCount } = await supabase
@@ -246,79 +238,72 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-6 space-y-6">
+      <div className="container mx-auto px-4 py-6 space-y-6">{/* Removido max-h-screen overflow-y-auto para permitir scroll natural */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          {/* Modern Navigation - Mobile First */}
+          {/* Mobile-First Navigation - Vertical Stack */}
           <div className="mb-6">
-            <div className="overflow-x-auto scrollbar-hide">
-              <TabsList className="inline-flex w-max min-w-full h-auto p-1 bg-card border shadow-sm">
-                <TabsTrigger 
-                  value="dashboard" 
-                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                >
-                  <BarChart3 className="h-4 w-4" />
-                  <span>Dashboard</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="employees" 
-                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                >
-                  <Users className="h-4 w-4" />
-                  <span>Funcionários</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="condominiums" 
-                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                >
-                  <Building2 className="h-4 w-4" />
-                  <span>Condomínios</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="worked-leaves" 
-                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                >
-                  <Clock className="h-4 w-4" />
-                  <span>FT</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="absences" 
-                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                >
-                  <Calendar className="h-4 w-4" />
-                  <span>Faltas</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="reports" 
-                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                >
-                  <Download className="h-4 w-4" />
-                  <span>Relatórios</span>
-                </TabsTrigger>
-              </TabsList>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+              <TabsTrigger 
+                value="dashboard" 
+                className="flex flex-col items-center gap-1 p-4 text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full"
+              >
+                <BarChart3 className="h-5 w-5" />
+                <span>Dashboard</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="employees" 
+                className="flex flex-col items-center gap-1 p-4 text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full"
+              >
+                <Users className="h-5 w-5" />
+                <span>Funcionários</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="condominiums" 
+                className="flex flex-col items-center gap-1 p-4 text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full"
+              >
+                <Building2 className="h-5 w-5" />
+                <span>Condomínios</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="worked-leaves" 
+                className="flex flex-col items-center gap-1 p-4 text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full"
+              >
+                <Clock className="h-5 w-5" />
+                <span>FT</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="absences" 
+                className="flex flex-col items-center gap-1 p-4 text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full"
+              >
+                <Calendar className="h-5 w-5" />
+                <span>Faltas</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="reports" 
+                className="flex flex-col items-center gap-1 p-4 text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full"
+              >
+                <Download className="h-5 w-5" />
+                <span>Relatórios</span>
+              </TabsTrigger>
             </div>
           </div>
 
           <TabsContent value="dashboard" className="space-y-6">
-            {/* Month Selector */}
-            <MonthSelector selectedMonth={selectedMonth} onMonthChange={setSelectedMonth} />
-
             {/* Frase do Dia */}
             <DailyPhrase />
 
-            {/* Stats Cards - Monthly Focus */}
+            {/* Stats Cards */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-primary" />
-                  Estatísticas do Período
-                </h2>
-                <span className="text-sm text-muted-foreground">
-                  {format(selectedMonth, 'MMMM yyyy', { locale: ptBR })}
-                </span>
-              </div>
+              <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                Estatísticas do Mês Atual
+              </h2>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="group hover:shadow-lg transition-all duration-300 border-primary/20 bg-gradient-to-br from-card to-primary/5">
+                <Card 
+                  className="group hover:shadow-lg transition-all duration-300 border-primary/20 bg-gradient-to-br from-card to-primary/5 cursor-pointer" 
+                  onClick={() => setActiveTab('worked-leaves')}
+                >
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium text-primary">FTs do Mês</CardTitle>
                     <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -331,7 +316,10 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
                   </CardContent>
                 </Card>
 
-                <Card className="group hover:shadow-lg transition-all duration-300 border-destructive/20 bg-gradient-to-br from-card to-destructive/5">
+                <Card 
+                  className="group hover:shadow-lg transition-all duration-300 border-destructive/20 bg-gradient-to-br from-card to-destructive/5 cursor-pointer"
+                  onClick={() => setActiveTab('absences')}
+                >
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium text-destructive">Faltas do Mês</CardTitle>
                     <div className="w-8 h-8 bg-destructive/10 rounded-lg flex items-center justify-center group-hover:bg-destructive/20 transition-colors">
@@ -344,7 +332,10 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
                   </CardContent>
                 </Card>
 
-                <Card className="group hover:shadow-lg transition-all duration-300 border-accent/20 bg-gradient-to-br from-card to-accent/5">
+                <Card 
+                  className="group hover:shadow-lg transition-all duration-300 border-accent/20 bg-gradient-to-br from-card to-accent/5 cursor-pointer"
+                  onClick={() => setActiveTab('employees')}
+                >
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium text-accent">Funcionários</CardTitle>
                     <div className="w-8 h-8 bg-accent/10 rounded-lg flex items-center justify-center group-hover:bg-accent/20 transition-colors">
@@ -357,7 +348,10 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
                   </CardContent>
                 </Card>
 
-                <Card className="group hover:shadow-lg transition-all duration-300 border-warning/20 bg-gradient-to-br from-card to-warning/5">
+                <Card 
+                  className="group hover:shadow-lg transition-all duration-300 border-warning/20 bg-gradient-to-br from-card to-warning/5 cursor-pointer"
+                  onClick={() => setActiveTab('condominiums')}
+                >
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium text-warning">Condomínios</CardTitle>
                     <div className="w-8 h-8 bg-warning/10 rounded-lg flex items-center justify-center group-hover:bg-warning/20 transition-colors">
