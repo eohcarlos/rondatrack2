@@ -6,9 +6,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { X, Download, FileText, Clock, Calendar, File } from 'lucide-react';
+import { X, Download, FileText, Clock, Calendar, File, CalendarDays } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface ReportsPanelProps {
   onClose: () => void;
@@ -16,8 +18,9 @@ interface ReportsPanelProps {
 
 export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
   const [reportType, setReportType] = useState<'ft' | 'absences'>('ft');
-  const [format, setFormat] = useState<'xlsx' | 'csv' | 'pdf'>('xlsx');
+  const [exportFormat, setExportFormat] = useState<'xlsx' | 'csv' | 'pdf'>('xlsx');
   const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'yyyy-MM'));
   const [employees, setEmployees] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -90,6 +93,8 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
             created_by_profile:profiles!created_by (name)
           `)
           .eq('employee_id', selectedEmployeeId)
+          .gte('date', `${selectedMonth}-01`)
+          .lt('date', `${selectedMonth}-32`)
           .order('date', { ascending: false });
 
         if (error) throw error;
@@ -127,6 +132,8 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
             created_by_profile:profiles!created_by (name)
           `)
           .eq('employee_id', selectedEmployeeId)
+          .gte('date', `${selectedMonth}-01`)
+          .lt('date', `${selectedMonth}-32`)
           .order('date', { ascending: false });
 
         if (error) throw error;
@@ -154,9 +161,9 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         return;
       }
 
-      if (format === 'csv') {
+      if (exportFormat === 'csv') {
         downloadCSV(data, headers, filename);
-      } else if (format === 'pdf') {
+      } else if (exportFormat === 'pdf') {
         downloadPDF(data, headers, filename, selectedEmployee);
       } else {
         downloadExcel(data, headers, filename);
@@ -328,6 +335,34 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
 
           <Separator />
 
+          {/* Seleção de Mês */}
+          <div className="space-y-4">
+            <Label className="text-base font-medium">Período do Relatório</Label>
+            <div className="flex items-center gap-2">
+              <CalendarDays className="h-4 w-4 text-muted-foreground" />
+              <Select onValueChange={setSelectedMonth} value={selectedMonth}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Escolha o mês" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 12 }, (_, i) => {
+                    const date = new Date();
+                    date.setMonth(date.getMonth() - i);
+                    const monthValue = format(date, 'yyyy-MM');
+                    const monthLabel = format(date, 'MMMM yyyy', { locale: ptBR });
+                    return (
+                      <SelectItem key={monthValue} value={monthValue}>
+                        {monthLabel}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <Separator />
+
           {/* Seleção de Funcionário */}
           <div className="space-y-4">
             <Label className="text-base font-medium">Selecionar Funcionário *</Label>
@@ -360,11 +395,11 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
             <div className="grid grid-cols-3 gap-4">
               <Card 
                 className={`cursor-pointer border-2 transition-colors ${
-                  format === 'xlsx' 
+                  exportFormat === 'xlsx' 
                     ? 'border-primary bg-primary/10' 
                     : 'border-border hover:border-primary/50'
                 }`}
-                onClick={() => setFormat('xlsx')}
+                onClick={() => setExportFormat('xlsx')}
               >
                 <CardContent className="p-4 text-center">
                   <FileText className="h-8 w-8 mx-auto mb-2 text-primary" />
@@ -375,11 +410,11 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
 
               <Card 
                 className={`cursor-pointer border-2 transition-colors ${
-                  format === 'csv' 
+                  exportFormat === 'csv' 
                     ? 'border-primary bg-primary/10' 
                     : 'border-border hover:border-primary/50'
                 }`}
-                onClick={() => setFormat('csv')}
+                onClick={() => setExportFormat('csv')}
               >
                 <CardContent className="p-4 text-center">
                   <FileText className="h-8 w-8 mx-auto mb-2 text-primary" />
@@ -390,11 +425,11 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
 
               <Card 
                 className={`cursor-pointer border-2 transition-colors ${
-                  format === 'pdf' 
+                  exportFormat === 'pdf' 
                     ? 'border-red-500 bg-red-50' 
                     : 'border-border hover:border-red-300'
                 }`}
-                onClick={() => setFormat('pdf')}
+                onClick={() => setExportFormat('pdf')}
               >
                 <CardContent className="p-4 text-center">
                   <File className="h-8 w-8 mx-auto mb-2 text-red-500" />
