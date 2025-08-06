@@ -240,47 +240,47 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
 
       <div className="container mx-auto px-4 py-6 space-y-6">{/* Removido max-h-screen overflow-y-auto para permitir scroll natural */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          {/* Mobile-First Navigation - Vertical Stack */}
+          {/* Navigation Tabs - Single Row on Desktop, Vertical Stack on Mobile */}
           <TabsList className="mb-6 h-auto p-0 bg-transparent">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 w-full">
+            <div className="flex flex-col sm:flex-row gap-2 w-full">
               <TabsTrigger 
                 value="dashboard" 
-                className="flex flex-col items-center gap-1 p-4 text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full sm:w-auto rounded-lg"
               >
                 <BarChart3 className="h-5 w-5" />
                 <span>Dashboard</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="employees" 
-                className="flex flex-col items-center gap-1 p-4 text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full sm:w-auto rounded-lg"
               >
                 <Users className="h-5 w-5" />
                 <span>Funcionários</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="condominiums" 
-                className="flex flex-col items-center gap-1 p-4 text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full sm:w-auto rounded-lg"
               >
                 <Building2 className="h-5 w-5" />
                 <span>Condomínios</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="worked-leaves" 
-                className="flex flex-col items-center gap-1 p-4 text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full sm:w-auto rounded-lg"
               >
                 <Clock className="h-5 w-5" />
                 <span>FT</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="absences" 
-                className="flex flex-col items-center gap-1 p-4 text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full sm:w-auto rounded-lg"
               >
                 <Calendar className="h-5 w-5" />
                 <span>Faltas</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="reports" 
-                className="flex flex-col items-center gap-1 p-4 text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full sm:w-auto rounded-lg"
               >
                 <Download className="h-5 w-5" />
                 <span>Relatórios</span>
@@ -373,58 +373,52 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
                 Ações Rápidas
               </h2>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Card 
-                  className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group" 
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Button 
+                  className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 h-auto p-6 rounded-xl"
                   onClick={() => setCurrentPage('ft')}
                 >
-                  <CardHeader className="p-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                        <Clock className="h-6 w-6 text-white" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-lg text-white">Registrar FT</CardTitle>
-                        <CardDescription className="text-primary-foreground/90">Adicionar folga trabalhada</CardDescription>
-                      </div>
+                  <div className="flex items-center space-x-4 w-full">
+                    <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                      <Clock className="h-6 w-6 text-white" />
                     </div>
-                  </CardHeader>
-                </Card>
-
-                <Card 
-                  className="bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group" 
-                  onClick={() => setCurrentPage('absence')}
-                >
-                  <CardHeader className="p-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                        <Calendar className="h-6 w-6 text-white" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-lg text-white">Registrar Falta</CardTitle>
-                        <CardDescription className="text-destructive-foreground/90">Adicionar falta de funcionário</CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                </Card>
-              </div>
-
-              <Card 
-                className="bg-gradient-to-r from-accent to-accent/80 text-accent-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group mt-4" 
-                onClick={() => setCurrentPage('reports')}
-              >
-                <CardHeader className="p-6">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                      <Download className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg text-white">Relatórios</CardTitle>
-                      <CardDescription className="text-accent-foreground/90">Exportar dados em Excel/CSV</CardDescription>
+                    <div className="text-left">
+                      <div className="text-lg font-semibold text-white">Registrar FT</div>
+                      <div className="text-sm text-primary-foreground/90">Adicionar folga trabalhada</div>
                     </div>
                   </div>
-                </CardHeader>
-              </Card>
+                </Button>
+
+                <Button 
+                  className="bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 h-auto p-6 rounded-xl"
+                  onClick={() => setCurrentPage('absence')}
+                >
+                  <div className="flex items-center space-x-4 w-full">
+                    <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                      <Calendar className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="text-left">
+                      <div className="text-lg font-semibold text-white">Registrar Falta</div>
+                      <div className="text-sm text-destructive-foreground/90">Adicionar falta de funcionário</div>
+                    </div>
+                  </div>
+                </Button>
+
+                <Button 
+                  className="bg-gradient-to-r from-accent to-accent/80 text-accent-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 h-auto p-6 rounded-xl"
+                  onClick={() => setCurrentPage('reports')}
+                >
+                  <div className="flex items-center space-x-4 w-full">
+                    <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                      <Download className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="text-left">
+                      <div className="text-lg font-semibold text-white">Relatórios</div>
+                      <div className="text-sm text-accent-foreground/90">Gerar relatórios do sistema</div>
+                    </div>
+                  </div>
+                </Button>
+              </div>
             </div>
 
           </TabsContent>

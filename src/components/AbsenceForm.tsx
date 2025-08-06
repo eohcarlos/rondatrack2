@@ -119,6 +119,18 @@ export const AbsenceForm = ({ onClose, onSuccess }: AbsenceFormProps) => {
       const dateObj = new Date(date + 'T00:00:00.000Z');
       const utcDate = dateObj.toISOString().split('T')[0];
 
+      // Verificar se já existe um registro para este funcionário na mesma data
+      const { data: existing } = await supabase
+        .from('absences')
+        .select('id')
+        .eq('employee_id', selectedEmployee)
+        .eq('date', utcDate)
+        .maybeSingle();
+
+      if (existing) {
+        throw new Error('Já existe uma falta registrada para este funcionário nesta data');
+      }
+
       const { error } = await supabase
         .from('absences')
         .insert({

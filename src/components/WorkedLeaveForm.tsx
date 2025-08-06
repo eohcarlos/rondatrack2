@@ -108,6 +108,18 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
       const dateObj = new Date(date + 'T00:00:00.000Z');
       const utcDate = dateObj.toISOString().split('T')[0];
 
+      // Verificar se já existe um registro para este funcionário na mesma data
+      const { data: existing } = await supabase
+        .from('worked_leaves')
+        .select('id')
+        .eq('employee_id', selectedEmployee)
+        .eq('date', utcDate)
+        .maybeSingle();
+
+      if (existing) {
+        throw new Error('Já existe uma FT registrada para este funcionário nesta data');
+      }
+
       const { error } = await supabase
         .from('worked_leaves')
         .insert({
