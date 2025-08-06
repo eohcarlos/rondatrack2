@@ -241,8 +241,8 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
       <div className="container mx-auto px-4 py-6 space-y-6">{/* Removido max-h-screen overflow-y-auto para permitir scroll natural */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Mobile-First Navigation - Vertical Stack */}
-          <div className="mb-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+          <TabsList className="mb-6 h-auto p-0 bg-transparent">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 w-full">
               <TabsTrigger 
                 value="dashboard" 
                 className="flex flex-col items-center gap-1 p-4 text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full"
@@ -286,7 +286,7 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
                 <span>Relatórios</span>
               </TabsTrigger>
             </div>
-          </div>
+          </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">
             {/* Frase do Dia */}
