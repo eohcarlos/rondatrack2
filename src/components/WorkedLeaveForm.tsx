@@ -25,6 +25,7 @@ interface Employee {
 interface Profile {
   id: string;
   name: string;
+  role: string;
 }
 
 export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) => {
@@ -73,7 +74,7 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, name')
+        .select('id, name, role')
         .order('name');
 
       if (error) throw error;
@@ -150,8 +151,8 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
   };
 
   return (
-    <Card className="border-0 shadow-2xl">
-      <CardHeader className="bg-gradient-to-r from-accent to-accent/80 text-white">
+    <Card className="border-0 shadow-2xl rounded-xl">
+      <CardHeader className="bg-gradient-to-r from-accent to-accent/80 text-white rounded-t-xl">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Clock className="h-6 w-6" />
@@ -174,7 +175,7 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
             <div className="space-y-2">
               <Label htmlFor="employee">Funcionário *</Label>
               <Select value={selectedEmployee} onValueChange={setSelectedEmployee} required>
-                <SelectTrigger>
+                <SelectTrigger className="rounded-lg">
                   <SelectValue placeholder="Selecione o funcionário" />
                 </SelectTrigger>
                 <SelectContent>
@@ -200,19 +201,25 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 required
+                className="rounded-lg"
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="supervisor">Supervisor do Dia *</Label>
               <Select value={supervisorId} onValueChange={setSupervisorId} required>
-                <SelectTrigger>
+                <SelectTrigger className="rounded-lg">
                   <SelectValue placeholder="Selecione o supervisor" />
                 </SelectTrigger>
                 <SelectContent>
                   {supervisors.map((supervisor) => (
                     <SelectItem key={supervisor.id} value={supervisor.id}>
-                      {supervisor.name}
+                      <div className="flex flex-col">
+                        <span className="font-medium">{supervisor.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {supervisor.role === 'gerente' ? 'Gerente' : supervisor.role === 'gestor' ? 'Gestor' : 'Supervisor'}
+                        </span>
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -228,13 +235,14 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0,00"
+                className="rounded-lg"
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="workShift">Turno de Trabalho *</Label>
               <Select value={workShift} onValueChange={setWorkShift} required>
-                <SelectTrigger>
+                <SelectTrigger className="rounded-lg">
                   <SelectValue placeholder="Selecione o turno" />
                 </SelectTrigger>
                 <SelectContent>
@@ -253,14 +261,15 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
               onChange={(e) => setObservations(e.target.value)}
               placeholder="Observações adicionais (opcional)"
               rows={3}
+              className="rounded-lg"
             />
           </div>
 
           <div className="flex justify-end space-x-4">
-            <Button type="button" onClick={onClose} variant="outline">
+            <Button type="button" onClick={onClose} variant="outline" className="rounded-lg">
               Cancelar
             </Button>
-            <Button type="submit" variant="success" disabled={isLoading}>
+            <Button type="submit" className="bg-accent hover:bg-accent/90 text-white rounded-lg" disabled={isLoading}>
               {isLoading ? "Salvando..." : "Registrar FT"}
             </Button>
           </div>

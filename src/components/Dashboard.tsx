@@ -242,7 +242,7 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Mobile-First Navigation - Vertical Stack */}
           <TabsList className="mb-6 h-auto p-0 bg-transparent">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 w-full">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 w-full">
               <TabsTrigger 
                 value="dashboard" 
                 className="flex flex-col items-center gap-1 p-4 text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full"
