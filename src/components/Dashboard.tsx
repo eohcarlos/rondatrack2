@@ -100,20 +100,29 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
         .select('*', { count: 'exact', head: true })
         .eq('active', true);
 
+      // Faixas de data do mês atual (local, evitando fuso)
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1; // 1-12
+      const startOfMonth = `${year}-${String(month).padStart(2, '0')}-01`;
+      const next = new Date(year, month, 1); // próximo mês, dia 1
+      const nextYear = next.getFullYear();
+      const nextMonth = next.getMonth() + 1;
+      const startOfNextMonth = `${nextYear}-${String(nextMonth).padStart(2, '0')}-01`;
+
       // FTs do mês atual
-      const currentMonth = new Date().toISOString().slice(0, 7);
       const { count: ftCount } = await supabase
         .from('worked_leaves')
         .select('*', { count: 'exact', head: true })
-        .gte('date', `${currentMonth}-01`)
-        .lt('date', `${currentMonth}-32`);
+        .gte('date', startOfMonth)
+        .lt('date', startOfNextMonth);
 
       // Faltas do mês atual
       const { count: absencesCount } = await supabase
         .from('absences')
         .select('*', { count: 'exact', head: true })
-        .gte('date', `${currentMonth}-01`)
-        .lt('date', `${currentMonth}-32`);
+        .gte('date', startOfMonth)
+        .lt('date', startOfNextMonth);
 
       // Total de faltas
       const { count: totalAbsencesCount } = await supabase
