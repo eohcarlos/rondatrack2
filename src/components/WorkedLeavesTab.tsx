@@ -139,7 +139,9 @@ export const WorkedLeavesTab = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR');
+    if (!dateString) return '';
+    const [y, m, d] = dateString.split('-');
+    return `${d}/${m}/${y}`;
   };
 
   const filteredWorkedLeaves = workedLeaves.filter(item => {

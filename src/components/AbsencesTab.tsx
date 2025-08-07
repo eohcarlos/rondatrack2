@@ -161,7 +161,9 @@ export const AbsencesTab = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR');
+    if (!dateString) return '';
+    const [y, m, d] = dateString.split('-');
+    return `${d}/${m}/${y}`;
   };
 
   const filteredAbsences = absences.filter(item => {

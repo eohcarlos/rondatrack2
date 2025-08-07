@@ -115,16 +115,15 @@ export const AbsenceForm = ({ onClose, onSuccess }: AbsenceFormProps) => {
 
       if (!profile) throw new Error('Perfil não encontrado');
 
-      // Corrigir problema da data - criar objeto Date no UTC
-      const dateObj = new Date(date + 'T00:00:00.000Z');
-      const utcDate = dateObj.toISOString().split('T')[0];
+      // Usar string local YYYY-MM-DD para evitar fuso horário
+      const ymdDate = date;
 
       // Verificar se já existe um registro para este funcionário na mesma data
       const { data: existing } = await supabase
         .from('absences')
         .select('id')
         .eq('employee_id', selectedEmployee)
-        .eq('date', utcDate)
+        .eq('date', ymdDate)
         .maybeSingle();
 
       if (existing) {
@@ -135,7 +134,7 @@ export const AbsenceForm = ({ onClose, onSuccess }: AbsenceFormProps) => {
         .from('absences')
         .insert({
           employee_id: selectedEmployee,
-          date: utcDate,
+          date: ymdDate,
           reason,
           supervisor_id: supervisorId,
           observations,
@@ -197,7 +196,7 @@ export const AbsenceForm = ({ onClose, onSuccess }: AbsenceFormProps) => {
             <div className="space-y-2">
               <Label htmlFor="employee">Funcionário *</Label>
               <Select value={selectedEmployee} onValueChange={setSelectedEmployee} required>
-                <SelectTrigger className="rounded-lg">
+                  <SelectTrigger className="rounded-lg text-foreground">
                   <SelectValue placeholder="Selecione o funcionário" />
                 </SelectTrigger>
                 <SelectContent>
@@ -230,7 +229,7 @@ export const AbsenceForm = ({ onClose, onSuccess }: AbsenceFormProps) => {
             <div className="space-y-2">
               <Label htmlFor="reason">Motivo *</Label>
               <Select value={reason} onValueChange={setReason} required>
-                <SelectTrigger className="rounded-lg">
+                <SelectTrigger className="rounded-lg text-foreground">
                   <SelectValue placeholder="Selecione o motivo" />
                 </SelectTrigger>
                 <SelectContent>
@@ -246,7 +245,7 @@ export const AbsenceForm = ({ onClose, onSuccess }: AbsenceFormProps) => {
             <div className="space-y-2">
               <Label htmlFor="supervisor">Supervisor do Dia *</Label>
               <Select value={supervisorId} onValueChange={setSupervisorId} required>
-                <SelectTrigger className="rounded-lg">
+                <SelectTrigger className="rounded-lg text-foreground">
                   <SelectValue placeholder="Selecione o supervisor" />
                 </SelectTrigger>
                 <SelectContent>

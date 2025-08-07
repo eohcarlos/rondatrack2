@@ -104,16 +104,15 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
 
       if (!profile) throw new Error('Perfil não encontrado');
 
-      // Corrigir problema da data - criar objeto Date no UTC
-      const dateObj = new Date(date + 'T00:00:00.000Z');
-      const utcDate = dateObj.toISOString().split('T')[0];
+      // Usar string local YYYY-MM-DD para evitar fuso horário
+      const ymdDate = date;
 
       // Verificar se já existe um registro para este funcionário na mesma data
       const { data: existing } = await supabase
         .from('worked_leaves')
         .select('id')
         .eq('employee_id', selectedEmployee)
-        .eq('date', utcDate)
+        .eq('date', ymdDate)
         .maybeSingle();
 
       if (existing) {
@@ -124,7 +123,7 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
         .from('worked_leaves')
         .insert({
           employee_id: selectedEmployee,
-          date: utcDate,
+          date: ymdDate,
           supervisor_id: supervisorId,
           observations,
           amount: amount ? parseFloat(amount) : null,
@@ -187,7 +186,7 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
             <div className="space-y-2">
               <Label htmlFor="employee">Funcionário *</Label>
               <Select value={selectedEmployee} onValueChange={setSelectedEmployee} required>
-                <SelectTrigger className="rounded-lg">
+                  <SelectTrigger className="rounded-lg text-foreground">
                   <SelectValue placeholder="Selecione o funcionário" />
                 </SelectTrigger>
                 <SelectContent>
@@ -220,7 +219,7 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
             <div className="space-y-2">
               <Label htmlFor="supervisor">Supervisor do Dia *</Label>
               <Select value={supervisorId} onValueChange={setSupervisorId} required>
-                <SelectTrigger className="rounded-lg">
+                <SelectTrigger className="rounded-lg text-foreground">
                   <SelectValue placeholder="Selecione o supervisor" />
                 </SelectTrigger>
                 <SelectContent>
@@ -254,7 +253,7 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
             <div className="space-y-2">
               <Label htmlFor="workShift">Turno de Trabalho *</Label>
               <Select value={workShift} onValueChange={setWorkShift} required>
-                <SelectTrigger className="rounded-lg">
+                <SelectTrigger className="rounded-lg text-foreground">
                   <SelectValue placeholder="Selecione o turno" />
                 </SelectTrigger>
                 <SelectContent>
