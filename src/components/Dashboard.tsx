@@ -250,46 +250,46 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
       <div className="container mx-auto px-4 py-6 space-y-6">{/* Removido max-h-screen overflow-y-auto para permitir scroll natural */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Navigation Tabs - Single Row on Desktop, Vertical Stack on Mobile */}
-          <TabsList className="mb-6 h-auto p-0 bg-transparent justify-start">
-            <div className="flex flex-col sm:flex-row gap-2 w-full">
+          <TabsList className="mb-6 h-auto p-0 bg-transparent justify-center sm:justify-start">
+            <div className="flex flex-col sm:flex-row gap-2 w-full items-center sm:items-stretch">
               <TabsTrigger 
                 value="dashboard" 
-                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full sm:w-auto rounded-lg"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-auto rounded-lg"
               >
                 <BarChart3 className="h-5 w-5" />
                 <span>Dashboard</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="employees" 
-                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full sm:w-auto rounded-lg"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-auto rounded-lg"
               >
                 <Users className="h-5 w-5" />
                 <span>Funcionários</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="condominiums" 
-                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full sm:w-auto rounded-lg"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-auto rounded-lg"
               >
                 <Building2 className="h-5 w-5" />
                 <span>Condomínios</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="worked-leaves" 
-                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full sm:w-auto rounded-lg"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-auto rounded-lg"
               >
                 <Clock className="h-5 w-5" />
                 <span>FT</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="absences" 
-                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full sm:w-auto rounded-lg"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-auto rounded-lg"
               >
                 <Calendar className="h-5 w-5" />
                 <span>Faltas</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="reports" 
-                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full sm:w-auto rounded-lg"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-auto rounded-lg"
               >
                 <Download className="h-5 w-5" />
                 <span>Relatórios</span>
