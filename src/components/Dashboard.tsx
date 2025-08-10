@@ -18,7 +18,7 @@ import { ProfilePage } from '@/pages/Profile';
 import { ReportsPage } from '@/pages/Reports';
 import { WorkedLeavesPage } from '@/pages/WorkedLeaves';
 import { AbsencesPage } from '@/pages/Absences';
-
+import { BottomNav } from './BottomNav';
 interface DashboardProps {
   onLogout: () => void;
   onGoHome: () => void;
@@ -247,10 +247,10 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-6 space-y-6">{/* Removido max-h-screen overflow-y-auto para permitir scroll natural */}
+      <div className="container mx-auto px-4 py-6 pb-24 sm:pb-6 space-y-6">{/* Removido max-h-screen overflow-y-auto para permitir scroll natural */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Navigation Tabs - Single Row on Desktop, Vertical Stack on Mobile */}
-          <TabsList className="mb-6 h-auto p-0 bg-transparent justify-center sm:justify-start">
+          <TabsList className="hidden sm:flex mb-6 h-auto p-0 bg-transparent justify-start">
             <div className="flex flex-col sm:flex-row gap-2 w-full items-center sm:items-stretch">
               <TabsTrigger 
                 value="dashboard" 
@@ -457,6 +457,7 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
           </TabsContent>
         </Tabs>
       </div>
+      <BottomNav activeTab={activeTab} onChange={setActiveTab} />
       
       <PWAInstallPrompt />
     </div>
