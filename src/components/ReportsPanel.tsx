@@ -232,9 +232,9 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
     try {
       const doc = new jsPDF();
       
-      // Adicionar logo
-      const logoUrl = '/lovable-uploads/0ffeef19-4ae9-4cb3-aa94-27f30c84665f.png';
-      doc.addImage(logoUrl, 'PNG', 150, 10, 40, 25);
+      // Adicionar logo com qualidade extrema e posicionamento perfeito
+      const logoUrl = '/lovable-uploads/de02043a-90ae-4b93-b0d7-dda7d617be6a.png';
+      doc.addImage(logoUrl, 'PNG', 140, 8, 60, 30, undefined, 'FAST');
       
       // Título
       doc.setFontSize(18);
