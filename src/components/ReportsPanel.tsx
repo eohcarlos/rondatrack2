@@ -232,6 +232,10 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
     try {
       const doc = new jsPDF();
       
+      // Adicionar logo
+      const logoUrl = '/lovable-uploads/0ffeef19-4ae9-4cb3-aa94-27f30c84665f.png';
+      doc.addImage(logoUrl, 'PNG', 150, 10, 40, 25);
+      
       // Título
       doc.setFontSize(18);
       doc.text(`Relatório de ${reportType === 'ft' ? 'Folgas Trabalhadas' : 'Faltas'}`, 20, 20);
@@ -242,7 +246,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
       doc.text(`Cargo: ${employee.positions?.title || 'Não informado'}`, 20, 45);
       doc.text(`Local de Trabalho: ${employee.condominiums?.name || 'Não informado'}`, 20, 55);
       doc.text(`Endereço: ${employee.condominiums?.address || 'Não informado'}`, 20, 65);
-      doc.text(`Data de Geração: ${new Date().toLocaleDateString('pt-BR')}`, 20, 75);
+      doc.text(`Data de Geração: ${format(new Date(), 'dd/MM/yyyy', { locale: ptBR })}`, 20, 75);
 
       // Tabela
       const tableData = data.map(row => headers.map(header => String(row[header] || '')));
