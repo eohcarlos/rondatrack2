@@ -10,7 +10,7 @@ import { EmployeeManagement } from './EmployeeManagement';
 import { CondominiumManagement } from './CondominiumManagement';
 import { WorkedLeavesTab } from './WorkedLeavesTab';
 import { AbsencesTab } from './AbsencesTab';
-
+import { ReportsPanel } from './ReportsPanel';
 import { PWAInstallPrompt } from './PWAInstallPrompt';
 
 import { DailyPhrase } from './DailyPhrase';
@@ -451,9 +451,7 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
 
 
           <TabsContent value="reports">
-            <div className="text-center p-8">
-              <p className="text-muted-foreground">Use os cards na Dashboard para acessar relatórios</p>
-            </div>
+            <ReportsPanel onClose={() => setActiveTab('dashboard')} />
           </TabsContent>
         </Tabs>
       </div>
