@@ -97,14 +97,14 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         if (error) throw error;
 
         data = ftData?.map(item => ({
-          'Data': new Date(item.date).toLocaleDateString('pt-BR'),
+          'Data': format(new Date(item.date + 'T00:00:00'), 'dd/MM/yyyy'),
           'Nome': `${item.employees?.first_name || ''} ${item.employees?.last_name || ''}`,
           'Cargo': item.employees?.positions?.title || '',
           'Supervisor(a)': item.supervisor_profile?.name || '',
           'Condomínio': item.employees?.condominiums?.name || '',
           'Valor': item.amount ? `R$ ${Number(item.amount).toFixed(2)}` : 'Não informado',
           'Observações': item.observations || 'Sem observações',
-          'Data do Registro': new Date(item.created_at).toLocaleDateString('pt-BR')
+          'Data do Registro': format(new Date(item.created_at), 'dd/MM/yyyy', { locale: ptBR })
         }));
 
         filename = `folgas_trabalhadas_${selectedEmployee.first_name}_${selectedEmployee.last_name}`;
@@ -134,14 +134,14 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         if (error) throw error;
 
         data = absenceData?.map(item => ({
-          'Data': new Date(item.date).toLocaleDateString('pt-BR'),
+          'Data': format(new Date(item.date + 'T00:00:00'), 'dd/MM/yyyy'),
           'Nome': `${item.employees?.first_name || ''} ${item.employees?.last_name || ''}`,
           'Cargo': item.employees?.positions?.title || '',
           'Supervisor(a)': item.supervisor_profile?.name || '',
           'Condomínio': item.employees?.condominiums?.name || '',
           'Motivo': getReasonLabel(item.reason),
           'Observações': item.observations || 'Sem observações',
-          'Data do Registro': new Date(item.created_at).toLocaleDateString('pt-BR')
+          'Data do Registro': format(new Date(item.created_at), 'dd/MM/yyyy', { locale: ptBR })
         }));
 
         filename = `faltas_${selectedEmployee.first_name}_${selectedEmployee.last_name}`;
