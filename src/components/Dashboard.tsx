@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getCurrentCompanyId } from '@/lib/company';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +23,7 @@ import { BottomNav } from './BottomNav';
 interface DashboardProps {
   onLogout: () => void;
   onGoHome: () => void;
+  companyName?: string;
 }
 
 interface Profile {
@@ -42,7 +44,7 @@ interface Stats {
   totalWorkedLeaves: number;
 }
 
-export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
+export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState<Stats>({ totalEmployees: 0, monthlyWorkedLeaves: 0, monthlyAbsences: 0, totalAbsences: 0, totalCondominiums: 0, totalWorkedLeaves: 0 });
   const [currentPage, setCurrentPage] = useState<'dashboard' | 'profile' | 'reports' | 'ft' | 'absence'>('dashboard');
@@ -94,11 +96,15 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
 
   const loadStats = async () => {
     try {
+      const companyId = getCurrentCompanyId();
+      if (!companyId) return;
+
       // Total de funcionários
       const { count: employeesCount } = await supabase
         .from('employees')
         .select('*', { count: 'exact', head: true })
-        .eq('active', true);
+        .eq('active', true)
+        .eq('company_id', companyId);
 
       // Faixas de data do mês atual (local, evitando fuso)
       const now = new Date();
@@ -115,29 +121,34 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
         .from('worked_leaves')
         .select('*', { count: 'exact', head: true })
         .gte('date', startOfMonth)
-        .lt('date', startOfNextMonth);
+        .lt('date', startOfNextMonth)
+        .eq('company_id', companyId);
 
       // Faltas do mês atual
       const { count: absencesCount } = await supabase
         .from('absences')
         .select('*', { count: 'exact', head: true })
         .gte('date', startOfMonth)
-        .lt('date', startOfNextMonth);
+        .lt('date', startOfNextMonth)
+        .eq('company_id', companyId);
 
       // Total de faltas
       const { count: totalAbsencesCount } = await supabase
         .from('absences')
-        .select('*', { count: 'exact', head: true });
+        .select('*', { count: 'exact', head: true })
+        .eq('company_id', companyId);
 
       // Total de condomínios
       const { count: condominiumsCount } = await supabase
         .from('condominiums')
-        .select('*', { count: 'exact', head: true });
+        .select('*', { count: 'exact', head: true })
+        .eq('company_id', companyId);
 
       // Total de FTs (todas)
       const { count: totalFtCount } = await supabase
         .from('worked_leaves')
-        .select('*', { count: 'exact', head: true });
+        .select('*', { count: 'exact', head: true })
+        .eq('company_id', companyId);
 
       setStats({
         totalEmployees: employeesCount || 0,
@@ -219,7 +230,12 @@ export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
                 <h1 className="text-xl lg:text-2xl font-bold text-foreground">
                   RondaTrack <span className="text-primary">2</span>
                 </h1>
-                <p className="text-xs lg:text-sm text-muted-foreground">Sistema de Controle Profissional</p>
+                <div className="flex flex-col">
+                  <p className="text-xs lg:text-sm text-muted-foreground">Sistema de Controle Profissional</p>
+                  {companyName && (
+                    <p className="text-xs text-primary font-medium">{companyName}</p>
+                  )}
+                </div>
               </div>
             </div>
 
