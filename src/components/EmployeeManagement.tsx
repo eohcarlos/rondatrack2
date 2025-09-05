@@ -334,6 +334,14 @@ export const EmployeeManagement = () => {
 
   return (
     <div className="space-y-6">
+      {/* Debug info temporário */}
+      <div className="bg-yellow-100 p-2 rounded text-xs">
+        <p><strong>Debug:</strong> Company ID: {getCurrentCompanyId()}</p>
+        <p>Positions: {positions.length} | Condominiums: {condominiums.length}</p>
+        <p>Positions: {positions.map(p => p.title).join(', ')}</p>
+        <p>Condominiums: {condominiums.map(c => c.name).join(', ')}</p>
+      </div>
+      
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
