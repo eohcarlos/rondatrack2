@@ -57,6 +57,9 @@ export const EmployeeManagement = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    const companyId = getCurrentCompanyId();
+    console.log('Company ID no EmployeeManagement:', companyId);
+    
     loadEmployees();
     loadPositions();
     loadCondominiums();
