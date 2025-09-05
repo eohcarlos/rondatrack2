@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Plus, Edit, Trash2, Search, Users } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { getCurrentCompanyId } from '@/lib/company';
 
 interface Employee {
   id: string;
@@ -85,6 +86,12 @@ export const EmployeeManagement = () => {
 
   const loadEmployees = async () => {
     try {
+      const companyId = getCurrentCompanyId();
+      if (!companyId) {
+        console.error('Company ID não encontrado');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('employees')
         .select(`
@@ -92,11 +99,14 @@ export const EmployeeManagement = () => {
           positions(title),
           condominiums(name)
         `)
+        .eq('company_id', companyId)
         .order('first_name');
 
       if (error) throw error;
+      console.log('Funcionários carregados:', data);
       setEmployees(data || []);
     } catch (error: any) {
+      console.error('Erro ao carregar funcionários:', error);
       toast({
         title: "Erro ao carregar funcionários",
         description: error.message,
@@ -107,14 +117,23 @@ export const EmployeeManagement = () => {
 
   const loadPositions = async () => {
     try {
+      const companyId = getCurrentCompanyId();
+      if (!companyId) {
+        console.error('Company ID não encontrado para carregar cargos');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('positions')
         .select('*')
+        .eq('company_id', companyId)
         .order('title');
 
       if (error) throw error;
+      console.log('Cargos carregados:', data);
       setPositions(data || []);
     } catch (error: any) {
+      console.error('Erro ao carregar cargos:', error);
       toast({
         title: "Erro ao carregar cargos",
         description: error.message,
@@ -125,14 +144,23 @@ export const EmployeeManagement = () => {
 
   const loadCondominiums = async () => {
     try {
+      const companyId = getCurrentCompanyId();
+      if (!companyId) {
+        console.error('Company ID não encontrado para carregar condomínios');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('condominiums')
         .select('*')
+        .eq('company_id', companyId)
         .order('name');
 
       if (error) throw error;
+      console.log('Condomínios carregados:', data);
       setCondominiums(data || []);
     } catch (error: any) {
+      console.error('Erro ao carregar condomínios:', error);
       toast({
         title: "Erro ao carregar condomínios",
         description: error.message,
@@ -173,9 +201,14 @@ export const EmployeeManagement = () => {
           description: "Os dados foram atualizados com sucesso.",
         });
       } else {
+        const companyId = getCurrentCompanyId();
+        if (!companyId) {
+          throw new Error('Company ID não encontrado');
+        }
+
         const { error } = await supabase
           .from('employees')
-          .insert([employeeData]);
+          .insert([{ ...employeeData, company_id: companyId }]);
 
         if (error) throw error;
 
