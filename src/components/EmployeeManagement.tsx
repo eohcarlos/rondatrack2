@@ -121,8 +121,15 @@ export const EmployeeManagement = () => {
   const loadPositions = async () => {
     try {
       const companyId = getCurrentCompanyId();
+      console.log('Company ID para cargos:', companyId);
+      
       if (!companyId) {
         console.error('Company ID não encontrado para carregar cargos');
+        // Tentar carregar todos os cargos para debug
+        const { data: allPositions } = await supabase
+          .from('positions')
+          .select('*');
+        console.log('Todos os cargos no banco:', allPositions);
         return;
       }
 
@@ -133,7 +140,7 @@ export const EmployeeManagement = () => {
         .order('title');
 
       if (error) throw error;
-      console.log('Cargos carregados:', data);
+      console.log('Cargos filtrados por company_id:', data);
       setPositions(data || []);
     } catch (error: any) {
       console.error('Erro ao carregar cargos:', error);
@@ -148,8 +155,15 @@ export const EmployeeManagement = () => {
   const loadCondominiums = async () => {
     try {
       const companyId = getCurrentCompanyId();
+      console.log('Company ID para condomínios:', companyId);
+      
       if (!companyId) {
         console.error('Company ID não encontrado para carregar condomínios');
+        // Tentar carregar todos os condomínios para debug
+        const { data: allCondos } = await supabase
+          .from('condominiums')
+          .select('*');
+        console.log('Todos os condomínios no banco:', allCondos);
         return;
       }
 
@@ -160,7 +174,7 @@ export const EmployeeManagement = () => {
         .order('name');
 
       if (error) throw error;
-      console.log('Condomínios carregados:', data);
+      console.log('Condomínios filtrados por company_id:', data);
       setCondominiums(data || []);
     } catch (error: any) {
       console.error('Erro ao carregar condomínios:', error);
