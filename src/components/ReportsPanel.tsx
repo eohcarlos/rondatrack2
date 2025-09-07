@@ -11,6 +11,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { getCurrentCompanyId } from '@/lib/company';
 
 interface ReportsPanelProps {
   onClose: () => void;
@@ -30,6 +31,12 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
 
   const loadEmployees = async () => {
     try {
+      const companyId = getCurrentCompanyId();
+      if (!companyId) {
+        console.error('Company ID não encontrado');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('employees')
         .select(`
@@ -40,6 +47,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
           condominiums (name, address)
         `)
         .eq('active', true)
+        .eq('company_id', companyId)
         .order('first_name');
 
       if (error) throw error;

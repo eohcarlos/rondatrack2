@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { X, Calendar } from 'lucide-react';
+import { getCurrentCompanyId } from '@/lib/company';
 
 interface AbsenceFormProps {
   onClose: () => void;
@@ -58,6 +59,12 @@ export const AbsenceForm = ({ onClose, onSuccess }: AbsenceFormProps) => {
 
   const loadEmployees = async () => {
     try {
+      const companyId = getCurrentCompanyId();
+      if (!companyId) {
+        console.error('Company ID não encontrado');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('employees')
         .select(`
@@ -68,6 +75,7 @@ export const AbsenceForm = ({ onClose, onSuccess }: AbsenceFormProps) => {
           condominiums (name)
         `)
         .eq('active', true)
+        .eq('company_id', companyId)
         .order('name');
 
       if (error) throw error;
@@ -83,9 +91,16 @@ export const AbsenceForm = ({ onClose, onSuccess }: AbsenceFormProps) => {
 
   const loadSupervisors = async () => {
     try {
+      const companyId = getCurrentCompanyId();
+      if (!companyId) {
+        console.error('Company ID não encontrado');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('profiles')
         .select('id, name, role')
+        .eq('company_id', companyId)
         .order('name');
 
       if (error) throw error;

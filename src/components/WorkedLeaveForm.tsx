@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { X, Clock } from 'lucide-react';
+import { getCurrentCompanyId } from '@/lib/company';
 
 interface WorkedLeaveFormProps {
   onClose: () => void;
@@ -47,6 +48,12 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
 
   const loadEmployees = async () => {
     try {
+      const companyId = getCurrentCompanyId();
+      if (!companyId) {
+        console.error('Company ID não encontrado');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('employees')
         .select(`
@@ -57,6 +64,7 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
           condominiums (name)
         `)
         .eq('active', true)
+        .eq('company_id', companyId)
         .order('name');
 
       if (error) throw error;
@@ -72,9 +80,16 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
 
   const loadSupervisors = async () => {
     try {
+      const companyId = getCurrentCompanyId();
+      if (!companyId) {
+        console.error('Company ID não encontrado');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('profiles')
         .select('id, name, role')
+        .eq('company_id', companyId)
         .order('name');
 
       if (error) throw error;

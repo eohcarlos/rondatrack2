@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Plus, Edit, Trash2, Search, Building2, MapPin } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { getCurrentCompanyId } from '@/lib/company';
 
 interface Condominium {
   id: string;
@@ -58,6 +59,12 @@ export const CondominiumManagement = () => {
 
   const loadCondominiums = async () => {
     try {
+      const companyId = getCurrentCompanyId();
+      if (!companyId) {
+        console.error('Company ID não encontrado');
+        return;
+      }
+
       // Carregar condomínios com contagem de funcionários
       const { data: condominiumsData, error } = await supabase
         .from('condominiums')
@@ -65,6 +72,7 @@ export const CondominiumManagement = () => {
           *,
           employees!inner(id)
         `)
+        .eq('company_id', companyId)
         .order('name');
 
       if (error) throw error;
@@ -76,7 +84,8 @@ export const CondominiumManagement = () => {
             .from('employees')
             .select('*', { count: 'exact', head: true })
             .eq('condominium_id', condominium.id)
-            .eq('active', true);
+            .eq('active', true)
+            .eq('company_id', companyId);
 
           return {
             ...condominium,
