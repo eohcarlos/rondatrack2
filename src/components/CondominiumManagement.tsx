@@ -119,9 +119,15 @@ export const CondominiumManagement = () => {
     setLoading(true);
 
     try {
+      const companyId = getCurrentCompanyId();
+      if (!companyId) {
+        throw new Error('Company ID não encontrado');
+      }
+
       const condominiumData = {
         name: formData.name.trim(),
-        address: formData.address.trim() || null
+        address: formData.address.trim() || null,
+        company_id: companyId
       };
 
       if (editingCondominium) {
@@ -148,6 +154,9 @@ export const CondominiumManagement = () => {
           description: "O condomínio foi cadastrado com sucesso.",
         });
       }
+
+      // Recarregar a lista de condomínios
+      await loadCondominiums();
 
       resetForm();
       setShowAddForm(false);
@@ -196,6 +205,9 @@ export const CondominiumManagement = () => {
         title: "Condomínio excluído",
         description: "O condomínio foi removido do sistema.",
       });
+
+      // Recarregar a lista de condomínios
+      await loadCondominiums();
     } catch (error: any) {
       toast({
         title: "Erro ao excluir condomínio",
