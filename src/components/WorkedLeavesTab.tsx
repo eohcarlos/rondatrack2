@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Search, Calendar, User, MapPin, Eye, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { EmployeeDetailsModal } from './EmployeeDetailsModal';
+import { getCurrentCompanyId } from '@/lib/company';
 
 interface WorkedLeave {
   id: string;
@@ -71,6 +72,12 @@ export const WorkedLeavesTab = () => {
 
   const loadWorkedLeaves = async () => {
     try {
+      const companyId = getCurrentCompanyId();
+      if (!companyId) {
+        console.error('Company ID não encontrado');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('worked_leaves')
         .select(`
@@ -85,6 +92,7 @@ export const WorkedLeavesTab = () => {
           ),
           supervisor:profiles!supervisor_id(name)
         `)
+        .eq('company_id', companyId)
         .order('date', { ascending: false });
 
       if (error) throw error;
@@ -102,9 +110,16 @@ export const WorkedLeavesTab = () => {
 
   const loadCondominiums = async () => {
     try {
+      const companyId = getCurrentCompanyId();
+      if (!companyId) {
+        console.error('Company ID não encontrado');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('condominiums')
         .select('id, name')
+        .eq('company_id', companyId)
         .order('name');
 
       if (error) throw error;

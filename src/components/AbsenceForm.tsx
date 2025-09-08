@@ -55,6 +55,7 @@ export const AbsenceForm = ({ onClose, onSuccess }: AbsenceFormProps) => {
   useEffect(() => {
     loadEmployees();
     loadSupervisors();
+    setCurrentUserAsSupervisor();
   }, []);
 
   const loadEmployees = async () => {
@@ -111,6 +112,25 @@ export const AbsenceForm = ({ onClose, onSuccess }: AbsenceFormProps) => {
         description: error.message,
         variant: "destructive",
       });
+    }
+  };
+
+  const setCurrentUserAsSupervisor = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profile) {
+        setSupervisorId(profile.id);
+      }
+    } catch (error: any) {
+      console.error('Erro ao definir supervisor:', error);
     }
   };
 
