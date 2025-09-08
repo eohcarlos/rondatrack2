@@ -165,6 +165,11 @@ export const AbsenceForm = ({ onClose, onSuccess }: AbsenceFormProps) => {
         throw new Error('Já existe uma falta registrada para este funcionário nesta data');
       }
 
+      const companyId = getCurrentCompanyId();
+      if (!companyId) {
+        throw new Error('Company ID não encontrado');
+      }
+
       const { error } = await supabase
         .from('absences')
         .insert({
@@ -174,6 +179,7 @@ export const AbsenceForm = ({ onClose, onSuccess }: AbsenceFormProps) => {
           supervisor_id: supervisorId,
           observations,
           created_by: profile.id,
+          company_id: companyId,
         });
 
       if (error) throw error;

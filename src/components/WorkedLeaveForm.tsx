@@ -154,6 +154,11 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
         throw new Error('Já existe uma FT registrada para este funcionário nesta data');
       }
 
+      const companyId = getCurrentCompanyId();
+      if (!companyId) {
+        throw new Error('Company ID não encontrado');
+      }
+
       const { error } = await supabase
         .from('worked_leaves')
         .insert({
@@ -164,6 +169,7 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
           amount: amount ? parseFloat(amount) : null,
           work_shift: workShift,
           created_by: profile.id,
+          company_id: companyId,
         });
 
       if (error) throw error;
