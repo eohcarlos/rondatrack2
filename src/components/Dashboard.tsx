@@ -263,54 +263,52 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-6 pb-24 sm:pb-6 space-y-6">{/* Removido max-h-screen overflow-y-auto para permitir scroll natural */}
+      <div className="container mx-auto px-4 py-6 pb-24 sm:pb-6 space-y-6 overflow-x-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          {/* Navigation Tabs - Single Row on Desktop, Vertical Stack on Mobile */}
-          <TabsList className="hidden sm:flex mb-6 h-auto p-0 bg-transparent justify-start">
-            <div className="flex flex-col sm:flex-row gap-2 w-full items-center sm:items-stretch">
-              <TabsTrigger 
-                value="dashboard" 
-                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-auto rounded-lg"
-              >
-                <BarChart3 className="h-5 w-5" />
-                <span>Dashboard</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="employees" 
-                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-auto rounded-lg"
-              >
-                <Users className="h-5 w-5" />
-                <span>Funcionários</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="condominiums" 
-                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-auto rounded-lg"
-              >
-                <Building2 className="h-5 w-5" />
-                <span>Condomínios</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="worked-leaves" 
-                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-auto rounded-lg"
-              >
-                <Clock className="h-5 w-5" />
-                <span>FT</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="absences" 
-                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-auto rounded-lg"
-              >
-                <Calendar className="h-5 w-5" />
-                <span>Faltas</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="reports" 
-                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-auto rounded-lg"
-              >
-                <Download className="h-5 w-5" />
-                <span>Relatórios</span>
-              </TabsTrigger>
-            </div>
+          {/* Navigation Tabs - Grid on Desktop */}
+          <TabsList className="hidden sm:grid sm:grid-cols-3 lg:grid-cols-6 mb-6 h-auto p-0 bg-transparent gap-2 w-full">
+            <TabsTrigger 
+              value="dashboard" 
+              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
+            >
+              <BarChart3 className="h-5 w-5" />
+              <span>Dashboard</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="employees" 
+              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
+            >
+              <Users className="h-5 w-5" />
+              <span>Funcionários</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="condominiums" 
+              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
+            >
+              <Building2 className="h-5 w-5" />
+              <span>Condomínios</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="worked-leaves" 
+              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
+            >
+              <Clock className="h-5 w-5" />
+              <span>FT</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="absences" 
+              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
+            >
+              <Calendar className="h-5 w-5" />
+              <span>Faltas</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="reports" 
+              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
+            >
+              <Download className="h-5 w-5" />
+              <span>Relatórios</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">

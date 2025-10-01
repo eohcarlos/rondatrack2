@@ -65,13 +65,10 @@ export const CondominiumManagement = () => {
         return;
       }
 
-      // Carregar condomínios com contagem de funcionários
+      // Carregar condomínios
       const { data: condominiumsData, error } = await supabase
         .from('condominiums')
-        .select(`
-          *,
-          employees!inner(id)
-        `)
+        .select('*')
         .eq('company_id', companyId)
         .order('name');
 
