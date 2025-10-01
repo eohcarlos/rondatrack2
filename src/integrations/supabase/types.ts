@@ -109,7 +109,7 @@ export type Database = {
       condominiums: {
         Row: {
           address: string | null
-          company_id: string | null
+          company_id: string
           created_at: string | null
           id: string
           name: string
@@ -117,7 +117,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
-          company_id?: string | null
+          company_id: string
           created_at?: string | null
           id?: string
           name: string
@@ -125,7 +125,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
-          company_id?: string | null
+          company_id?: string
           created_at?: string | null
           id?: string
           name?: string
