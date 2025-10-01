@@ -178,23 +178,68 @@ export const WorkedLeavesTab = () => {
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Folgas Trabalhadas');
 
-      // Ajustar largura das colunas
+      // Ajustar largura das colunas para melhor visualização
       const columnWidths = [
-        { wch: 12 }, // Data
-        { wch: 25 }, // Nome
-        { wch: 20 }, // Cargo
-        { wch: 25 }, // Supervisor
-        { wch: 25 }, // Condomínio
-        { wch: 15 }, // Valor
-        { wch: 30 }, // Observações
-        { wch: 18 }  // Data do Registro
+        { wch: 14 },  // Data
+        { wch: 28 },  // Nome
+        { wch: 22 },  // Cargo
+        { wch: 28 },  // Supervisor
+        { wch: 28 },  // Condomínio
+        { wch: 18 },  // Valor
+        { wch: 40 },  // Observações
+        { wch: 20 }   // Data do Registro
       ];
       worksheet['!cols'] = columnWidths;
+
+      // Aplicar estilo aos cabeçalhos e células
+      const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
+      
+      // Estilizar cabeçalhos (primeira linha)
+      for (let col = range.s.c; col <= range.e.c; col++) {
+        const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+        if (!worksheet[cellAddress]) continue;
+        
+        worksheet[cellAddress].s = {
+          font: { bold: true, sz: 12, color: { rgb: "FFFFFF" } },
+          fill: { fgColor: { rgb: "4F46E5" } },
+          alignment: { horizontal: "center", vertical: "center", wrapText: true },
+          border: {
+            top: { style: "thin", color: { rgb: "000000" } },
+            bottom: { style: "thin", color: { rgb: "000000" } },
+            left: { style: "thin", color: { rgb: "000000" } },
+            right: { style: "thin", color: { rgb: "000000" } }
+          }
+        };
+      }
+
+      // Estilizar células de dados com bordas
+      for (let row = range.s.r + 1; row <= range.e.r; row++) {
+        for (let col = range.s.c; col <= range.e.c; col++) {
+          const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+          if (!worksheet[cellAddress]) continue;
+          
+          worksheet[cellAddress].s = {
+            alignment: { vertical: "center", wrapText: true },
+            border: {
+              top: { style: "thin", color: { rgb: "D1D5DB" } },
+              bottom: { style: "thin", color: { rgb: "D1D5DB" } },
+              left: { style: "thin", color: { rgb: "D1D5DB" } },
+              right: { style: "thin", color: { rgb: "D1D5DB" } }
+            }
+          };
+        }
+      }
+
+      // Definir altura das linhas
+      worksheet['!rows'] = [
+        { hpt: 25 }, // Cabeçalho com altura maior
+        ...Array(dataToExport.length).fill({ hpt: 20 })
+      ];
 
       const today = new Date().toISOString().split('T')[0];
       const fileName = `Relatorio_FT_${today}.xlsx`;
       
-      XLSX.writeFile(workbook, fileName);
+      XLSX.writeFile(workbook, fileName, { cellStyles: true });
 
       toast({
         title: "Exportação concluída",
