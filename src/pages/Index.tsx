@@ -13,35 +13,61 @@ const Index = () => {
 
   useEffect(() => {
     // Check initial auth state
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setIsAuthenticated(!!session);
       if (session) {
+        // Buscar o perfil do usuário para verificar se já tem empresa vinculada
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('company_id, companies(name)')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (profile && profile.company_id) {
+          // Usuário já tem empresa vinculada
+          const companyName = (profile.companies as any)?.name || '';
+          localStorage.setItem('companyId', profile.company_id);
+          localStorage.setItem('companyName', companyName);
+          localStorage.setItem('companyCodeVerified', 'true');
+          setHasCompanyCode(true);
+          setCompanyName(companyName);
+        } else {
+          // Usuário ainda não tem empresa vinculada
+          setHasCompanyCode(false);
+        }
+        
         // Check if user has verified access code
         const accessCodeVerified = localStorage.getItem('accessCodeVerified');
         setHasAccessCode(accessCodeVerified === 'true');
-        
-        // Check if user has verified company code
-        const companyCodeVerified = localStorage.getItem('companyCodeVerified');
-        const storedCompanyName = localStorage.getItem('companyName');
-        setHasCompanyCode(companyCodeVerified === 'true');
-        if (storedCompanyName) {
-          setCompanyName(storedCompanyName);
-        }
       }
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setIsAuthenticated(!!session);
       if (session) {
-        const accessCodeVerified = localStorage.getItem('accessCodeVerified');
-        const companyCodeVerified = localStorage.getItem('companyCodeVerified');
-        const storedCompanyName = localStorage.getItem('companyName');
-        setHasAccessCode(accessCodeVerified === 'true');
-        setHasCompanyCode(companyCodeVerified === 'true');
-        if (storedCompanyName) {
-          setCompanyName(storedCompanyName);
+        // Buscar o perfil do usuário para verificar se já tem empresa vinculada
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('company_id, companies(name)')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (profile && profile.company_id) {
+          // Usuário já tem empresa vinculada
+          const companyName = (profile.companies as any)?.name || '';
+          localStorage.setItem('companyId', profile.company_id);
+          localStorage.setItem('companyName', companyName);
+          localStorage.setItem('companyCodeVerified', 'true');
+          setHasCompanyCode(true);
+          setCompanyName(companyName);
+        } else {
+          // Usuário ainda não tem empresa vinculada
+          setHasCompanyCode(false);
         }
+        
+        const accessCodeVerified = localStorage.getItem('accessCodeVerified');
+        setHasAccessCode(accessCodeVerified === 'true');
       } else {
         setHasAccessCode(null);
         setHasCompanyCode(null);

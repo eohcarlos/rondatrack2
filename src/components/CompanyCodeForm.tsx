@@ -47,7 +47,37 @@ export const CompanyCodeForm = ({ onSuccess }: CompanyCodeFormProps) => {
         return;
       }
 
-      // Salvar o company_id no localStorage
+      // Obter o usuário atual
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Erro",
+          description: "Usuário não autenticado",
+          variant: "destructive"
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Salvar o company_id no perfil do usuário no banco de dados
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ company_id: company.id })
+        .eq('user_id', user.id);
+
+      if (updateError) {
+        console.error('Erro ao atualizar perfil:', updateError);
+        toast({
+          title: "Erro",
+          description: "Não foi possível vincular a empresa ao seu perfil",
+          variant: "destructive"
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Salvar também no localStorage para acesso rápido
       localStorage.setItem('companyId', company.id);
       localStorage.setItem('companyName', company.name);
       localStorage.setItem('companyCodeVerified', 'true');
