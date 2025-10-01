@@ -5,11 +5,13 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Calendar, User, MapPin, Eye, DollarSign } from 'lucide-react';
+import { Search, Calendar, User, MapPin, Eye, DollarSign, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { EmployeeDetailsModal } from './EmployeeDetailsModal';
 import { getCurrentCompanyId } from '@/lib/company';
+import * as XLSX from 'xlsx';
 
 interface WorkedLeave {
   id: string;
@@ -159,6 +161,113 @@ export const WorkedLeavesTab = () => {
     return `${d}/${m}/${y}`;
   };
 
+  const exportToExcel = () => {
+    try {
+      const dataToExport = filteredWorkedLeaves.map(item => ({
+        'Data': formatDate(item.date),
+        'Nome': `${item.employees.first_name} ${item.employees.last_name}`,
+        'Cargo': item.employees.positions?.title || 'N/A',
+        'Supervisor(a)': item.supervisor?.name || 'N/A',
+        'Condomínio': item.employees.condominiums?.name || 'N/A',
+        'Valor': item.amount ? `R$ ${Number(item.amount).toFixed(2)}` : 'Não informado',
+        'Observações': item.observations || 'Sem observações',
+        'Data do Registro': formatDate(item.created_at.split('T')[0])
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Folgas Trabalhadas');
+
+      // Ajustar largura das colunas
+      const columnWidths = [
+        { wch: 12 }, // Data
+        { wch: 25 }, // Nome
+        { wch: 20 }, // Cargo
+        { wch: 25 }, // Supervisor
+        { wch: 25 }, // Condomínio
+        { wch: 15 }, // Valor
+        { wch: 30 }, // Observações
+        { wch: 18 }  // Data do Registro
+      ];
+      worksheet['!cols'] = columnWidths;
+
+      const today = new Date().toISOString().split('T')[0];
+      const fileName = `Relatorio_FT_${today}.xlsx`;
+      
+      XLSX.writeFile(workbook, fileName);
+
+      toast({
+        title: "Exportação concluída",
+        description: "Relatório em Excel baixado com sucesso!",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao exportar",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const exportToCSV = () => {
+    try {
+      const dataToExport = filteredWorkedLeaves.map(item => ({
+        'Data': formatDate(item.date),
+        'Nome': `${item.employees.first_name} ${item.employees.last_name}`,
+        'Cargo': item.employees.positions?.title || 'N/A',
+        'Supervisor(a)': item.supervisor?.name || 'N/A',
+        'Condomínio': item.employees.condominiums?.name || 'N/A',
+        'Valor': item.amount ? `R$ ${Number(item.amount).toFixed(2)}` : 'Não informado',
+        'Observações': item.observations || 'Sem observações',
+        'Data do Registro': formatDate(item.created_at.split('T')[0])
+      }));
+
+      // Criar cabeçalho
+      const headers = ['Data', 'Nome', 'Cargo', 'Supervisor(a)', 'Condomínio', 'Valor', 'Observações', 'Data do Registro'];
+      
+      // Criar linhas CSV
+      const csvRows = [
+        headers.join(','),
+        ...dataToExport.map(row => 
+          headers.map(header => {
+            const value = row[header as keyof typeof row] || '';
+            // Escapar aspas e vírgulas
+            return `"${String(value).replace(/"/g, '""')}"`;
+          }).join(',')
+        )
+      ];
+
+      const csvContent = csvRows.join('\n');
+      
+      // Adicionar BOM UTF-8 para compatibilidade com Excel Windows
+      const BOM = '\uFEFF';
+      const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+      
+      const today = new Date().toISOString().split('T')[0];
+      const fileName = `Relatorio_FT_${today}.csv`;
+      
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', fileName);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast({
+        title: "Exportação concluída",
+        description: "Relatório em CSV baixado com sucesso!",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao exportar",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const filteredWorkedLeaves = workedLeaves.filter(item => {
     const matchesSearch = item.employees.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.employees.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -192,6 +301,24 @@ export const WorkedLeavesTab = () => {
           </h2>
           <p className="text-muted-foreground">Acompanhe as folgas trabalhadas dos funcionários</p>
         </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="gap-2">
+              <Download className="h-4 w-4" />
+              Exportar Relatório
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem onClick={exportToExcel} className="cursor-pointer">
+              <Download className="h-4 w-4 mr-2" />
+              Baixar em Excel (.xlsx)
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={exportToCSV} className="cursor-pointer">
+              <Download className="h-4 w-4 mr-2" />
+              Baixar em CSV (.csv)
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
