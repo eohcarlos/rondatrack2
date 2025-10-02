@@ -20,6 +20,8 @@ import { ReportsPage } from '@/pages/Reports';
 import { WorkedLeavesPage } from '@/pages/WorkedLeaves';
 import { AbsencesPage } from '@/pages/Absences';
 import { BottomNav } from './BottomNav';
+import { AdminPage } from '@/pages/Admin';
+import { useUserRole } from '@/hooks/useUserRole';
 interface DashboardProps {
   onLogout: () => void;
   onGoHome: () => void;
@@ -47,9 +49,10 @@ interface Stats {
 export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState<Stats>({ totalEmployees: 0, monthlyWorkedLeaves: 0, monthlyAbsences: 0, totalAbsences: 0, totalCondominiums: 0, totalWorkedLeaves: 0 });
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'profile' | 'reports' | 'ft' | 'absence'>('dashboard');
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'profile' | 'reports' | 'ft' | 'absence' | 'admin'>('dashboard');
   const [activeTab, setActiveTab] = useState('dashboard');
   const { toast } = useToast();
+  const { isAdmin, isLoading: isLoadingRole } = useUserRole();
 
   useEffect(() => {
     loadProfile();
@@ -205,6 +208,10 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
     return <AbsencesPage onGoBack={() => setCurrentPage('dashboard')} />;
   }
 
+  if (currentPage === 'admin' && isAdmin) {
+    return <AdminPage onGoBack={() => setCurrentPage('dashboard')} />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
       {/* Header */}
@@ -254,6 +261,12 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
                 <User className="h-4 w-4 lg:mr-2" />
                 <span className="hidden lg:inline">Perfil</span>
               </Button>
+              {!isLoadingRole && isAdmin && (
+                <Button onClick={() => setCurrentPage('admin')} variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+                  <Shield className="h-4 w-4 lg:mr-2" />
+                  <span className="hidden lg:inline">Admin</span>
+                </Button>
+              )}
               <Button onClick={handleLogout} variant="outline" size="sm">
                 <LogOut className="h-4 w-4 lg:mr-2" />
                 <span className="hidden lg:inline">Sair</span>
