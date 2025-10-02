@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Building2, Plus, Trash2, Edit } from 'lucide-react';
+import { Building2, Plus, Trash2, Edit, Users } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 interface Company {
@@ -14,6 +15,7 @@ interface Company {
   name: string;
   code: string;
   created_at: string;
+  employee_count?: number;
 }
 
 export const AdminPanel = () => {
@@ -33,13 +35,30 @@ export const AdminPanel = () => {
 
   const loadCompanies = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: companiesData, error } = await supabase
         .from('companies')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setCompanies(data || []);
+
+      // Buscar contagem de funcionários para cada empresa
+      const companiesWithCount = await Promise.all(
+        (companiesData || []).map(async (company) => {
+          const { count } = await supabase
+            .from('employees')
+            .select('*', { count: 'exact', head: true })
+            .eq('company_id', company.id)
+            .eq('active', true);
+
+          return {
+            ...company,
+            employee_count: count || 0,
+          };
+        })
+      );
+
+      setCompanies(companiesWithCount);
     } catch (error: any) {
       toast({
         title: "Erro ao carregar empresas",
@@ -208,11 +227,58 @@ export const AdminPanel = () => {
       </CardHeader>
 
       <CardContent className="p-6">
+        {/* Estatísticas Gerais */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total de Empresas</p>
+                  <p className="text-2xl font-bold text-primary">{companies.length}</p>
+                </div>
+                <Building2 className="h-8 w-8 text-primary/50" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total de Funcionários</p>
+                  <p className="text-2xl font-bold text-accent">
+                    {companies.reduce((sum, c) => sum + (c.employee_count || 0), 0)}
+                  </p>
+                </div>
+                <Users className="h-8 w-8 text-accent/50" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-br from-warning/10 to-warning/5 border-warning/20">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Média por Empresa</p>
+                  <p className="text-2xl font-bold text-warning">
+                    {companies.length > 0 
+                      ? Math.round(companies.reduce((sum, c) => sum + (c.employee_count || 0), 0) / companies.length)
+                      : 0
+                    }
+                  </p>
+                </div>
+                <Users className="h-8 w-8 text-warning/50" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Nome</TableHead>
               <TableHead>Código</TableHead>
+              <TableHead className="text-center">Funcionários</TableHead>
               <TableHead>Data de Criação</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
@@ -221,7 +287,14 @@ export const AdminPanel = () => {
             {companies.map((company) => (
               <TableRow key={company.id}>
                 <TableCell className="font-medium">{company.name}</TableCell>
-                <TableCell>{company.code}</TableCell>
+                <TableCell>
+                  <code className="px-2 py-1 bg-muted rounded text-sm">{company.code}</code>
+                </TableCell>
+                <TableCell className="text-center">
+                  <Badge variant="secondary" className="font-semibold">
+                    {company.employee_count || 0}
+                  </Badge>
+                </TableCell>
                 <TableCell>
                   {new Date(company.created_at).toLocaleDateString('pt-BR')}
                 </TableCell>
@@ -247,7 +320,7 @@ export const AdminPanel = () => {
             ))}
             {companies.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-muted-foreground">
+                <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                   Nenhuma empresa cadastrada
                 </TableCell>
               </TableRow>
