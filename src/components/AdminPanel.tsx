@@ -173,6 +173,22 @@ export const AdminPanel = () => {
           console.error('Erro ao criar cargos padrão:', positionsError);
         }
 
+        // Associar o usuário admin atual à nova empresa criada
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user) {
+          const { error: profileUpdateError } = await supabase
+            .from('profiles')
+            .update({ company_id: newCompany.id })
+            .eq('user_id', user.id);
+
+          if (!profileUpdateError) {
+            // Atualizar localStorage também
+            localStorage.setItem('companyId', newCompany.id);
+            localStorage.setItem('companyName', newCompany.name);
+          }
+        }
+
         toast({
           title: "✅ Empresa criada!",
           description: `A empresa "${formData.name}" foi criada com cargos padrão.`,
