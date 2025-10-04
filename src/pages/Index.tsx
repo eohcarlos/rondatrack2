@@ -16,29 +16,43 @@ const Index = () => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setIsAuthenticated(!!session);
       if (session) {
-        // Buscar o perfil do usuário para verificar se já tem empresa vinculada
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('company_id, companies(name)')
-          .eq('user_id', session.user.id)
-          .single();
+        try {
+          // Buscar o perfil do usuário
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('company_id')
+            .eq('user_id', session.user.id)
+            .maybeSingle();
 
-        if (profile && profile.company_id) {
-          // Usuário já tem empresa vinculada
-          const companyName = (profile.companies as any)?.name || '';
-          localStorage.setItem('companyId', profile.company_id);
-          localStorage.setItem('companyName', companyName);
-          localStorage.setItem('companyCodeVerified', 'true');
-          setHasCompanyCode(true);
-          setCompanyName(companyName);
-        } else {
-          // Usuário ainda não tem empresa vinculada
+          if (profileError) {
+            console.error('Erro ao buscar perfil:', profileError);
+            setHasCompanyCode(false);
+          } else if (profile && profile.company_id) {
+            // Buscar o nome da empresa separadamente
+            const { data: company } = await supabase
+              .from('companies')
+              .select('name')
+              .eq('id', profile.company_id)
+              .maybeSingle();
+
+            const companyName = company?.name || '';
+            localStorage.setItem('companyId', profile.company_id);
+            localStorage.setItem('companyName', companyName);
+            localStorage.setItem('companyCodeVerified', 'true');
+            setHasCompanyCode(true);
+            setCompanyName(companyName);
+          } else {
+            setHasCompanyCode(false);
+          }
+          
+          // Check if user has verified access code
+          const accessCodeVerified = localStorage.getItem('accessCodeVerified');
+          setHasAccessCode(accessCodeVerified === 'true');
+        } catch (error) {
+          console.error('Erro no carregamento inicial:', error);
           setHasCompanyCode(false);
+          setHasAccessCode(false);
         }
-        
-        // Check if user has verified access code
-        const accessCodeVerified = localStorage.getItem('accessCodeVerified');
-        setHasAccessCode(accessCodeVerified === 'true');
       }
     });
 
@@ -46,28 +60,42 @@ const Index = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setIsAuthenticated(!!session);
       if (session) {
-        // Buscar o perfil do usuário para verificar se já tem empresa vinculada
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('company_id, companies(name)')
-          .eq('user_id', session.user.id)
-          .single();
+        try {
+          // Buscar o perfil do usuário
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('company_id')
+            .eq('user_id', session.user.id)
+            .maybeSingle();
 
-        if (profile && profile.company_id) {
-          // Usuário já tem empresa vinculada
-          const companyName = (profile.companies as any)?.name || '';
-          localStorage.setItem('companyId', profile.company_id);
-          localStorage.setItem('companyName', companyName);
-          localStorage.setItem('companyCodeVerified', 'true');
-          setHasCompanyCode(true);
-          setCompanyName(companyName);
-        } else {
-          // Usuário ainda não tem empresa vinculada
+          if (profileError) {
+            console.error('Erro ao buscar perfil:', profileError);
+            setHasCompanyCode(false);
+          } else if (profile && profile.company_id) {
+            // Buscar o nome da empresa separadamente
+            const { data: company } = await supabase
+              .from('companies')
+              .select('name')
+              .eq('id', profile.company_id)
+              .maybeSingle();
+
+            const companyName = company?.name || '';
+            localStorage.setItem('companyId', profile.company_id);
+            localStorage.setItem('companyName', companyName);
+            localStorage.setItem('companyCodeVerified', 'true');
+            setHasCompanyCode(true);
+            setCompanyName(companyName);
+          } else {
+            setHasCompanyCode(false);
+          }
+          
+          const accessCodeVerified = localStorage.getItem('accessCodeVerified');
+          setHasAccessCode(accessCodeVerified === 'true');
+        } catch (error) {
+          console.error('Erro ao buscar dados:', error);
           setHasCompanyCode(false);
+          setHasAccessCode(false);
         }
-        
-        const accessCodeVerified = localStorage.getItem('accessCodeVerified');
-        setHasAccessCode(accessCodeVerified === 'true');
       } else {
         setHasAccessCode(null);
         setHasCompanyCode(null);
