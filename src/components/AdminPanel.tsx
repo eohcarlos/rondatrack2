@@ -140,21 +140,42 @@ export const AdminPanel = () => {
         });
       } else {
         // Create new company
-        const { error } = await supabase
+        const { data: newCompany, error } = await supabase
           .from('companies')
           .insert({
             name: formData.name.trim(),
             code: formData.code.trim().toUpperCase(),
-          });
+          })
+          .select()
+          .single();
 
         if (error) {
           console.error('Insert error:', error);
           throw error;
         }
 
+        // Criar cargos padrão para a nova empresa
+        const defaultPositions = [
+          { title: 'Porteiro', description: 'Responsável pela portaria', company_id: newCompany.id },
+          { title: 'Zelador', description: 'Responsável pela manutenção', company_id: newCompany.id },
+          { title: 'Síndico', description: 'Administração do condomínio', company_id: newCompany.id },
+          { title: 'Faxineiro', description: 'Responsável pela limpeza', company_id: newCompany.id },
+          { title: 'Jardineiro', description: 'Manutenção de jardins e áreas verdes', company_id: newCompany.id },
+          { title: 'Assistente', description: 'Assistente administrativo', company_id: newCompany.id },
+          { title: 'Gerente', description: 'Gerente operacional', company_id: newCompany.id }
+        ];
+
+        const { error: positionsError } = await supabase
+          .from('positions')
+          .insert(defaultPositions);
+
+        if (positionsError) {
+          console.error('Erro ao criar cargos padrão:', positionsError);
+        }
+
         toast({
           title: "✅ Empresa criada!",
-          description: `A empresa "${formData.name}" foi criada com sucesso.`,
+          description: `A empresa "${formData.name}" foi criada com cargos padrão.`,
         });
       }
 
