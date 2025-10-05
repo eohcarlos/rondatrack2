@@ -68,48 +68,54 @@ export const Home = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-accent/5 overflow-y-auto">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-accent/5 overflow-y-auto overflow-x-hidden max-w-full">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md shadow-lg border-b sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 flex items-center justify-center">
-              <img 
-                src="/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png" 
-                alt="RondaTrack Logo" 
-                className="w-10 h-10 object-contain"
-                onError={(e) => {
-                  const img = e.currentTarget as HTMLImageElement;
-                  img.style.display = 'none';
-                  const icon = img.nextElementSibling as HTMLElement;
-                  if (icon) icon.style.display = 'flex';
-                }}
-              />
-              <Shield className="h-6 w-6 text-primary hidden" />
+        <div className="container mx-auto px-4 py-3 max-w-full">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 sm:space-x-4 min-w-0 flex-1">
+              <div className="w-8 h-8 sm:w-12 sm:h-12 flex items-center justify-center flex-shrink-0">
+                <img 
+                  src="/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png" 
+                  alt="RondaTrack Logo" 
+                  className="w-6 h-6 sm:w-10 sm:h-10 object-contain"
+                  onError={(e) => {
+                    const img = e.currentTarget as HTMLImageElement;
+                    img.style.display = 'none';
+                    const icon = img.nextElementSibling as HTMLElement;
+                    if (icon) icon.style.display = 'flex';
+                  }}
+                />
+                <Shield className="h-4 w-4 sm:h-6 sm:w-6 text-primary hidden" />
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-2xl font-bold text-foreground truncate">
+                  RondaTrack <span className="text-primary">2</span>
+                </h1>
+                <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Sistema de Controle Profissional</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">
-                RondaTrack <span className="text-primary">2</span>
-              </h1>
-              <p className="text-sm text-muted-foreground">Sistema de Controle Profissional</p>
-            </div>
-          </div>
 
-          <div className="flex gap-2">
-            <Button 
-              variant="outline"
-              onClick={() => navigate('/dashboard')}
-              className="border-primary text-primary hover:bg-primary/5"
-            >
-              Login
-            </Button>
-            <Button 
-              onClick={() => setShowRegister(true)} 
-              className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white"
-            >
-              <UserPlus className="h-4 w-4 mr-2" />
-              Começar Agora
-            </Button>
+            <div className="flex gap-1 sm:gap-2 flex-shrink-0">
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/dashboard')}
+                className="border-primary text-primary hover:bg-primary/5 px-2 sm:px-4"
+              >
+                <span className="hidden xs:inline">Login</span>
+                <Shield className="h-4 w-4 xs:hidden" />
+              </Button>
+              <Button 
+                size="sm"
+                onClick={() => setShowRegister(true)} 
+                className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white px-2 sm:px-4"
+              >
+                <UserPlus className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Começar Agora</span>
+                <span className="sm:hidden">Cadastrar</span>
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -122,13 +128,13 @@ export const Home = () => {
               Solução Profissional para Condomínios
             </Badge>
             
-            <h2 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+            <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent px-2">
               Gestão Completa de
-              <br />
-              Folgas e Faltas
+              <br className="hidden sm:block" />
+              <span className="sm:hidden"> </span>Folgas e Faltas
             </h2>
             
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed px-4">
               Controle profissional para administradores de condomínios. 
               Registre FTs, monitore faltas e gere relatórios completos com nossa plataforma intuitiva.
             </p>
@@ -153,22 +159,22 @@ export const Home = () => {
               </Button>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-2xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 max-w-2xl mx-auto px-4">
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary">100%</div>
-                <div className="text-sm text-muted-foreground">Seguro</div>
+                <div className="text-2xl sm:text-3xl font-bold text-primary">100%</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Seguro</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-accent">24/7</div>
-                <div className="text-sm text-muted-foreground">Disponível</div>
+                <div className="text-2xl sm:text-3xl font-bold text-accent">24/7</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Disponível</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary">Real-time</div>
-                <div className="text-sm text-muted-foreground">Atualizações</div>
+                <div className="text-2xl sm:text-3xl font-bold text-primary">Real-time</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Atualizações</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-accent">Multi</div>
-                <div className="text-sm text-muted-foreground">Dispositivos</div>
+                <div className="text-2xl sm:text-3xl font-bold text-accent">Multi</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Dispositivos</div>
               </div>
             </div>
           </div>
