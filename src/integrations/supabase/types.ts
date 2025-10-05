@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
+  // Allows to automatically instanciate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -16,7 +16,6 @@ export type Database = {
     Tables: {
       absences: {
         Row: {
-          company_id: string | null
           created_at: string | null
           created_by: string
           date: string
@@ -28,7 +27,6 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
-          company_id?: string | null
           created_at?: string | null
           created_by: string
           date: string
@@ -40,7 +38,6 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
-          company_id?: string | null
           created_at?: string | null
           created_by?: string
           date?: string
@@ -52,13 +49,6 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "absences_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "absences_created_by_fkey"
             columns: ["created_by"]
@@ -82,34 +72,9 @@ export type Database = {
           },
         ]
       }
-      companies: {
-        Row: {
-          code: string
-          created_at: string
-          id: string
-          name: string
-          updated_at: string
-        }
-        Insert: {
-          code: string
-          created_at?: string
-          id?: string
-          name: string
-          updated_at?: string
-        }
-        Update: {
-          code?: string
-          created_at?: string
-          id?: string
-          name?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       condominiums: {
         Row: {
           address: string | null
-          company_id: string
           created_at: string | null
           id: string
           name: string
@@ -117,7 +82,6 @@ export type Database = {
         }
         Insert: {
           address?: string | null
-          company_id: string
           created_at?: string | null
           id?: string
           name: string
@@ -125,21 +89,12 @@ export type Database = {
         }
         Update: {
           address?: string | null
-          company_id?: string
           created_at?: string | null
           id?: string
           name?: string
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "condominiums_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       daily_phrases: {
         Row: {
@@ -210,7 +165,6 @@ export type Database = {
         Row: {
           active: boolean | null
           age: number | null
-          company_id: string | null
           company_time_months: number | null
           condominium_id: string
           created_at: string | null
@@ -227,7 +181,6 @@ export type Database = {
         Insert: {
           active?: boolean | null
           age?: number | null
-          company_id?: string | null
           company_time_months?: number | null
           condominium_id: string
           created_at?: string | null
@@ -244,7 +197,6 @@ export type Database = {
         Update: {
           active?: boolean | null
           age?: number | null
-          company_id?: string | null
           company_time_months?: number | null
           condominium_id?: string
           created_at?: string | null
@@ -259,13 +211,6 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "employees_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "employees_condominium_id_fkey"
             columns: ["condominium_id"]
@@ -284,7 +229,6 @@ export type Database = {
       }
       positions: {
         Row: {
-          company_id: string | null
           created_at: string | null
           description: string | null
           id: string
@@ -292,7 +236,6 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
-          company_id?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -300,22 +243,13 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
-          company_id?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
           title?: string
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "positions_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -323,7 +257,6 @@ export type Database = {
           approved_at: string | null
           approved_by: string | null
           avatar_url: string | null
-          company_id: string | null
           created_at: string | null
           email: string | null
           first_name: string
@@ -339,7 +272,6 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           avatar_url?: string | null
-          company_id?: string | null
           created_at?: string | null
           email?: string | null
           first_name: string
@@ -355,7 +287,6 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           avatar_url?: string | null
-          company_id?: string | null
           created_at?: string | null
           email?: string | null
           first_name?: string
@@ -374,40 +305,11 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "profiles_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
         ]
-      }
-      user_roles: {
-        Row: {
-          created_at: string | null
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
-        }
-        Relationships: []
       }
       worked_leaves: {
         Row: {
           amount: number | null
-          company_id: string | null
           created_at: string | null
           created_by: string
           date: string
@@ -420,7 +322,6 @@ export type Database = {
         }
         Insert: {
           amount?: number | null
-          company_id?: string | null
           created_at?: string | null
           created_by: string
           date: string
@@ -433,7 +334,6 @@ export type Database = {
         }
         Update: {
           amount?: number | null
-          company_id?: string | null
           created_at?: string | null
           created_by?: string
           date?: string
@@ -445,13 +345,6 @@ export type Database = {
           work_shift?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "worked_leaves_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "worked_leaves_created_by_fkey"
             columns: ["created_by"]
@@ -480,16 +373,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
-      app_role: "admin" | "supervisor" | "user"
       shift_type: "manha" | "tarde" | "noite" | "madrugada"
       user_role: "supervisor" | "gestor" | "gerente"
     }
@@ -619,7 +505,6 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "supervisor", "user"],
       shift_type: ["manha", "tarde", "noite", "madrugada"],
       user_role: ["supervisor", "gestor", "gerente"],
     },
