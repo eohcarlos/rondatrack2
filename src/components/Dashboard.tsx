@@ -6,9 +6,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, UserCheck, Activity, TrendingUp, BarChart3 } from 'lucide-react';
+import { LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, UserCheck, Activity, TrendingUp, BarChart3, Briefcase } from 'lucide-react';
 import { EmployeeManagement } from './EmployeeManagement';
 import { CondominiumManagement } from './CondominiumManagement';
+import { PositionManagement } from './PositionManagement';
 import { WorkedLeavesTab } from './WorkedLeavesTab';
 import { AbsencesTab } from './AbsencesTab';
 import { ReportsPanel } from './ReportsPanel';
@@ -279,7 +280,7 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
       <div className="container mx-auto px-4 py-6 pb-24 sm:pb-6 space-y-6 overflow-x-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Navigation Tabs - Grid on Desktop */}
-          <TabsList className="hidden sm:grid sm:grid-cols-3 lg:grid-cols-6 mb-6 h-auto p-0 bg-transparent gap-2 w-full">
+          <TabsList className="hidden sm:grid sm:grid-cols-4 lg:grid-cols-7 mb-6 h-auto p-0 bg-transparent gap-2 w-full">
             <TabsTrigger 
               value="dashboard" 
               className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
@@ -293,6 +294,13 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
             >
               <Users className="h-5 w-5" />
               <span>Funcionários</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="positions" 
+              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
+            >
+              <Briefcase className="h-5 w-5" />
+              <span>Cargos</span>
             </TabsTrigger>
             <TabsTrigger 
               value="condominiums" 
@@ -461,6 +469,10 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
 
           <TabsContent value="employees">
             <EmployeeManagement />
+          </TabsContent>
+
+          <TabsContent value="positions">
+            <PositionManagement />
           </TabsContent>
 
           <TabsContent value="condominiums">
