@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { reportType, prompt } = await req.json();
+    const { reportType, prompt, reporterName, reporterRole, condominiumName } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
@@ -35,11 +35,11 @@ REGRAS OBRIGATÓRIAS:
 
 ESTRUTURA OBRIGATÓRIA:
 
-Relatório de Ocorrência – Ronda Condomínio
+Relatório de Ocorrência – Ronda ${condominiumName}
 
 Data: ${dataAtual}
-Relator: [Nome do responsável extraído do contexto ou "Supervisor de Ronda"]
-Apoio: [Se mencionado no prompt, caso contrário omitir esta linha]
+Relator: ${reporterName} (${reporterRole})
+Apoio: [Se houver menção de apoio no contexto, incluir aqui, caso contrário omitir esta linha]
 
 [Descreva a ocorrência de forma clara e objetiva em parágrafos corridos. 
 Seja específico sobre o que aconteceu, quando, onde e quem estava envolvido.
@@ -50,8 +50,7 @@ Observação:
 [Se houver observações relevantes sobre procedimentos, evidências ou ações tomadas]
 
 Assinatura:
-[Nome do Relator] – Ronda
-[Nome do Apoio, se houver] – Apoio`;
+${reporterName} – ${reporterRole}`;
     } else {
       systemPrompt = `Você é um assistente especializado em criar relatórios de portaria para condomínios.
 
@@ -63,11 +62,11 @@ REGRAS OBRIGATÓRIAS:
 
 ESTRUTURA OBRIGATÓRIA:
 
-Relatório de Portaria – Turno [Manhã/Tarde/Noite]
+Relatório de Portaria – ${condominiumName}
 
 Data: ${dataAtual}
-Responsável: [Nome extraído do contexto ou "Porteiro"]
-Horário: [Extrair do contexto ou usar horário padrão do turno]
+Responsável: ${reporterName} (${reporterRole})
+Turno: [Extrair do contexto - Manhã/Tarde/Noite]
 
 [Descreva as atividades e ocorrências do turno de forma clara e objetiva em parágrafos corridos.
 Inclua movimentações, entregas, visitantes, correspondências e ocorrências relevantes.
@@ -78,7 +77,7 @@ Observação:
 [Se houver observações relevantes sobre o turno, procedimentos ou pendências]
 
 Assinatura:
-[Nome do Responsável] – Portaria`;
+${reporterName} – ${reporterRole}`;
     }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
