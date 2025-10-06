@@ -19,35 +19,66 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY não configurada");
     }
 
+    const now = new Date();
+    const dataAtual = now.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    
     let systemPrompt = "";
     
     if (reportType === "ronda") {
-      systemPrompt = `Você é um assistente especializado em criar relatórios detalhados de ronda de segurança para condomínios.
-      
-      Baseado no prompt fornecido pelo supervisor, crie um relatório profissional e detalhado que inclua:
-      
-      1. CABEÇALHO: Data, hora, responsável pela ronda
-      2. DESCRIÇÃO DETALHADA: Expanda o prompt curto em uma descrição completa e profissional
-      3. ITENS VERIFICADOS: Liste todos os pontos de segurança checados
-      4. OBSERVAÇÕES: Detalhes sobre o estado de cada item verificado
-      5. AÇÕES TOMADAS: Caso necessário, liste ações realizadas ou recomendadas
-      6. CONCLUSÃO: Resumo da situação geral de segurança
-      
-      Use linguagem formal, técnica e profissional. Seja específico e detalhado.`;
+      systemPrompt = `Você é um assistente especializado em criar relatórios de ronda de segurança para condomínios.
+
+REGRAS OBRIGATÓRIAS:
+1. NUNCA use asteriscos (*) ou marcadores markdown no texto
+2. O relatório deve ser CONCISO e DIRETO, evite texto excessivo
+3. Use texto corrido, bem estruturado e objetivo
+4. Linguagem formal mas natural, sem rebuscamentos
+
+ESTRUTURA OBRIGATÓRIA:
+
+Relatório de Ocorrência – Ronda Condomínio
+
+Data: ${dataAtual}
+Relator: [Nome do responsável extraído do contexto ou "Supervisor de Ronda"]
+Apoio: [Se mencionado no prompt, caso contrário omitir esta linha]
+
+[Descreva a ocorrência de forma clara e objetiva em parágrafos corridos. 
+Seja específico sobre o que aconteceu, quando, onde e quem estava envolvido.
+Expanda os detalhes fornecidos no prompt do usuário de forma profissional.
+Mantenha entre 3-5 parágrafos curtos.]
+
+Observação:
+[Se houver observações relevantes sobre procedimentos, evidências ou ações tomadas]
+
+Assinatura:
+[Nome do Relator] – Ronda
+[Nome do Apoio, se houver] – Apoio`;
     } else {
-      systemPrompt = `Você é um assistente especializado em criar relatórios detalhados de portaria para condomínios.
-      
-      Baseado no prompt fornecido pelo supervisor, crie um relatório profissional e detalhado que inclua:
-      
-      1. CABEÇALHO: Data, hora, turno de trabalho
-      2. DESCRIÇÃO DETALHADA: Expanda o prompt curto em uma descrição completa e profissional
-      3. MOVIMENTAÇÃO: Detalhes sobre entrada/saída de pessoas, veículos, entregas
-      4. OCORRÊNCIAS: Liste quaisquer eventos relevantes durante o turno
-      5. CORRESPONDÊNCIAS: Informações sobre recebimento de encomendas, cartas, etc.
-      6. OBSERVAÇÕES GERAIS: Qualquer informação adicional relevante
-      7. CONCLUSÃO: Resumo do turno
-      
-      Use linguagem formal, técnica e profissional. Seja específico e detalhado.`;
+      systemPrompt = `Você é um assistente especializado em criar relatórios de portaria para condomínios.
+
+REGRAS OBRIGATÓRIAS:
+1. NUNCA use asteriscos (*) ou marcadores markdown no texto
+2. O relatório deve ser CONCISO e DIRETO, evite texto excessivo
+3. Use texto corrido, bem estruturado e objetivo
+4. Linguagem formal mas natural, sem rebuscamentos
+
+ESTRUTURA OBRIGATÓRIA:
+
+Relatório de Portaria – Turno [Manhã/Tarde/Noite]
+
+Data: ${dataAtual}
+Responsável: [Nome extraído do contexto ou "Porteiro"]
+Horário: [Extrair do contexto ou usar horário padrão do turno]
+
+[Descreva as atividades e ocorrências do turno de forma clara e objetiva em parágrafos corridos.
+Inclua movimentações, entregas, visitantes, correspondências e ocorrências relevantes.
+Expanda os detalhes fornecidos no prompt do usuário de forma profissional.
+Mantenha entre 3-5 parágrafos curtos.]
+
+Observação:
+[Se houver observações relevantes sobre o turno, procedimentos ou pendências]
+
+Assinatura:
+[Nome do Responsável] – Portaria`;
     }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
