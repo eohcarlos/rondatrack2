@@ -82,45 +82,6 @@ export type Database = {
           },
         ]
       }
-      ai_reports: {
-        Row: {
-          company_id: string
-          condominium_name: string
-          created_at: string
-          created_by: string
-          generated_report: string
-          id: string
-          prompt: string
-          report_type: string
-          reporter_name: string
-          reporter_role: string
-        }
-        Insert: {
-          company_id: string
-          condominium_name: string
-          created_at?: string
-          created_by: string
-          generated_report: string
-          id?: string
-          prompt: string
-          report_type: string
-          reporter_name: string
-          reporter_role: string
-        }
-        Update: {
-          company_id?: string
-          condominium_name?: string
-          created_at?: string
-          created_by?: string
-          generated_report?: string
-          id?: string
-          prompt?: string
-          report_type?: string
-          reporter_name?: string
-          reporter_role?: string
-        }
-        Relationships: []
-      }
       companies: {
         Row: {
           code: string
