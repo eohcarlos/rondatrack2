@@ -6,13 +6,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, UserCheck, Activity, TrendingUp, BarChart3, Briefcase } from 'lucide-react';
+import { LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, UserCheck, Activity, TrendingUp, BarChart3, Briefcase, Sparkles } from 'lucide-react';
 import { EmployeeManagement } from './EmployeeManagement';
 import { CondominiumManagement } from './CondominiumManagement';
 import { PositionManagement } from './PositionManagement';
 import { WorkedLeavesTab } from './WorkedLeavesTab';
 import { AbsencesTab } from './AbsencesTab';
 import { ReportsPanel } from './ReportsPanel';
+import { AIReportsTab } from './AIReportsTab';
 import { PWAInstallPrompt } from './PWAInstallPrompt';
 
 import { DailyPhrase } from './DailyPhrase';
@@ -295,7 +296,7 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
       <div className="container mx-auto px-4 py-6 pb-24 sm:pb-6 space-y-6 overflow-x-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Navigation Tabs - Grid on Desktop */}
-          <TabsList className="hidden sm:grid sm:grid-cols-4 lg:grid-cols-7 mb-6 h-auto p-0 bg-transparent gap-2 w-full">
+          <TabsList className="hidden sm:grid sm:grid-cols-4 lg:grid-cols-8 mb-6 h-auto p-0 bg-transparent gap-2 w-full">
             <TabsTrigger 
               value="dashboard" 
               className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
@@ -344,6 +345,13 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
             >
               <Download className="h-5 w-5" />
               <span>Relatórios</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="ai" 
+              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
+            >
+              <Sparkles className="h-5 w-5" />
+              <span>IA</span>
             </TabsTrigger>
           </TabsList>
 
@@ -506,6 +514,10 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
 
           <TabsContent value="reports">
             <ReportsPanel onClose={() => setActiveTab('dashboard')} />
+          </TabsContent>
+          
+          <TabsContent value="ai">
+            <AIReportsTab />
           </TabsContent>
         </Tabs>
       </div>

@@ -1,5 +1,5 @@
 import React from "react";
-import { BarChart3, Users, Building2, Clock, Calendar, Download, Briefcase } from "lucide-react";
+import { BarChart3, Users, Building2, Clock, Calendar, Download, Briefcase, Sparkles } from "lucide-react";
 
 type BottomNavProps = {
   activeTab: string;
@@ -18,6 +18,7 @@ const items: Array<{
   { value: "worked-leaves", label: "FT", Icon: Clock },
   { value: "absences", label: "Faltas", Icon: Calendar },
   { value: "reports", label: "Relatórios", Icon: Download },
+  { value: "ai", label: "IA", Icon: Sparkles },
 ];
 
 export function BottomNav({ activeTab, onChange }: BottomNavProps) {
@@ -28,7 +29,7 @@ export function BottomNav({ activeTab, onChange }: BottomNavProps) {
       aria-label="Navegação principal"
     >
       <div className="container mx-auto px-2">
-        <ul className="grid grid-cols-7">
+        <ul className="grid grid-cols-8">
           {items.map(({ value, label, Icon }) => {
             const active = activeTab === value;
             const color = active ? "text-primary" : "text-muted-foreground";
