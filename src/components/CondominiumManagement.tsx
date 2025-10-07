@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Plus, Edit, Trash2, Search, Building2, MapPin } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { getCurrentCompanyId } from '@/lib/company';
 
 interface Condominium {
   id: string;
@@ -58,13 +59,17 @@ export const CondominiumManagement = () => {
 
   const loadCondominiums = async () => {
     try {
-      // Carregar condomínios com contagem de funcionários
+      const companyId = getCurrentCompanyId();
+      if (!companyId) {
+        console.error('Company ID não encontrado');
+        return;
+      }
+
+      // Carregar condomínios
       const { data: condominiumsData, error } = await supabase
         .from('condominiums')
-        .select(`
-          *,
-          employees!inner(id)
-        `)
+        .select('*')
+        .eq('company_id', companyId)
         .order('name');
 
       if (error) throw error;
@@ -76,7 +81,8 @@ export const CondominiumManagement = () => {
             .from('employees')
             .select('*', { count: 'exact', head: true })
             .eq('condominium_id', condominium.id)
-            .eq('active', true);
+            .eq('active', true)
+            .eq('company_id', companyId);
 
           return {
             ...condominium,
@@ -110,9 +116,15 @@ export const CondominiumManagement = () => {
     setLoading(true);
 
     try {
+      const companyId = getCurrentCompanyId();
+      if (!companyId) {
+        throw new Error('Company ID não encontrado');
+      }
+
       const condominiumData = {
         name: formData.name.trim(),
-        address: formData.address.trim() || null
+        address: formData.address.trim() || null,
+        company_id: companyId
       };
 
       if (editingCondominium) {
@@ -139,6 +151,9 @@ export const CondominiumManagement = () => {
           description: "O condomínio foi cadastrado com sucesso.",
         });
       }
+
+      // Recarregar a lista de condomínios
+      await loadCondominiums();
 
       resetForm();
       setShowAddForm(false);
@@ -187,6 +202,9 @@ export const CondominiumManagement = () => {
         title: "Condomínio excluído",
         description: "O condomínio foi removido do sistema.",
       });
+
+      // Recarregar a lista de condomínios
+      await loadCondominiums();
     } catch (error: any) {
       toast({
         title: "Erro ao excluir condomínio",
