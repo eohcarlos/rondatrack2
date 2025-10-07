@@ -28,9 +28,7 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
 
     try {
       if (isSignUp) {
-        // Get company_id from localStorage for new users
-        const companyId = localStorage.getItem('companyId');
-        
+
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -39,7 +37,6 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
               first_name: firstName,
               last_name: lastName,
               role: role,
-              company_id: companyId // Include company_id in signup
             },
           },
         });

@@ -8,7 +8,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { X, Clock } from 'lucide-react';
-import { getCurrentCompanyId } from '@/lib/company';
 
 interface WorkedLeaveFormProps {
   onClose: () => void;
@@ -44,17 +43,10 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
   useEffect(() => {
     loadEmployees();
     loadSupervisors();
-    setCurrentUserAsSupervisor();
   }, []);
 
   const loadEmployees = async () => {
     try {
-      const companyId = getCurrentCompanyId();
-      if (!companyId) {
-        console.error('Company ID não encontrado');
-        return;
-      }
-
       const { data, error } = await supabase
         .from('employees')
         .select(`
@@ -65,7 +57,6 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
           condominiums (name)
         `)
         .eq('active', true)
-        .eq('company_id', companyId)
         .order('name');
 
       if (error) throw error;
@@ -81,16 +72,9 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
 
   const loadSupervisors = async () => {
     try {
-      const companyId = getCurrentCompanyId();
-      if (!companyId) {
-        console.error('Company ID não encontrado');
-        return;
-      }
-
       const { data, error } = await supabase
         .from('profiles')
         .select('id, name, role')
-        .eq('company_id', companyId)
         .order('name');
 
       if (error) throw error;
@@ -101,25 +85,6 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
         description: error.message,
         variant: "destructive",
       });
-    }
-  };
-
-  const setCurrentUserAsSupervisor = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (profile) {
-        setSupervisorId(profile.id);
-      }
-    } catch (error: any) {
-      console.error('Erro ao definir supervisor:', error);
     }
   };
 
@@ -154,11 +119,6 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
         throw new Error('Já existe uma FT registrada para este funcionário nesta data');
       }
 
-      const companyId = getCurrentCompanyId();
-      if (!companyId) {
-        throw new Error('Company ID não encontrado');
-      }
-
       const { error } = await supabase
         .from('worked_leaves')
         .insert({
@@ -169,7 +129,6 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
           amount: amount ? parseFloat(amount) : null,
           work_shift: workShift,
           created_by: profile.id,
-          company_id: companyId,
         });
 
       if (error) throw error;

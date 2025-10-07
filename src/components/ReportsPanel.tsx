@@ -11,7 +11,6 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { getCurrentCompanyId } from '@/lib/company';
 
 interface ReportsPanelProps {
   onClose: () => void;
@@ -31,12 +30,6 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
 
   const loadEmployees = async () => {
     try {
-      const companyId = getCurrentCompanyId();
-      if (!companyId) {
-        console.error('Company ID não encontrado');
-        return;
-      }
-
       const { data, error } = await supabase
         .from('employees')
         .select(`
@@ -47,7 +40,6 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
           condominiums (name, address)
         `)
         .eq('active', true)
-        .eq('company_id', companyId)
         .order('first_name');
 
       if (error) throw error;
@@ -105,14 +97,14 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         if (error) throw error;
 
         data = ftData?.map(item => ({
-          'Data': format(new Date(item.date + 'T00:00:00'), 'dd/MM/yyyy'),
+          'Data': new Date(item.date).toLocaleDateString('pt-BR'),
           'Nome': `${item.employees?.first_name || ''} ${item.employees?.last_name || ''}`,
           'Cargo': item.employees?.positions?.title || '',
           'Supervisor(a)': item.supervisor_profile?.name || '',
           'Condomínio': item.employees?.condominiums?.name || '',
           'Valor': item.amount ? `R$ ${Number(item.amount).toFixed(2)}` : 'Não informado',
           'Observações': item.observations || 'Sem observações',
-          'Data do Registro': format(new Date(item.created_at), 'dd/MM/yyyy', { locale: ptBR })
+          'Data do Registro': new Date(item.created_at).toLocaleDateString('pt-BR')
         }));
 
         filename = `folgas_trabalhadas_${selectedEmployee.first_name}_${selectedEmployee.last_name}`;
@@ -142,14 +134,14 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         if (error) throw error;
 
         data = absenceData?.map(item => ({
-          'Data': format(new Date(item.date + 'T00:00:00'), 'dd/MM/yyyy'),
+          'Data': new Date(item.date).toLocaleDateString('pt-BR'),
           'Nome': `${item.employees?.first_name || ''} ${item.employees?.last_name || ''}`,
           'Cargo': item.employees?.positions?.title || '',
           'Supervisor(a)': item.supervisor_profile?.name || '',
           'Condomínio': item.employees?.condominiums?.name || '',
           'Motivo': getReasonLabel(item.reason),
           'Observações': item.observations || 'Sem observações',
-          'Data do Registro': format(new Date(item.created_at), 'dd/MM/yyyy', { locale: ptBR })
+          'Data do Registro': new Date(item.created_at).toLocaleDateString('pt-BR')
         }));
 
         filename = `faltas_${selectedEmployee.first_name}_${selectedEmployee.last_name}`;

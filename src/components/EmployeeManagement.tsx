@@ -10,7 +10,6 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Plus, Edit, Trash2, Search, Users } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { getCurrentCompanyId } from '@/lib/company';
 
 interface Employee {
   id: string;
@@ -57,9 +56,6 @@ export const EmployeeManagement = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const companyId = getCurrentCompanyId();
-    console.log('Company ID no EmployeeManagement:', companyId);
-    
     loadEmployees();
     loadPositions();
     loadCondominiums();
@@ -89,12 +85,6 @@ export const EmployeeManagement = () => {
 
   const loadEmployees = async () => {
     try {
-      const companyId = getCurrentCompanyId();
-      if (!companyId) {
-        console.error('Company ID não encontrado');
-        return;
-      }
-
       const { data, error } = await supabase
         .from('employees')
         .select(`
@@ -102,14 +92,11 @@ export const EmployeeManagement = () => {
           positions(title),
           condominiums(name)
         `)
-        .eq('company_id', companyId)
         .order('first_name');
 
       if (error) throw error;
-      console.log('Funcionários carregados:', data);
       setEmployees(data || []);
     } catch (error: any) {
-      console.error('Erro ao carregar funcionários:', error);
       toast({
         title: "Erro ao carregar funcionários",
         description: error.message,
@@ -120,30 +107,14 @@ export const EmployeeManagement = () => {
 
   const loadPositions = async () => {
     try {
-      const companyId = getCurrentCompanyId();
-      console.log('Company ID para cargos:', companyId);
-      
-      if (!companyId) {
-        console.error('Company ID não encontrado para carregar cargos');
-        // Tentar carregar todos os cargos para debug
-        const { data: allPositions } = await supabase
-          .from('positions')
-          .select('*');
-        console.log('Todos os cargos no banco:', allPositions);
-        return;
-      }
-
       const { data, error } = await supabase
         .from('positions')
         .select('*')
-        .eq('company_id', companyId)
         .order('title');
 
       if (error) throw error;
-      console.log('Cargos filtrados por company_id:', data);
       setPositions(data || []);
     } catch (error: any) {
-      console.error('Erro ao carregar cargos:', error);
       toast({
         title: "Erro ao carregar cargos",
         description: error.message,
@@ -154,30 +125,14 @@ export const EmployeeManagement = () => {
 
   const loadCondominiums = async () => {
     try {
-      const companyId = getCurrentCompanyId();
-      console.log('Company ID para condomínios:', companyId);
-      
-      if (!companyId) {
-        console.error('Company ID não encontrado para carregar condomínios');
-        // Tentar carregar todos os condomínios para debug
-        const { data: allCondos } = await supabase
-          .from('condominiums')
-          .select('*');
-        console.log('Todos os condomínios no banco:', allCondos);
-        return;
-      }
-
       const { data, error } = await supabase
         .from('condominiums')
         .select('*')
-        .eq('company_id', companyId)
         .order('name');
 
       if (error) throw error;
-      console.log('Condomínios filtrados por company_id:', data);
       setCondominiums(data || []);
     } catch (error: any) {
-      console.error('Erro ao carregar condomínios:', error);
       toast({
         title: "Erro ao carregar condomínios",
         description: error.message,
@@ -218,14 +173,9 @@ export const EmployeeManagement = () => {
           description: "Os dados foram atualizados com sucesso.",
         });
       } else {
-        const companyId = getCurrentCompanyId();
-        if (!companyId) {
-          throw new Error('Company ID não encontrado');
-        }
-
         const { error } = await supabase
           .from('employees')
-          .insert([{ ...employeeData, company_id: companyId }]);
+          .insert([employeeData]);
 
         if (error) throw error;
 
@@ -386,34 +336,19 @@ export const EmployeeManagement = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="position">Cargo *</Label>
-                <Select 
-                  value={formData.positionId} 
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, positionId: value }))}
-                  required
-                >
+                <Label htmlFor="position">Cargo</Label>
+                <Select value={formData.positionId} onValueChange={(value) => setFormData(prev => ({ ...prev, positionId: value }))}>
                   <SelectTrigger>
-                    <SelectValue placeholder={positions.length === 0 ? "Nenhum cargo disponível" : "Selecione o cargo"} />
+                    <SelectValue placeholder="Selecione o cargo" />
                   </SelectTrigger>
                   <SelectContent>
-                    {positions.length === 0 ? (
-                      <div className="px-2 py-6 text-center text-sm text-muted-foreground">
-                        <p>Nenhum cargo cadastrado.</p>
-                      </div>
-                    ) : (
-                      positions.map(position => (
-                        <SelectItem key={position.id} value={position.id}>
-                          {position.title}
-                        </SelectItem>
-                      ))
-                    )}
+                    {positions.map(position => (
+                      <SelectItem key={position.id} value={position.id}>
+                        {position.title}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
-                {positions.length === 0 && (
-                  <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                    ⚠️ Nenhum cargo disponível. Cadastre um cargo antes de adicionar funcionário.
-                  </p>
-                )}
               </div>
 
               <div className="space-y-2">

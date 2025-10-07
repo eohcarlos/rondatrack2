@@ -1,19 +1,16 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { getCurrentCompanyId } from '@/lib/company';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, UserCheck, Activity, TrendingUp, BarChart3, Briefcase, Sparkles } from 'lucide-react';
+import { LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, UserCheck, Activity, TrendingUp, BarChart3 } from 'lucide-react';
 import { EmployeeManagement } from './EmployeeManagement';
 import { CondominiumManagement } from './CondominiumManagement';
-import { PositionManagement } from './PositionManagement';
 import { WorkedLeavesTab } from './WorkedLeavesTab';
 import { AbsencesTab } from './AbsencesTab';
-import { ReportsPanel } from './ReportsPanel';
-import { AIReportsTab } from './AIReportsTab';
+
 import { PWAInstallPrompt } from './PWAInstallPrompt';
 
 import { DailyPhrase } from './DailyPhrase';
@@ -21,13 +18,10 @@ import { ProfilePage } from '@/pages/Profile';
 import { ReportsPage } from '@/pages/Reports';
 import { WorkedLeavesPage } from '@/pages/WorkedLeaves';
 import { AbsencesPage } from '@/pages/Absences';
-import { BottomNav } from './BottomNav';
-import { AdminPage } from '@/pages/Admin';
-import { useUserRole } from '@/hooks/useUserRole';
+
 interface DashboardProps {
   onLogout: () => void;
   onGoHome: () => void;
-  companyName?: string;
 }
 
 interface Profile {
@@ -48,13 +42,12 @@ interface Stats {
   totalWorkedLeaves: number;
 }
 
-export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) => {
+export const Dashboard = ({ onLogout, onGoHome }: DashboardProps) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState<Stats>({ totalEmployees: 0, monthlyWorkedLeaves: 0, monthlyAbsences: 0, totalAbsences: 0, totalCondominiums: 0, totalWorkedLeaves: 0 });
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'profile' | 'reports' | 'ft' | 'absence' | 'admin'>('dashboard');
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'profile' | 'reports' | 'ft' | 'absence'>('dashboard');
   const [activeTab, setActiveTab] = useState('dashboard');
   const { toast } = useToast();
-  const { isAdmin, isLoading: isLoadingRole } = useUserRole();
 
   useEffect(() => {
     loadProfile();
@@ -101,15 +94,11 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
 
   const loadStats = async () => {
     try {
-      const companyId = getCurrentCompanyId();
-      if (!companyId) return;
-
       // Total de funcionários
       const { count: employeesCount } = await supabase
         .from('employees')
         .select('*', { count: 'exact', head: true })
-        .eq('active', true)
-        .eq('company_id', companyId);
+        .eq('active', true);
 
       // Faixas de data do mês atual (local, evitando fuso)
       const now = new Date();
@@ -126,34 +115,29 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
         .from('worked_leaves')
         .select('*', { count: 'exact', head: true })
         .gte('date', startOfMonth)
-        .lt('date', startOfNextMonth)
-        .eq('company_id', companyId);
+        .lt('date', startOfNextMonth);
 
       // Faltas do mês atual
       const { count: absencesCount } = await supabase
         .from('absences')
         .select('*', { count: 'exact', head: true })
         .gte('date', startOfMonth)
-        .lt('date', startOfNextMonth)
-        .eq('company_id', companyId);
+        .lt('date', startOfNextMonth);
 
       // Total de faltas
       const { count: totalAbsencesCount } = await supabase
         .from('absences')
-        .select('*', { count: 'exact', head: true })
-        .eq('company_id', companyId);
+        .select('*', { count: 'exact', head: true });
 
       // Total de condomínios
       const { count: condominiumsCount } = await supabase
         .from('condominiums')
-        .select('*', { count: 'exact', head: true })
-        .eq('company_id', companyId);
+        .select('*', { count: 'exact', head: true });
 
       // Total de FTs (todas)
       const { count: totalFtCount } = await supabase
         .from('worked_leaves')
-        .select('*', { count: 'exact', head: true })
-        .eq('company_id', companyId);
+        .select('*', { count: 'exact', head: true });
 
       setStats({
         totalEmployees: employeesCount || 0,
@@ -210,22 +194,18 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
     return <AbsencesPage onGoBack={() => setCurrentPage('dashboard')} />;
   }
 
-  if (currentPage === 'admin' && isAdmin) {
-    return <AdminPage onGoBack={() => setCurrentPage('dashboard')} />;
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-gradient-to-r from-background via-primary/5 to-background backdrop-blur-xl border-b border-primary/20" style={{ boxShadow: 'var(--shadow-elegant)' }}>
-        <div className="container mx-auto px-4 py-4">
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-lg border-b border-border/50">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-glow p-2 flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 flex items-center justify-center">
                 <img 
                   src="/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png" 
                   alt="RondaTrack Logo" 
-                  className="w-full h-full object-contain"
+                  className="w-8 h-8 object-contain"
                   onError={(e) => {
                     const img = e.currentTarget as HTMLImageElement;
                     img.style.display = 'none';
@@ -233,58 +213,32 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
                     if (icon) icon.style.display = 'flex';
                   }}
                 />
-                <Shield className="h-7 w-7 text-primary-foreground hidden" />
+                <Shield className="h-6 w-6 text-primary hidden" />
               </div>
               <div>
-                <h1 className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                <h1 className="text-xl lg:text-2xl font-bold text-foreground">
                   RondaTrack <span className="text-primary">2</span>
                 </h1>
-                <div className="flex flex-col">
-                  <p className="text-xs lg:text-sm text-muted-foreground font-medium">Sistema de Controle Profissional</p>
-                  {companyName && (
-                    <p className="text-xs text-primary font-semibold">{companyName}</p>
-                  )}
-                </div>
+                <p className="text-xs lg:text-sm text-muted-foreground">Sistema de Controle Profissional</p>
               </div>
             </div>
 
-            <div className="flex items-center space-x-2 lg:space-x-3">
+            <div className="flex items-center space-x-2 lg:space-x-4">
               {profile && (
-                <div className="text-right hidden sm:block mr-2">
-                  <p className="font-semibold text-foreground text-sm lg:text-base">
+                <div className="text-right hidden sm:block">
+                  <p className="font-medium text-foreground text-sm lg:text-base">
                     {profile.first_name} {profile.last_name}
                   </p>
-                  <Badge className={`${getRoleBadgeColor(profile.role)} shadow-sm`} variant="secondary">
+                  <Badge className={getRoleBadgeColor(profile.role)} variant="secondary">
                     {getRoleLabel(profile.role)}
                   </Badge>
                 </div>
               )}
-              <Button 
-                onClick={() => setCurrentPage('profile')} 
-                variant="outline" 
-                size="sm"
-                className="hover:bg-primary/10 hover:border-primary transition-all duration-300"
-              >
+              <Button onClick={() => setCurrentPage('profile')} variant="outline" size="sm">
                 <User className="h-4 w-4 lg:mr-2" />
                 <span className="hidden lg:inline">Perfil</span>
               </Button>
-              {!isLoadingRole && isAdmin && (
-                <Button 
-                  onClick={() => setCurrentPage('admin')} 
-                  variant="outline" 
-                  size="sm" 
-                  className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 shadow-sm hover:shadow-md"
-                >
-                  <Shield className="h-4 w-4 lg:mr-2" />
-                  <span className="hidden lg:inline">Admin</span>
-                </Button>
-              )}
-              <Button 
-                onClick={handleLogout} 
-                variant="outline" 
-                size="sm"
-                className="hover:bg-destructive/10 hover:border-destructive hover:text-destructive transition-all duration-300"
-              >
+              <Button onClick={handleLogout} variant="outline" size="sm">
                 <LogOut className="h-4 w-4 lg:mr-2" />
                 <span className="hidden lg:inline">Sair</span>
               </Button>
@@ -293,66 +247,54 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-6 pb-24 sm:pb-6 space-y-6 overflow-x-hidden">
+      <div className="container mx-auto px-4 py-6 space-y-6">{/* Removido max-h-screen overflow-y-auto para permitir scroll natural */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          {/* Navigation Tabs - Grid on Desktop */}
-          <TabsList className="hidden sm:grid sm:grid-cols-4 lg:grid-cols-8 mb-6 h-auto p-0 bg-transparent gap-2 w-full">
-            <TabsTrigger 
-              value="dashboard" 
-              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
-            >
-              <BarChart3 className="h-5 w-5" />
-              <span>Dashboard</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="employees" 
-              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
-            >
-              <Users className="h-5 w-5" />
-              <span>Funcionários</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="positions" 
-              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
-            >
-              <Briefcase className="h-5 w-5" />
-              <span>Cargos</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="condominiums" 
-              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
-            >
-              <Building2 className="h-5 w-5" />
-              <span>Condomínios</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="worked-leaves" 
-              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
-            >
-              <Clock className="h-5 w-5" />
-              <span>FT</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="absences" 
-              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
-            >
-              <Calendar className="h-5 w-5" />
-              <span>Faltas</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="reports" 
-              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
-            >
-              <Download className="h-5 w-5" />
-              <span>Relatórios</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="ai" 
-              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
-            >
-              <Sparkles className="h-5 w-5" />
-              <span>IA</span>
-            </TabsTrigger>
+          {/* Navigation Tabs - Single Row on Desktop, Vertical Stack on Mobile */}
+          <TabsList className="mb-6 h-auto p-0 bg-transparent justify-start">
+            <div className="flex flex-col sm:flex-row gap-2 w-full">
+              <TabsTrigger 
+                value="dashboard" 
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full sm:w-auto rounded-lg"
+              >
+                <BarChart3 className="h-5 w-5" />
+                <span>Dashboard</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="employees" 
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full sm:w-auto rounded-lg"
+              >
+                <Users className="h-5 w-5" />
+                <span>Funcionários</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="condominiums" 
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full sm:w-auto rounded-lg"
+              >
+                <Building2 className="h-5 w-5" />
+                <span>Condomínios</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="worked-leaves" 
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full sm:w-auto rounded-lg"
+              >
+                <Clock className="h-5 w-5" />
+                <span>FT</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="absences" 
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full sm:w-auto rounded-lg"
+              >
+                <Calendar className="h-5 w-5" />
+                <span>Faltas</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="reports" 
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-3 sm:p-4 text-xs sm:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground w-full sm:w-auto rounded-lg"
+              >
+                <Download className="h-5 w-5" />
+                <span>Relatórios</span>
+              </TabsTrigger>
+            </div>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">
@@ -494,10 +436,6 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
             <EmployeeManagement />
           </TabsContent>
 
-          <TabsContent value="positions">
-            <PositionManagement />
-          </TabsContent>
-
           <TabsContent value="condominiums">
             <CondominiumManagement />
           </TabsContent>
@@ -513,15 +451,12 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
 
 
           <TabsContent value="reports">
-            <ReportsPanel onClose={() => setActiveTab('dashboard')} />
-          </TabsContent>
-          
-          <TabsContent value="ai">
-            <AIReportsTab />
+            <div className="text-center p-8">
+              <p className="text-muted-foreground">Use os cards na Dashboard para acessar relatórios</p>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
-      <BottomNav activeTab={activeTab} onChange={setActiveTab} />
       
       <PWAInstallPrompt />
     </div>
