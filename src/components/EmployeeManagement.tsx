@@ -386,19 +386,34 @@ export const EmployeeManagement = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="position">Cargo</Label>
-                <Select value={formData.positionId} onValueChange={(value) => setFormData(prev => ({ ...prev, positionId: value }))}>
+                <Label htmlFor="position">Cargo *</Label>
+                <Select 
+                  value={formData.positionId} 
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, positionId: value }))}
+                  required
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione o cargo" />
+                    <SelectValue placeholder={positions.length === 0 ? "Nenhum cargo disponível" : "Selecione o cargo"} />
                   </SelectTrigger>
                   <SelectContent>
-                    {positions.map(position => (
-                      <SelectItem key={position.id} value={position.id}>
-                        {position.title}
-                      </SelectItem>
-                    ))}
+                    {positions.length === 0 ? (
+                      <div className="px-2 py-6 text-center text-sm text-muted-foreground">
+                        <p>Nenhum cargo cadastrado.</p>
+                      </div>
+                    ) : (
+                      positions.map(position => (
+                        <SelectItem key={position.id} value={position.id}>
+                          {position.title}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
+                {positions.length === 0 && (
+                  <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                    ⚠️ Nenhum cargo disponível. Cadastre um cargo antes de adicionar funcionário.
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">

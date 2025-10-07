@@ -6,12 +6,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, UserCheck, Activity, TrendingUp, BarChart3 } from 'lucide-react';
+import { LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, UserCheck, Activity, TrendingUp, BarChart3, Briefcase, Sparkles } from 'lucide-react';
 import { EmployeeManagement } from './EmployeeManagement';
 import { CondominiumManagement } from './CondominiumManagement';
+import { PositionManagement } from './PositionManagement';
 import { WorkedLeavesTab } from './WorkedLeavesTab';
 import { AbsencesTab } from './AbsencesTab';
 import { ReportsPanel } from './ReportsPanel';
+import { AIReportsTab } from './AIReportsTab';
 import { PWAInstallPrompt } from './PWAInstallPrompt';
 
 import { DailyPhrase } from './DailyPhrase';
@@ -215,15 +217,15 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-lg border-b border-border/50">
-        <div className="container mx-auto px-4 py-3">
+      <header className="sticky top-0 z-50 bg-gradient-to-r from-background via-primary/5 to-background backdrop-blur-xl border-b border-primary/20" style={{ boxShadow: 'var(--shadow-elegant)' }}>
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-glow p-2 flex items-center justify-center shadow-lg">
                 <img 
                   src="/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png" 
                   alt="RondaTrack Logo" 
-                  className="w-8 h-8 object-contain"
+                  className="w-full h-full object-contain"
                   onError={(e) => {
                     const img = e.currentTarget as HTMLImageElement;
                     img.style.display = 'none';
@@ -231,43 +233,58 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
                     if (icon) icon.style.display = 'flex';
                   }}
                 />
-                <Shield className="h-6 w-6 text-primary hidden" />
+                <Shield className="h-7 w-7 text-primary-foreground hidden" />
               </div>
               <div>
-                <h1 className="text-xl lg:text-2xl font-bold text-foreground">
+                <h1 className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                   RondaTrack <span className="text-primary">2</span>
                 </h1>
                 <div className="flex flex-col">
-                  <p className="text-xs lg:text-sm text-muted-foreground">Sistema de Controle Profissional</p>
+                  <p className="text-xs lg:text-sm text-muted-foreground font-medium">Sistema de Controle Profissional</p>
                   {companyName && (
-                    <p className="text-xs text-primary font-medium">{companyName}</p>
+                    <p className="text-xs text-primary font-semibold">{companyName}</p>
                   )}
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center space-x-2 lg:space-x-4">
+            <div className="flex items-center space-x-2 lg:space-x-3">
               {profile && (
-                <div className="text-right hidden sm:block">
-                  <p className="font-medium text-foreground text-sm lg:text-base">
+                <div className="text-right hidden sm:block mr-2">
+                  <p className="font-semibold text-foreground text-sm lg:text-base">
                     {profile.first_name} {profile.last_name}
                   </p>
-                  <Badge className={getRoleBadgeColor(profile.role)} variant="secondary">
+                  <Badge className={`${getRoleBadgeColor(profile.role)} shadow-sm`} variant="secondary">
                     {getRoleLabel(profile.role)}
                   </Badge>
                 </div>
               )}
-              <Button onClick={() => setCurrentPage('profile')} variant="outline" size="sm">
+              <Button 
+                onClick={() => setCurrentPage('profile')} 
+                variant="outline" 
+                size="sm"
+                className="hover:bg-primary/10 hover:border-primary transition-all duration-300"
+              >
                 <User className="h-4 w-4 lg:mr-2" />
                 <span className="hidden lg:inline">Perfil</span>
               </Button>
               {!isLoadingRole && isAdmin && (
-                <Button onClick={() => setCurrentPage('admin')} variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+                <Button 
+                  onClick={() => setCurrentPage('admin')} 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 shadow-sm hover:shadow-md"
+                >
                   <Shield className="h-4 w-4 lg:mr-2" />
                   <span className="hidden lg:inline">Admin</span>
                 </Button>
               )}
-              <Button onClick={handleLogout} variant="outline" size="sm">
+              <Button 
+                onClick={handleLogout} 
+                variant="outline" 
+                size="sm"
+                className="hover:bg-destructive/10 hover:border-destructive hover:text-destructive transition-all duration-300"
+              >
                 <LogOut className="h-4 w-4 lg:mr-2" />
                 <span className="hidden lg:inline">Sair</span>
               </Button>
@@ -279,7 +296,7 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
       <div className="container mx-auto px-4 py-6 pb-24 sm:pb-6 space-y-6 overflow-x-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Navigation Tabs - Grid on Desktop */}
-          <TabsList className="hidden sm:grid sm:grid-cols-3 lg:grid-cols-6 mb-6 h-auto p-0 bg-transparent gap-2 w-full">
+          <TabsList className="hidden sm:grid sm:grid-cols-4 lg:grid-cols-8 mb-6 h-auto p-0 bg-transparent gap-2 w-full">
             <TabsTrigger 
               value="dashboard" 
               className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
@@ -293,6 +310,13 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
             >
               <Users className="h-5 w-5" />
               <span>Funcionários</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="positions" 
+              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
+            >
+              <Briefcase className="h-5 w-5" />
+              <span>Cargos</span>
             </TabsTrigger>
             <TabsTrigger 
               value="condominiums" 
@@ -321,6 +345,13 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
             >
               <Download className="h-5 w-5" />
               <span>Relatórios</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="ai" 
+              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
+            >
+              <Sparkles className="h-5 w-5" />
+              <span>IA</span>
             </TabsTrigger>
           </TabsList>
 
@@ -463,6 +494,10 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
             <EmployeeManagement />
           </TabsContent>
 
+          <TabsContent value="positions">
+            <PositionManagement />
+          </TabsContent>
+
           <TabsContent value="condominiums">
             <CondominiumManagement />
           </TabsContent>
@@ -479,6 +514,10 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
 
           <TabsContent value="reports">
             <ReportsPanel onClose={() => setActiveTab('dashboard')} />
+          </TabsContent>
+          
+          <TabsContent value="ai">
+            <AIReportsTab />
           </TabsContent>
         </Tabs>
       </div>
