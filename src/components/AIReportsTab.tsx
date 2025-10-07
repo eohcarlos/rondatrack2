@@ -22,7 +22,7 @@ interface Report {
 
 export const AIReportsTab = () => {
   const [activeTab, setActiveTab] = useState('new');
-  const [reportType, setReportType] = useState<'ronda' | 'portaria' | null>(null);
+  const [reportType, setReportType] = useState<'ronda' | 'portaria' | 'supervisao' | null>(null);
   const [prompt, setPrompt] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -211,7 +211,7 @@ export const AIReportsTab = () => {
             </CardHeader>
           </Card>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card 
               className="cursor-pointer hover:border-primary/50 transition-all duration-300 hover:shadow-lg group"
               onClick={() => setReportType('ronda')}
@@ -257,6 +257,29 @@ export const AIReportsTab = () => {
                 </p>
               </CardContent>
             </Card>
+
+            <Card 
+              className="cursor-pointer hover:border-primary/50 transition-all duration-300 hover:shadow-lg group"
+              onClick={() => setReportType('supervisao')}
+            >
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <Sparkles className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Relatório de Supervisão</CardTitle>
+                    <CardDescription>Visitas técnicas e inspeções</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Crie relatórios profissionais de supervisão com verificação de colaboradores, 
+                  equipamentos e situação geral do posto.
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
 
@@ -287,7 +310,11 @@ export const AIReportsTab = () => {
                       )}
                       <div>
                         <CardTitle className="text-lg">
-                          {report.report_type === 'ronda' ? 'Ronda' : 'Portaria'} - {report.condominium_name}
+                          {report.report_type === 'ronda' 
+                            ? 'Ronda' 
+                            : report.report_type === 'supervisao'
+                            ? 'Supervisão'
+                            : 'Portaria'} - {report.condominium_name}
                         </CardTitle>
                         <CardDescription>
                           <div className="flex items-center gap-2 mt-1">
@@ -343,11 +370,17 @@ export const AIReportsTab = () => {
             <div className="flex items-center gap-2">
               {reportType === 'ronda' ? (
                 <Shield className="h-6 w-6 text-primary" />
+              ) : reportType === 'supervisao' ? (
+                <Sparkles className="h-6 w-6 text-primary" />
               ) : (
                 <FileText className="h-6 w-6 text-primary" />
               )}
               <CardTitle>
-                {reportType === 'ronda' ? 'Relatório de Ronda' : 'Relatório de Portaria'}
+                {reportType === 'ronda' 
+                  ? 'Relatório de Ronda' 
+                  : reportType === 'supervisao'
+                  ? 'Relatório de Supervisão'
+                  : 'Relatório de Portaria'}
               </CardTitle>
             </div>
             <Button variant="outline" size="sm" onClick={handleReset}>
@@ -409,6 +442,8 @@ export const AIReportsTab = () => {
               placeholder={
                 reportType === 'ronda'
                   ? "Ex: Foi verificado a cerca elétrica e está tudo ok. Todas as câmeras estão funcionando. Portão principal precisa de manutenção."
+                  : reportType === 'supervisao'
+                  ? "Ex: Realizei visita técnica. Assinatura registrada no livro. Colaboradores uniformizados e com crachá visível. VTR e MTR em perfeitas condições. Sem ocorrências."
                   : "Ex: Turno tranquilo. Recebidas 3 encomendas para o apto 501. Visitante do apto 302 saiu às 18h."
               }
               value={prompt}

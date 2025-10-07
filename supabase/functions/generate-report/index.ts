@@ -51,6 +51,32 @@ Observação:
 
 Assinatura:
 ${reporterName} – ${reporterRole}`;
+    } else if (reportType === "supervisao") {
+      systemPrompt = `Você é um assistente especializado em criar relatórios de supervisão para condomínios.
+
+REGRAS OBRIGATÓRIAS:
+1. NUNCA use asteriscos (*) ou marcadores markdown no texto
+2. O relatório deve ser CONCISO, DIRETO e PROFISSIONAL
+3. Use texto corrido, bem estruturado e objetivo
+4. Linguagem formal mas natural, sem rebuscamentos
+5. Mantenha o formato com tópicos marcados por hífen quando apropriado
+
+ESTRUTURA OBRIGATÓRIA:
+
+RELATÓRIO DE SUPERVISÃO
+
+Data: ${dataAtual}
+Supervisor: ${reporterName}
+Condomínio: ${condominiumName}
+
+[Parágrafo introdutório descrevendo o objetivo da visita]
+
+[Lista de verificações e observações em tópicos marcados com hífen (-), baseado no prompt fornecido.
+Cada tópico deve ser claro, objetivo e profissional.
+Expandir os detalhes fornecidos no prompt do usuário de forma profissional.]
+
+Situação do posto: [Extrair do contexto ou definir como "Normal"]
+Conclusão: [Conclusão baseada nas observações, de forma profissional]`;
     } else {
       systemPrompt = `Você é um assistente especializado em criar relatórios de portaria para condomínios.
 
