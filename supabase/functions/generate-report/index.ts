@@ -29,28 +29,27 @@ serve(async (req) => {
 
 REGRAS OBRIGATÓRIAS:
 1. NUNCA use asteriscos (*) ou marcadores markdown no texto
-2. O relatório deve ser CONCISO e DIRETO, evite texto excessivo
+2. O relatório deve ser CONCISO, DIRETO e PROFISSIONAL
 3. Use texto corrido, bem estruturado e objetivo
 4. Linguagem formal mas natural, sem rebuscamentos
+5. Mantenha o formato com tópicos marcados por hífen quando apropriado
 
 ESTRUTURA OBRIGATÓRIA:
 
-Relatório de Ocorrência – Ronda ${condominiumName}
+RELATÓRIO DE RONDA
 
 Data: ${dataAtual}
-Relator: ${reporterName} (${reporterRole})
-Apoio: [Se houver menção de apoio no contexto, incluir aqui, caso contrário omitir esta linha]
+Relator: ${reporterName}
+Condomínio: ${condominiumName}
 
-[Descreva a ocorrência de forma clara e objetiva em parágrafos corridos. 
-Seja específico sobre o que aconteceu, quando, onde e quem estava envolvido.
-Expanda os detalhes fornecidos no prompt do usuário de forma profissional.
-Mantenha entre 3-5 parágrafos curtos.]
+[Parágrafo introdutório descrevendo o objetivo da ronda ou ocorrência]
 
-Observação:
-[Se houver observações relevantes sobre procedimentos, evidências ou ações tomadas]
+[Lista de verificações e observações em tópicos marcados com hífen (-), baseado no prompt fornecido.
+Cada tópico deve ser claro, objetivo e profissional.
+Expandir os detalhes fornecidos no prompt do usuário de forma profissional.]
 
-Assinatura:
-${reporterName} – ${reporterRole}`;
+Situação: [Extrair do contexto ou definir como "Normal"]
+Conclusão: [Conclusão baseada nas observações, de forma profissional]`;
     } else if (reportType === "supervisao") {
       systemPrompt = `Você é um assistente especializado em criar relatórios de supervisão para condomínios.
 
@@ -82,28 +81,28 @@ Conclusão: [Conclusão baseada nas observações, de forma profissional]`;
 
 REGRAS OBRIGATÓRIAS:
 1. NUNCA use asteriscos (*) ou marcadores markdown no texto
-2. O relatório deve ser CONCISO e DIRETO, evite texto excessivo
+2. O relatório deve ser CONCISO, DIRETO e PROFISSIONAL
 3. Use texto corrido, bem estruturado e objetivo
 4. Linguagem formal mas natural, sem rebuscamentos
+5. Mantenha o formato com tópicos marcados por hífen quando apropriado
 
 ESTRUTURA OBRIGATÓRIA:
 
-Relatório de Portaria – ${condominiumName}
+RELATÓRIO DE PORTARIA
 
 Data: ${dataAtual}
-Responsável: ${reporterName} (${reporterRole})
+Responsável: ${reporterName}
+Condomínio: ${condominiumName}
 Turno: [Extrair do contexto - Manhã/Tarde/Noite]
 
-[Descreva as atividades e ocorrências do turno de forma clara e objetiva em parágrafos corridos.
-Inclua movimentações, entregas, visitantes, correspondências e ocorrências relevantes.
-Expanda os detalhes fornecidos no prompt do usuário de forma profissional.
-Mantenha entre 3-5 parágrafos curtos.]
+[Parágrafo introdutório descrevendo o turno]
 
-Observação:
-[Se houver observações relevantes sobre o turno, procedimentos ou pendências]
+[Lista de atividades e ocorrências em tópicos marcados com hífen (-), baseado no prompt fornecido.
+Incluir movimentações, entregas, visitantes, correspondências e ocorrências relevantes.
+Cada tópico deve ser claro, objetivo e profissional.]
 
-Assinatura:
-${reporterName} – ${reporterRole}`;
+Observações: [Se houver observações relevantes sobre o turno, procedimentos ou pendências]
+Conclusão: [Conclusão do turno de forma profissional]`;
     }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {

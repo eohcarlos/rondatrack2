@@ -7,7 +7,25 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Sparkles, FileText, Shield, Loader2, Copy, Download, History, Clock } from 'lucide-react';
+import { Sparkles, FileText, Shield, Loader2, Copy, Download, History, Clock, Pencil, Trash2 } from 'lucide-react';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Report {
   id: string;
@@ -32,6 +50,9 @@ export const AIReportsTab = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [reportHistory, setReportHistory] = useState<Report[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [reportToDelete, setReportToDelete] = useState<string | null>(null);
+  const [reportToEdit, setReportToEdit] = useState<Report | null>(null);
+  const [editedContent, setEditedContent] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -184,9 +205,76 @@ export const AIReportsTab = () => {
     setGeneratedReport('');
   };
 
+  const handleDeleteReport = async (reportId: string) => {
+    try {
+      const { error } = await supabase
+        .from('ai_reports')
+        .delete()
+        .eq('id', reportId);
+
+      if (error) throw error;
+
+      setReportHistory(prev => prev.filter(r => r.id !== reportId));
+      toast({
+        title: "Relatório excluído!",
+        description: "O relatório foi removido com sucesso.",
+      });
+    } catch (error: any) {
+      console.error('Erro ao excluir relatório:', error);
+      toast({
+        title: "Erro ao excluir",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setReportToDelete(null);
+    }
+  };
+
+  const handleEditReport = (report: Report) => {
+    setReportToEdit(report);
+    setEditedContent(report.generated_report);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!reportToEdit) return;
+
+    try {
+      const { error } = await supabase
+        .from('ai_reports')
+        .update({ generated_report: editedContent })
+        .eq('id', reportToEdit.id);
+
+      if (error) throw error;
+
+      setReportHistory(prev => 
+        prev.map(r => r.id === reportToEdit.id 
+          ? { ...r, generated_report: editedContent }
+          : r
+        )
+      );
+
+      toast({
+        title: "Relatório atualizado!",
+        description: "As alterações foram salvas com sucesso.",
+      });
+      
+      setReportToEdit(null);
+      setEditedContent('');
+    } catch (error: any) {
+      console.error('Erro ao atualizar relatório:', error);
+      toast({
+        title: "Erro ao atualizar",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   if (!reportType) {
     return (
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="new">
             <Sparkles className="h-4 w-4 mr-2" />
@@ -331,6 +419,13 @@ export const AIReportsTab = () => {
                       <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => handleEditReport(report)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => handleCopyReport(report.generated_report)}
                       >
                         <Copy className="h-4 w-4" />
@@ -341,6 +436,13 @@ export const AIReportsTab = () => {
                         onClick={() => handleDownloadReport(report.generated_report, report.report_type)}
                       >
                         <Download className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setReportToDelete(report.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
@@ -359,6 +461,51 @@ export const AIReportsTab = () => {
           )}
         </TabsContent>
       </Tabs>
+
+      <AlertDialog open={!!reportToDelete} onOpenChange={() => setReportToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir este relatório? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={() => reportToDelete && handleDeleteReport(reportToDelete)}>
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <Dialog open={!!reportToEdit} onOpenChange={() => setReportToEdit(null)}>
+        <DialogContent className="max-w-3xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle>Editar Relatório</DialogTitle>
+            <DialogDescription>
+              Faça as alterações necessárias no relatório abaixo.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Textarea
+              value={editedContent}
+              onChange={(e) => setEditedContent(e.target.value)}
+              rows={15}
+              className="font-mono text-sm"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReportToEdit(null)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveEdit}>
+              Salvar Alterações
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      </>
     );
   }
 
