@@ -58,6 +58,16 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
   const { toast } = useToast();
   const { isAdmin, isLoading: isLoadingRole } = useUserRole();
 
+  // Função para mudar página e recarregar stats quando necessário
+  const handlePageChange = (page: typeof currentPage) => {
+    setCurrentPage(page);
+    // Se voltando para dashboard de páginas de FT/Faltas, recarrega stats imediatamente
+    if (page === 'dashboard' && (currentPage === 'ft' || currentPage === 'absence')) {
+      console.log('🔄 Recarregando stats após adicionar dados...');
+      loadStats();
+    }
+  };
+
   useEffect(() => {
     loadProfile();
     loadStats();
@@ -234,23 +244,23 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
 
   // Renderizar páginas separadas
   if (currentPage === 'profile') {
-    return <ProfilePage onGoBack={() => setCurrentPage('dashboard')} />;
+    return <ProfilePage onGoBack={() => handlePageChange('dashboard')} />;
   }
   
   if (currentPage === 'reports') {
-    return <ReportsPage onGoBack={() => setCurrentPage('dashboard')} />;
+    return <ReportsPage onGoBack={() => handlePageChange('dashboard')} />;
   }
   
   if (currentPage === 'ft') {
-    return <WorkedLeavesPage onGoBack={() => setCurrentPage('dashboard')} />;
+    return <WorkedLeavesPage onGoBack={() => handlePageChange('dashboard')} />;
   }
   
   if (currentPage === 'absence') {
-    return <AbsencesPage onGoBack={() => setCurrentPage('dashboard')} />;
+    return <AbsencesPage onGoBack={() => handlePageChange('dashboard')} />;
   }
 
   if (currentPage === 'admin' && isAdmin) {
-    return <AdminPage onGoBack={() => setCurrentPage('dashboard')} />;
+    return <AdminPage onGoBack={() => handlePageChange('dashboard')} />;
   }
 
   return (
@@ -299,7 +309,7 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
                 </div>
               )}
               <Button 
-                onClick={() => setCurrentPage('profile')} 
+                onClick={() => handlePageChange('profile')} 
                 variant="outline" 
                 size="sm"
                 className="hover:bg-primary/10 hover:border-primary transition-all duration-300"
@@ -309,7 +319,7 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
               </Button>
               {!isLoadingRole && isAdmin && (
                 <Button 
-                  onClick={() => setCurrentPage('admin')} 
+                  onClick={() => handlePageChange('admin')} 
                   variant="outline" 
                   size="sm" 
                   className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 shadow-sm hover:shadow-md"
@@ -535,7 +545,7 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <Button 
                   className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 h-auto p-6 rounded-xl"
-                  onClick={() => setCurrentPage('ft')}
+                  onClick={() => handlePageChange('ft')}
                 >
                   <div className="flex items-center space-x-4 w-full">
                     <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
@@ -550,7 +560,7 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
 
                 <Button 
                   className="bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 h-auto p-6 rounded-xl"
-                  onClick={() => setCurrentPage('absence')}
+                  onClick={() => handlePageChange('absence')}
                 >
                   <div className="flex items-center space-x-4 w-full">
                     <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
@@ -565,7 +575,7 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
 
                 <Button 
                   className="bg-gradient-to-r from-accent to-accent/80 text-accent-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 h-auto p-6 rounded-xl"
-                  onClick={() => setCurrentPage('reports')}
+                  onClick={() => handlePageChange('reports')}
                 >
                   <div className="flex items-center space-x-4 w-full">
                     <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
