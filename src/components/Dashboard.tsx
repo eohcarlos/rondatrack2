@@ -46,11 +46,13 @@ interface Stats {
   totalAbsences: number;
   totalCondominiums: number;
   totalWorkedLeaves: number;
+  previousMonthWorkedLeaves: number;
+  previousMonthAbsences: number;
 }
 
 export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) => {
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [stats, setStats] = useState<Stats>({ totalEmployees: 0, monthlyWorkedLeaves: 0, monthlyAbsences: 0, totalAbsences: 0, totalCondominiums: 0, totalWorkedLeaves: 0 });
+  const [stats, setStats] = useState<Stats>({ totalEmployees: 0, monthlyWorkedLeaves: 0, monthlyAbsences: 0, totalAbsences: 0, totalCondominiums: 0, totalWorkedLeaves: 0, previousMonthWorkedLeaves: 0, previousMonthAbsences: 0 });
   const [currentPage, setCurrentPage] = useState<'dashboard' | 'profile' | 'reports' | 'ft' | 'absence' | 'admin'>('dashboard');
   const [activeTab, setActiveTab] = useState('dashboard');
   const { toast } = useToast();
@@ -121,6 +123,12 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
       const nextMonth = next.getMonth() + 1;
       const startOfNextMonth = `${nextYear}-${String(nextMonth).padStart(2, '0')}-01`;
 
+      // Faixas de data do mês anterior
+      const prevMonth = new Date(year, month - 2, 1); // mês anterior
+      const prevYear = prevMonth.getFullYear();
+      const prevMonthNum = prevMonth.getMonth() + 1;
+      const startOfPrevMonth = `${prevYear}-${String(prevMonthNum).padStart(2, '0')}-01`;
+
       // FTs do mês atual
       const { count: ftCount } = await supabase
         .from('worked_leaves')
@@ -129,12 +137,28 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
         .lt('date', startOfNextMonth)
         .eq('company_id', companyId);
 
+      // FTs do mês anterior
+      const { count: prevFtCount } = await supabase
+        .from('worked_leaves')
+        .select('*', { count: 'exact', head: true })
+        .gte('date', startOfPrevMonth)
+        .lt('date', startOfMonth)
+        .eq('company_id', companyId);
+
       // Faltas do mês atual
       const { count: absencesCount } = await supabase
         .from('absences')
         .select('*', { count: 'exact', head: true })
         .gte('date', startOfMonth)
         .lt('date', startOfNextMonth)
+        .eq('company_id', companyId);
+
+      // Faltas do mês anterior
+      const { count: prevAbsencesCount } = await supabase
+        .from('absences')
+        .select('*', { count: 'exact', head: true })
+        .gte('date', startOfPrevMonth)
+        .lt('date', startOfMonth)
         .eq('company_id', companyId);
 
       // Total de faltas
@@ -162,6 +186,8 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
         totalAbsences: totalAbsencesCount || 0,
         totalCondominiums: condominiumsCount || 0,
         totalWorkedLeaves: totalFtCount || 0,
+        previousMonthWorkedLeaves: prevFtCount || 0,
+        previousMonthAbsences: prevAbsencesCount || 0,
       });
     } catch (error: any) {
       toast({
@@ -366,7 +392,7 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
                 Estatísticas do Mês Atual
               </h2>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Card 
                   className="group hover:shadow-lg transition-all duration-300 border-primary/20 bg-gradient-to-br from-card to-primary/5 cursor-pointer" 
                   onClick={() => setActiveTab('worked-leaves')}
@@ -398,6 +424,59 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
                     <p className="text-xs text-muted-foreground">Faltas registradas no período</p>
                   </CardContent>
                 </Card>
+              </div>
+            </div>
+
+            {/* Stats do Mês Anterior */}
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <Activity className="h-5 w-5 text-muted-foreground" />
+                Estatísticas do Mês Anterior
+              </h2>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Card 
+                  className="group hover:shadow-lg transition-all duration-300 border-primary/10 bg-gradient-to-br from-card to-primary/3 cursor-pointer" 
+                  onClick={() => setActiveTab('worked-leaves')}
+                >
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-primary/80">FTs do Mês Anterior</CardTitle>
+                    <div className="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                      <Clock className="h-4 w-4 text-primary/70" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-foreground">{stats.previousMonthWorkedLeaves}</div>
+                    <p className="text-xs text-muted-foreground">Folgas trabalhadas no mês passado</p>
+                  </CardContent>
+                </Card>
+
+                <Card 
+                  className="group hover:shadow-lg transition-all duration-300 border-destructive/10 bg-gradient-to-br from-card to-destructive/3 cursor-pointer"
+                  onClick={() => setActiveTab('absences')}
+                >
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-destructive/80">Faltas do Mês Anterior</CardTitle>
+                    <div className="w-8 h-8 bg-destructive/5 rounded-lg flex items-center justify-center group-hover:bg-destructive/10 transition-colors">
+                      <Calendar className="h-4 w-4 text-destructive/70" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-foreground">{stats.previousMonthAbsences}</div>
+                    <p className="text-xs text-muted-foreground">Faltas registradas no mês passado</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* Stats Gerais */}
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-accent" />
+                Estatísticas Gerais
+              </h2>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
                 <Card 
                   className="group hover:shadow-lg transition-all duration-300 border-accent/20 bg-gradient-to-br from-card to-accent/5 cursor-pointer"

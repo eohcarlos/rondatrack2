@@ -14,9 +14,96 @@ const Index = () => {
   useEffect(() => {
     let mounted = true;
     
-    const checkAuthState = async () => {
+    const loadCompanyInfo = async (userId: string) => {
       try {
-        console.log('Verificando estado de autenticação...');
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('company_id')
+          .eq('user_id', userId)
+          .maybeSingle();
+
+        if (!mounted) return;
+
+        if (profileError) {
+          console.error('Erro ao buscar perfil:', profileError);
+          setHasCompanyCode(false);
+          setHasAccessCode(false);
+          return;
+        }
+
+        if (profile && profile.company_id) {
+          const { data: company } = await supabase
+            .from('companies')
+            .select('name')
+            .eq('id', profile.company_id)
+            .maybeSingle();
+
+          if (!mounted) return;
+
+          const companyName = company?.name || '';
+          localStorage.setItem('companyId', profile.company_id);
+          localStorage.setItem('companyName', companyName);
+          localStorage.setItem('companyCodeVerified', 'true');
+          setHasCompanyCode(true);
+          setCompanyName(companyName);
+        } else {
+          setHasCompanyCode(false);
+        }
+        
+        const accessCodeVerified = localStorage.getItem('accessCodeVerified');
+        setHasAccessCode(accessCodeVerified === 'true');
+      } catch (error) {
+        console.error('Erro ao carregar informações da empresa:', error);
+        if (mounted) {
+          setHasCompanyCode(false);
+          setHasAccessCode(false);
+        }
+      }
+    };
+
+    // Configurar listener ANTES de verificar sessão
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log('Auth state changed:', _event);
+      if (!mounted) return;
+      
+      // Apenas atualizações síncronas aqui
+      setIsAuthenticated(!!session);
+      
+      if (session) {
+        // Verificar primeiro o localStorage
+        const storedCompanyId = localStorage.getItem('companyId');
+        const storedCompanyName = localStorage.getItem('companyName');
+        const storedCompanyVerified = localStorage.getItem('companyCodeVerified');
+        const accessCodeVerified = localStorage.getItem('accessCodeVerified');
+        
+        if (storedCompanyId && storedCompanyVerified === 'true') {
+          setHasCompanyCode(true);
+          setCompanyName(storedCompanyName || '');
+          setHasAccessCode(accessCodeVerified === 'true');
+        } else {
+          // Defer Supabase calls
+          setTimeout(() => {
+            if (mounted) {
+              loadCompanyInfo(session.user.id);
+            }
+          }, 0);
+        }
+      } else {
+        // Limpar estados quando deslogar
+        setHasAccessCode(null);
+        setHasCompanyCode(null);
+        setCompanyName('');
+        localStorage.removeItem('accessCodeVerified');
+        localStorage.removeItem('companyCodeVerified');
+        localStorage.removeItem('companyId');
+        localStorage.removeItem('companyName');
+      }
+    });
+
+    // DEPOIS verificar sessão inicial
+    const checkInitialAuth = async () => {
+      try {
+        console.log('Verificando sessão inicial...');
         const { data: { session } } = await supabase.auth.getSession();
         
         if (!mounted) return;
@@ -25,50 +112,18 @@ const Index = () => {
         setIsAuthenticated(!!session);
         
         if (session) {
-          console.log('Buscando perfil do usuário...');
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('company_id')
-            .eq('user_id', session.user.id)
-            .maybeSingle();
-
-          if (!mounted) return;
-
-          if (profileError) {
-            console.error('Erro ao buscar perfil:', profileError);
-            setHasCompanyCode(false);
-            setHasAccessCode(false);
-            return;
-          }
-
-          console.log('Perfil encontrado:', profile);
-
-          if (profile && profile.company_id) {
-            console.log('Buscando empresa...');
-            const { data: company } = await supabase
-              .from('companies')
-              .select('name')
-              .eq('id', profile.company_id)
-              .maybeSingle();
-
-            if (!mounted) return;
-
-            const companyName = company?.name || '';
-            console.log('Empresa encontrada:', companyName);
-            
-            localStorage.setItem('companyId', profile.company_id);
-            localStorage.setItem('companyName', companyName);
-            localStorage.setItem('companyCodeVerified', 'true');
-            setHasCompanyCode(true);
-            setCompanyName(companyName);
-          } else {
-            console.log('Perfil sem empresa vinculada');
-            setHasCompanyCode(false);
-          }
-          
+          const storedCompanyId = localStorage.getItem('companyId');
+          const storedCompanyName = localStorage.getItem('companyName');
+          const storedCompanyVerified = localStorage.getItem('companyCodeVerified');
           const accessCodeVerified = localStorage.getItem('accessCodeVerified');
-          console.log('AccessCode verificado:', accessCodeVerified);
-          setHasAccessCode(accessCodeVerified === 'true');
+          
+          if (storedCompanyId && storedCompanyVerified === 'true') {
+            setHasCompanyCode(true);
+            setCompanyName(storedCompanyName || '');
+            setHasAccessCode(accessCodeVerified === 'true');
+          } else {
+            await loadCompanyInfo(session.user.id);
+          }
         }
       } catch (error) {
         console.error('Erro crítico no carregamento:', error);
@@ -80,83 +135,10 @@ const Index = () => {
       }
     };
 
-    // Adicionar timeout de segurança
-    const timeoutId = setTimeout(() => {
-      console.error('Timeout: Forçando estado inicial');
-      if (mounted && isAuthenticated === null) {
-        setIsAuthenticated(false);
-        setHasCompanyCode(false);
-        setHasAccessCode(false);
-      }
-    }, 5000);
-
-    checkAuthState();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      console.log('Auth state changed:', _event);
-      if (!mounted) return;
-      
-      setIsAuthenticated(!!session);
-      
-      if (session) {
-        try {
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('company_id')
-            .eq('user_id', session.user.id)
-            .maybeSingle();
-
-          if (!mounted) return;
-
-          if (profileError) {
-            console.error('Erro ao buscar perfil:', profileError);
-            setHasCompanyCode(false);
-            setHasAccessCode(false);
-            return;
-          }
-
-          if (profile && profile.company_id) {
-            const { data: company } = await supabase
-              .from('companies')
-              .select('name')
-              .eq('id', profile.company_id)
-              .maybeSingle();
-
-            if (!mounted) return;
-
-            const companyName = company?.name || '';
-            localStorage.setItem('companyId', profile.company_id);
-            localStorage.setItem('companyName', companyName);
-            localStorage.setItem('companyCodeVerified', 'true');
-            setHasCompanyCode(true);
-            setCompanyName(companyName);
-          } else {
-            setHasCompanyCode(false);
-          }
-          
-          const accessCodeVerified = localStorage.getItem('accessCodeVerified');
-          setHasAccessCode(accessCodeVerified === 'true');
-        } catch (error) {
-          console.error('Erro ao processar auth change:', error);
-          if (mounted) {
-            setHasCompanyCode(false);
-            setHasAccessCode(false);
-          }
-        }
-      } else {
-        setHasAccessCode(null);
-        setHasCompanyCode(null);
-        setCompanyName('');
-        localStorage.removeItem('accessCodeVerified');
-        localStorage.removeItem('companyCodeVerified');
-        localStorage.removeItem('companyId');
-        localStorage.removeItem('companyName');
-      }
-    });
+    checkInitialAuth();
 
     return () => {
       mounted = false;
-      clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
   }, []);
