@@ -129,6 +129,11 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
       const prevMonthNum = prevMonth.getMonth() + 1;
       const startOfPrevMonth = `${prevYear}-${String(prevMonthNum).padStart(2, '0')}-01`;
 
+      console.log('📅 Datas calculadas:', {
+        mesAtual: { inicio: startOfMonth, fim: startOfNextMonth },
+        mesAnterior: { inicio: startOfPrevMonth, fim: startOfMonth }
+      });
+
       // FTs do mês atual
       const { count: ftCount } = await supabase
         .from('worked_leaves')
@@ -138,12 +143,14 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
         .eq('company_id', companyId);
 
       // FTs do mês anterior
-      const { count: prevFtCount } = await supabase
+      const { count: prevFtCount, data: prevFtData, error: prevFtError } = await supabase
         .from('worked_leaves')
-        .select('*', { count: 'exact', head: true })
+        .select('*', { count: 'exact', head: false })
         .gte('date', startOfPrevMonth)
         .lt('date', startOfMonth)
         .eq('company_id', companyId);
+
+      console.log('📊 FTs mês anterior:', { count: prevFtCount, data: prevFtData, error: prevFtError });
 
       // Faltas do mês atual
       const { count: absencesCount } = await supabase
@@ -154,12 +161,14 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
         .eq('company_id', companyId);
 
       // Faltas do mês anterior
-      const { count: prevAbsencesCount } = await supabase
+      const { count: prevAbsencesCount, data: prevAbsencesData, error: prevAbsencesError } = await supabase
         .from('absences')
-        .select('*', { count: 'exact', head: true })
+        .select('*', { count: 'exact', head: false })
         .gte('date', startOfPrevMonth)
         .lt('date', startOfMonth)
         .eq('company_id', companyId);
+
+      console.log('📊 Faltas mês anterior:', { count: prevAbsencesCount, data: prevAbsencesData, error: prevAbsencesError });
 
       // Total de faltas
       const { count: totalAbsencesCount } = await supabase
@@ -179,7 +188,7 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
         .select('*', { count: 'exact', head: true })
         .eq('company_id', companyId);
 
-      setStats({
+      const newStats = {
         totalEmployees: employeesCount || 0,
         monthlyWorkedLeaves: ftCount || 0,
         monthlyAbsences: absencesCount || 0,
@@ -188,7 +197,11 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
         totalWorkedLeaves: totalFtCount || 0,
         previousMonthWorkedLeaves: prevFtCount || 0,
         previousMonthAbsences: prevAbsencesCount || 0,
-      });
+      };
+
+      console.log('📈 Stats atualizadas:', newStats);
+      
+      setStats(newStats);
     } catch (error: any) {
       toast({
         title: "Erro ao carregar estatísticas",
