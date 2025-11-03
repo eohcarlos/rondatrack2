@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 import { LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, UserCheck, Activity, TrendingUp, BarChart3, Briefcase, Sparkles } from 'lucide-react';
 import { EmployeeManagement } from './EmployeeManagement';
 import { CondominiumManagement } from './CondominiumManagement';
@@ -15,14 +16,8 @@ import { AbsencesTab } from './AbsencesTab';
 import { ReportsPanel } from './ReportsPanel';
 import { AIReportsTab } from './AIReportsTab';
 import { PWAInstallPrompt } from './PWAInstallPrompt';
-
 import { DailyPhrase } from './DailyPhrase';
-import { ProfilePage } from '@/pages/Profile';
-import { ReportsPage } from '@/pages/Reports';
-import { WorkedLeavesPage } from '@/pages/WorkedLeaves';
-import { AbsencesPage } from '@/pages/Absences';
 import { BottomNav } from './BottomNav';
-import { AdminPage } from '@/pages/Admin';
 import { useUserRole } from '@/hooks/useUserRole';
 interface DashboardProps {
   onLogout: () => void;
@@ -51,22 +46,23 @@ interface Stats {
 }
 
 export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) => {
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState<Stats>({ totalEmployees: 0, monthlyWorkedLeaves: 0, monthlyAbsences: 0, totalAbsences: 0, totalCondominiums: 0, totalWorkedLeaves: 0, previousMonthWorkedLeaves: 0, previousMonthAbsences: 0 });
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'profile' | 'reports' | 'ft' | 'absence' | 'admin'>('dashboard');
   const [activeTab, setActiveTab] = useState('dashboard');
   const { toast } = useToast();
   const { isAdmin, isLoading: isLoadingRole } = useUserRole();
 
-  // Função para mudar página e recarregar stats quando necessário
-  const handlePageChange = (page: typeof currentPage) => {
-    setCurrentPage(page);
-    // Se voltando para dashboard de páginas de FT/Faltas, recarrega stats imediatamente
-    if (page === 'dashboard' && (currentPage === 'ft' || currentPage === 'absence')) {
-      console.log('🔄 Recarregando stats após adicionar dados...');
+  // Recarrega stats quando voltar para o dashboard
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log('🔄 Recarregando stats ao voltar para dashboard...');
       loadStats();
-    }
-  };
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
 
   useEffect(() => {
     loadProfile();
@@ -242,26 +238,7 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
     }
   };
 
-  // Renderizar páginas separadas
-  if (currentPage === 'profile') {
-    return <ProfilePage onGoBack={() => handlePageChange('dashboard')} />;
-  }
-  
-  if (currentPage === 'reports') {
-    return <ReportsPage onGoBack={() => handlePageChange('dashboard')} />;
-  }
-  
-  if (currentPage === 'ft') {
-    return <WorkedLeavesPage onGoBack={() => handlePageChange('dashboard')} />;
-  }
-  
-  if (currentPage === 'absence') {
-    return <AbsencesPage onGoBack={() => handlePageChange('dashboard')} />;
-  }
-
-  if (currentPage === 'admin' && isAdmin) {
-    return <AdminPage onGoBack={() => handlePageChange('dashboard')} />;
-  }
+  // Dashboard sempre renderiza apenas o dashboard principal
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
@@ -309,7 +286,7 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
                 </div>
               )}
               <Button 
-                onClick={() => handlePageChange('profile')} 
+                onClick={() => navigate('/dashboard/profile')} 
                 variant="outline" 
                 size="sm"
                 className="hover:bg-primary/10 hover:border-primary transition-all duration-300"
@@ -319,7 +296,7 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
               </Button>
               {!isLoadingRole && isAdmin && (
                 <Button 
-                  onClick={() => handlePageChange('admin')} 
+                  onClick={() => navigate('/dashboard/admin')} 
                   variant="outline" 
                   size="sm" 
                   className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 shadow-sm hover:shadow-md"
@@ -545,7 +522,7 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <Button 
                   className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 h-auto p-6 rounded-xl"
-                  onClick={() => handlePageChange('ft')}
+                  onClick={() => navigate('/dashboard/ft')}
                 >
                   <div className="flex items-center space-x-4 w-full">
                     <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
@@ -560,7 +537,7 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
 
                 <Button 
                   className="bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 h-auto p-6 rounded-xl"
-                  onClick={() => handlePageChange('absence')}
+                  onClick={() => navigate('/dashboard/absence')}
                 >
                   <div className="flex items-center space-x-4 w-full">
                     <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
@@ -575,7 +552,7 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
 
                 <Button 
                   className="bg-gradient-to-r from-accent to-accent/80 text-accent-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 h-auto p-6 rounded-xl"
-                  onClick={() => handlePageChange('reports')}
+                  onClick={() => navigate('/dashboard/reports')}
                 >
                   <div className="flex items-center space-x-4 w-full">
                     <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
