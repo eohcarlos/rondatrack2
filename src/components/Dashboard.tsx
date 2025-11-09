@@ -319,207 +319,207 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-6 pb-24 sm:pb-6 space-y-6 overflow-x-hidden">
+      <div className="container mx-auto px-6 lg:px-12 py-8 pb-24 sm:pb-8 space-y-8 overflow-x-hidden max-w-[1600px]">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Navigation Tabs - Grid on Desktop */}
-          <TabsList className="hidden sm:grid sm:grid-cols-4 lg:grid-cols-8 mb-6 h-auto p-0 bg-transparent gap-2 w-full">
+          <TabsList className="hidden sm:grid sm:grid-cols-4 lg:grid-cols-4 xl:grid-cols-8 mb-8 h-auto p-1 bg-card/50 backdrop-blur-sm gap-3 w-full rounded-xl border border-border/50 shadow-sm">
             <TabsTrigger 
               value="dashboard" 
-              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
+              className="flex items-center justify-center gap-2 p-5 text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
             >
               <BarChart3 className="h-5 w-5" />
               <span>Dashboard</span>
             </TabsTrigger>
             <TabsTrigger 
               value="employees" 
-              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
+              className="flex items-center justify-center gap-2 p-5 text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
             >
               <Users className="h-5 w-5" />
               <span>Funcionários</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
+              className="flex items-center justify-center gap-2 p-5 text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
             >
               <Briefcase className="h-5 w-5" />
               <span>Cargos</span>
             </TabsTrigger>
             <TabsTrigger 
               value="condominiums" 
-              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
+              className="flex items-center justify-center gap-2 p-5 text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
             >
               <Building2 className="h-5 w-5" />
               <span>Condomínios</span>
             </TabsTrigger>
             <TabsTrigger 
               value="worked-leaves" 
-              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
+              className="flex items-center justify-center gap-2 p-5 text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
             >
               <Clock className="h-5 w-5" />
               <span>FT</span>
             </TabsTrigger>
             <TabsTrigger 
               value="absences" 
-              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
+              className="flex items-center justify-center gap-2 p-5 text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
             >
               <Calendar className="h-5 w-5" />
               <span>Faltas</span>
             </TabsTrigger>
             <TabsTrigger 
               value="reports" 
-              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
+              className="flex items-center justify-center gap-2 p-5 text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
             >
               <Download className="h-5 w-5" />
               <span>Relatórios</span>
             </TabsTrigger>
             <TabsTrigger 
               value="ai" 
-              className="flex items-center justify-center gap-2 p-4 text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
+              className="flex items-center justify-center gap-2 p-5 text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
             >
               <Sparkles className="h-5 w-5" />
               <span>IA</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="dashboard" className="space-y-6">
+          <TabsContent value="dashboard" className="space-y-8">
             {/* Frase do Dia */}
             <DailyPhrase />
 
             {/* Stats Cards */}
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-primary" />
+            <div className="space-y-6">
+              <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
+                <TrendingUp className="h-6 w-6 text-primary" />
                 Estatísticas do Mês Atual
               </h2>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <Card 
-                  className="group hover:shadow-lg transition-all duration-300 border-primary/20 bg-gradient-to-br from-card to-primary/5 cursor-pointer" 
+                  className="group hover:shadow-xl transition-all duration-300 border-primary/20 bg-gradient-to-br from-card to-primary/5 cursor-pointer hover:scale-105" 
                   onClick={() => setActiveTab('worked-leaves')}
                 >
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-primary">FTs do Mês</CardTitle>
-                    <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                      <Clock className="h-4 w-4 text-primary" />
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                    <CardTitle className="text-base font-semibold text-primary">FTs do Mês</CardTitle>
+                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <Clock className="h-6 w-6 text-primary" />
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-foreground">{stats.monthlyWorkedLeaves}</div>
-                    <p className="text-xs text-muted-foreground">Folgas trabalhadas registradas</p>
+                    <div className="text-3xl font-bold text-foreground mb-1">{stats.monthlyWorkedLeaves}</div>
+                    <p className="text-sm text-muted-foreground">Folgas trabalhadas registradas</p>
                   </CardContent>
                 </Card>
 
                 <Card 
-                  className="group hover:shadow-lg transition-all duration-300 border-destructive/20 bg-gradient-to-br from-card to-destructive/5 cursor-pointer"
+                  className="group hover:shadow-xl transition-all duration-300 border-destructive/20 bg-gradient-to-br from-card to-destructive/5 cursor-pointer hover:scale-105"
                   onClick={() => setActiveTab('absences')}
                 >
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-destructive">Faltas do Mês</CardTitle>
-                    <div className="w-8 h-8 bg-destructive/10 rounded-lg flex items-center justify-center group-hover:bg-destructive/20 transition-colors">
-                      <Calendar className="h-4 w-4 text-destructive" />
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                    <CardTitle className="text-base font-semibold text-destructive">Faltas do Mês</CardTitle>
+                    <div className="w-12 h-12 bg-destructive/10 rounded-xl flex items-center justify-center group-hover:bg-destructive/20 transition-colors">
+                      <Calendar className="h-6 w-6 text-destructive" />
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-foreground">{stats.monthlyAbsences}</div>
-                    <p className="text-xs text-muted-foreground">Faltas registradas no período</p>
+                    <div className="text-3xl font-bold text-foreground mb-1">{stats.monthlyAbsences}</div>
+                    <p className="text-sm text-muted-foreground">Faltas registradas no período</p>
                   </CardContent>
                 </Card>
               </div>
             </div>
 
             {/* Stats do Mês Anterior */}
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                <Activity className="h-5 w-5 text-muted-foreground" />
+            <div className="space-y-6">
+              <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
+                <Activity className="h-6 w-6 text-muted-foreground" />
                 Estatísticas do Mês Anterior
               </h2>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <Card 
-                  className="group hover:shadow-lg transition-all duration-300 border-primary/10 bg-gradient-to-br from-card to-primary/3 cursor-pointer" 
+                  className="group hover:shadow-xl transition-all duration-300 border-primary/10 bg-gradient-to-br from-card to-primary/3 cursor-pointer hover:scale-105" 
                   onClick={() => setActiveTab('worked-leaves')}
                 >
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-primary/80">FTs do Mês Anterior</CardTitle>
-                    <div className="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                      <Clock className="h-4 w-4 text-primary/70" />
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                    <CardTitle className="text-base font-semibold text-primary/80">FTs do Mês Anterior</CardTitle>
+                    <div className="w-12 h-12 bg-primary/5 rounded-xl flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                      <Clock className="h-6 w-6 text-primary/70" />
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-foreground">{stats.previousMonthWorkedLeaves}</div>
-                    <p className="text-xs text-muted-foreground">Folgas trabalhadas no mês passado</p>
+                    <div className="text-3xl font-bold text-foreground mb-1">{stats.previousMonthWorkedLeaves}</div>
+                    <p className="text-sm text-muted-foreground">Folgas trabalhadas no mês passado</p>
                   </CardContent>
                 </Card>
 
                 <Card 
-                  className="group hover:shadow-lg transition-all duration-300 border-destructive/10 bg-gradient-to-br from-card to-destructive/3 cursor-pointer"
+                  className="group hover:shadow-xl transition-all duration-300 border-destructive/10 bg-gradient-to-br from-card to-destructive/3 cursor-pointer hover:scale-105"
                   onClick={() => setActiveTab('absences')}
                 >
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-destructive/80">Faltas do Mês Anterior</CardTitle>
-                    <div className="w-8 h-8 bg-destructive/5 rounded-lg flex items-center justify-center group-hover:bg-destructive/10 transition-colors">
-                      <Calendar className="h-4 w-4 text-destructive/70" />
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                    <CardTitle className="text-base font-semibold text-destructive/80">Faltas do Mês Anterior</CardTitle>
+                    <div className="w-12 h-12 bg-destructive/5 rounded-xl flex items-center justify-center group-hover:bg-destructive/10 transition-colors">
+                      <Calendar className="h-6 w-6 text-destructive/70" />
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-foreground">{stats.previousMonthAbsences}</div>
-                    <p className="text-xs text-muted-foreground">Faltas registradas no mês passado</p>
+                    <div className="text-3xl font-bold text-foreground mb-1">{stats.previousMonthAbsences}</div>
+                    <p className="text-sm text-muted-foreground">Faltas registradas no mês passado</p>
                   </CardContent>
                 </Card>
               </div>
             </div>
 
             {/* Stats Gerais */}
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-accent" />
+            <div className="space-y-6">
+              <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
+                <BarChart3 className="h-6 w-6 text-accent" />
                 Estatísticas Gerais
               </h2>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
                 <Card 
-                  className="group hover:shadow-lg transition-all duration-300 border-accent/20 bg-gradient-to-br from-card to-accent/5 cursor-pointer"
+                  className="group hover:shadow-xl transition-all duration-300 border-accent/20 bg-gradient-to-br from-card to-accent/5 cursor-pointer hover:scale-105"
                   onClick={() => setActiveTab('employees')}
                 >
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-accent">Funcionários</CardTitle>
-                    <div className="w-8 h-8 bg-accent/10 rounded-lg flex items-center justify-center group-hover:bg-accent/20 transition-colors">
-                      <Users className="h-4 w-4 text-accent" />
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                    <CardTitle className="text-base font-semibold text-accent">Funcionários</CardTitle>
+                    <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+                      <Users className="h-6 w-6 text-accent" />
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-foreground">{stats.totalEmployees}</div>
-                    <p className="text-xs text-muted-foreground">Total ativos</p>
+                    <div className="text-3xl font-bold text-foreground mb-1">{stats.totalEmployees}</div>
+                    <p className="text-sm text-muted-foreground">Total ativos</p>
                   </CardContent>
                 </Card>
 
                 <Card 
-                  className="group hover:shadow-lg transition-all duration-300 border-warning/20 bg-gradient-to-br from-card to-warning/5 cursor-pointer"
+                  className="group hover:shadow-xl transition-all duration-300 border-warning/20 bg-gradient-to-br from-card to-warning/5 cursor-pointer hover:scale-105"
                   onClick={() => setActiveTab('condominiums')}
                 >
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-warning">Condomínios</CardTitle>
-                    <div className="w-8 h-8 bg-warning/10 rounded-lg flex items-center justify-center group-hover:bg-warning/20 transition-colors">
-                      <Building2 className="h-4 w-4 text-warning" />
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                    <CardTitle className="text-base font-semibold text-warning">Condomínios</CardTitle>
+                    <div className="w-12 h-12 bg-warning/10 rounded-xl flex items-center justify-center group-hover:bg-warning/20 transition-colors">
+                      <Building2 className="h-6 w-6 text-warning" />
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-foreground">{stats.totalCondominiums}</div>
-                    <p className="text-xs text-muted-foreground">Locais cadastrados</p>
+                    <div className="text-3xl font-bold text-foreground mb-1">{stats.totalCondominiums}</div>
+                    <p className="text-sm text-muted-foreground">Locais cadastrados</p>
                   </CardContent>
                 </Card>
               </div>
             </div>
 
             {/* Quick Actions */}
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                <Plus className="h-5 w-5 text-primary" />
+            <div className="space-y-6">
+              <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
+                <Plus className="h-6 w-6 text-primary" />
                 Ações Rápidas
               </h2>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <Button 
                   className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 h-auto p-6 rounded-xl"
                   onClick={() => navigate('/dashboard/ft')}
