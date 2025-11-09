@@ -19,6 +19,7 @@ import { PWAInstallPrompt } from './PWAInstallPrompt';
 import { DailyPhrase } from './DailyPhrase';
 import { BottomNav } from './BottomNav';
 import { useUserRole } from '@/hooks/useUserRole';
+import { ThemeToggle } from './ThemeToggle';
 interface DashboardProps {
   onLogout: () => void;
   onGoHome: () => void;
@@ -285,7 +286,8 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
                   </Badge>
                 </div>
               )}
-              <Button 
+              <ThemeToggle />
+              <Button
                 onClick={() => navigate('/dashboard/profile')} 
                 variant="outline" 
                 size="sm"
@@ -322,61 +324,61 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
       <div className="container mx-auto px-6 lg:px-12 py-8 pb-24 sm:pb-8 space-y-8 overflow-x-hidden max-w-[1600px]">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Navigation Tabs - Grid on Desktop */}
-          <TabsList className="hidden sm:grid sm:grid-cols-4 lg:grid-cols-4 xl:grid-cols-8 mb-8 h-auto p-1 bg-card/50 backdrop-blur-sm gap-3 w-full rounded-xl border border-border/50 shadow-sm">
+          <TabsList className="hidden sm:grid sm:grid-cols-4 lg:grid-cols-4 xl:grid-cols-8 mb-8 h-auto p-2 bg-card/50 backdrop-blur-sm gap-2 w-full rounded-xl border border-border/50 shadow-sm">
             <TabsTrigger 
               value="dashboard" 
-              className="flex items-center justify-center gap-2 p-5 text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
+              className="flex items-center justify-center gap-2 p-4 text-sm lg:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
             >
-              <BarChart3 className="h-5 w-5" />
+              <BarChart3 className="h-4 w-4 lg:h-5 lg:w-5" />
               <span>Dashboard</span>
             </TabsTrigger>
             <TabsTrigger 
               value="employees" 
-              className="flex items-center justify-center gap-2 p-5 text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
+              className="flex items-center justify-center gap-2 p-4 text-sm lg:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
             >
-              <Users className="h-5 w-5" />
+              <Users className="h-4 w-4 lg:h-5 lg:w-5" />
               <span>Funcionários</span>
             </TabsTrigger>
             <TabsTrigger 
               value="positions" 
-              className="flex items-center justify-center gap-2 p-5 text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
+              className="flex items-center justify-center gap-2 p-4 text-sm lg:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
             >
-              <Briefcase className="h-5 w-5" />
+              <Briefcase className="h-4 w-4 lg:h-5 lg:w-5" />
               <span>Cargos</span>
             </TabsTrigger>
             <TabsTrigger 
               value="condominiums" 
-              className="flex items-center justify-center gap-2 p-5 text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
+              className="flex items-center justify-center gap-2 p-4 text-sm lg:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
             >
-              <Building2 className="h-5 w-5" />
+              <Building2 className="h-4 w-4 lg:h-5 lg:w-5" />
               <span>Condomínios</span>
             </TabsTrigger>
             <TabsTrigger 
               value="worked-leaves" 
-              className="flex items-center justify-center gap-2 p-5 text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
+              className="flex items-center justify-center gap-2 p-4 text-sm lg:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
             >
-              <Clock className="h-5 w-5" />
+              <Clock className="h-4 w-4 lg:h-5 lg:w-5" />
               <span>FT</span>
             </TabsTrigger>
             <TabsTrigger 
               value="absences" 
-              className="flex items-center justify-center gap-2 p-5 text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
+              className="flex items-center justify-center gap-2 p-4 text-sm lg:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
             >
-              <Calendar className="h-5 w-5" />
+              <Calendar className="h-4 w-4 lg:h-5 lg:w-5" />
               <span>Faltas</span>
             </TabsTrigger>
             <TabsTrigger 
               value="reports" 
-              className="flex items-center justify-center gap-2 p-5 text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
+              className="flex items-center justify-center gap-2 p-4 text-sm lg:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
             >
-              <Download className="h-5 w-5" />
+              <Download className="h-4 w-4 lg:h-5 lg:w-5" />
               <span>Relatórios</span>
             </TabsTrigger>
             <TabsTrigger 
               value="ai" 
-              className="flex items-center justify-center gap-2 p-5 text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
+              className="flex items-center justify-center gap-2 p-4 text-sm lg:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50"
             >
-              <Sparkles className="h-5 w-5" />
+              <Sparkles className="h-4 w-4 lg:h-5 lg:w-5" />
               <span>IA</span>
             </TabsTrigger>
           </TabsList>
@@ -392,7 +394,7 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
                 Estatísticas do Mês Atual
               </h2>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
                 <Card 
                   className="group hover:shadow-xl transition-all duration-300 border-primary/20 bg-gradient-to-br from-card to-primary/5 cursor-pointer hover:scale-105" 
                   onClick={() => setActiveTab('worked-leaves')}
@@ -434,9 +436,9 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
                 Estatísticas do Mês Anterior
               </h2>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
                 <Card 
-                  className="group hover:shadow-xl transition-all duration-300 border-primary/10 bg-gradient-to-br from-card to-primary/3 cursor-pointer hover:scale-105" 
+                  className="group hover:shadow-xl transition-all duration-300 border-primary/10 bg-gradient-to-br from-card to-primary/3 cursor-pointer hover:scale-105"
                   onClick={() => setActiveTab('worked-leaves')}
                 >
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
@@ -476,9 +478,9 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
                 Estatísticas Gerais
               </h2>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
 
-                <Card 
+                <Card
                   className="group hover:shadow-xl transition-all duration-300 border-accent/20 bg-gradient-to-br from-card to-accent/5 cursor-pointer hover:scale-105"
                   onClick={() => setActiveTab('employees')}
                 >

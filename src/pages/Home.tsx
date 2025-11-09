@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { RegisterForm } from '@/components/RegisterForm';
 import { useNavigate } from 'react-router-dom';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export const Home = () => {
   const [showRegister, setShowRegister] = useState(false);
@@ -70,7 +71,7 @@ export const Home = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-accent/5 overflow-y-auto overflow-x-hidden max-w-full">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md shadow-lg border-b sticky top-0 z-50">
+      <header className="bg-card/80 backdrop-blur-md shadow-lg border-b border-border sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 max-w-full">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 sm:space-x-4 min-w-0 flex-1">
@@ -97,6 +98,7 @@ export const Home = () => {
             </div>
 
             <div className="flex gap-1 sm:gap-2 flex-shrink-0">
+              <ThemeToggle />
               <Button 
                 variant="outline"
                 size="sm"
@@ -182,7 +184,7 @@ export const Home = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-4 bg-white/50">
+      <section className="py-20 px-4 bg-card/30">
         <div className="container mx-auto">
           <div className="text-center mb-16">
             <h3 className="text-3xl md:text-4xl font-bold mb-4">
@@ -287,17 +289,17 @@ export const Home = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-foreground text-background py-12 px-4">
+      <footer className="bg-card border-t border-border py-12 px-4">
         <div className="container mx-auto text-center">
           <div className="flex items-center justify-center space-x-4 mb-6">
             <div className="w-8 h-8 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center">
               <Shield className="h-4 w-4 text-white" />
             </div>
-            <h4 className="text-xl font-bold">
+            <h4 className="text-xl font-bold text-foreground">
               RondaTrack <span className="text-primary">2</span>
             </h4>
           </div>
-          <p className="text-muted opacity-70">
+          <p className="text-muted-foreground">
             © 2024 RondaTrack 2. Todos os direitos reservados.
           </p>
         </div>
