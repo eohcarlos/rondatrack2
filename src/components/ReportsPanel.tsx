@@ -12,6 +12,7 @@ import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { getCurrentCompanyId } from '@/lib/company';
+import * as XLSX from 'xlsx';
 
 interface ReportsPanelProps {
   onClose: () => void;
@@ -211,12 +212,24 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
   };
 
   const downloadCSV = (data: any[], headers: string[], filename: string) => {
-    const csvContent = [
-      headers.join(','),
-      ...data.map(row => headers.map(header => `"${row[header] || ''}"`).join(','))
-    ].join('\n');
+    // Criar CSV com separador de vírgula e escape adequado
+    const escapeCSV = (value: string) => {
+      const stringValue = String(value || '');
+      // Se contém vírgula, aspas ou quebra de linha, precisa ser envolvido em aspas
+      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+        return `"${stringValue.replace(/"/g, '""')}"`;
+      }
+      return stringValue;
+    };
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const csvContent = [
+      headers.map(escapeCSV).join(','),
+      ...data.map(row => headers.map(header => escapeCSV(row[header] || '')).join(','))
+    ].join('\r\n');
+
+    // Adicionar BOM (Byte Order Mark) para UTF-8 para garantir compatibilidade com Excel
+    const BOM = '\uFEFF';
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `${filename}.csv`;
@@ -224,16 +237,76 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
   };
 
   const downloadExcel = (data: any[], headers: string[], filename: string) => {
-    const csvContent = [
-      headers.join('\t'),
-      ...data.map(row => headers.map(header => row[header] || '').join('\t'))
-    ].join('\n');
+    // Criar worksheet com os dados
+    const worksheetData = [
+      headers,
+      ...data.map(row => headers.map(header => row[header] || ''))
+    ];
 
-    const blob = new Blob([csvContent], { type: 'application/vnd.ms-excel' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `${filename}.xls`;
-    link.click();
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+    // Calcular largura automática das colunas
+    const colWidths = headers.map((header, colIndex) => {
+      const headerLength = header.length;
+      const maxDataLength = Math.max(
+        ...data.map(row => String(row[header] || '').length)
+      );
+      return { wch: Math.max(headerLength, maxDataLength, 10) + 2 };
+    });
+    worksheet['!cols'] = colWidths;
+
+    // Aplicar estilo nos cabeçalhos e bordas em todas as células
+    const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
+    
+    for (let R = range.s.r; R <= range.e.r; R++) {
+      for (let C = range.s.c; C <= range.e.c; C++) {
+        const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+        
+        if (!worksheet[cellAddress]) {
+          worksheet[cellAddress] = { t: 's', v: '' };
+        }
+
+        // Aplicar estilo de borda em todas as células
+        worksheet[cellAddress].s = {
+          border: {
+            top: { style: 'thin', color: { rgb: '000000' } },
+            bottom: { style: 'thin', color: { rgb: '000000' } },
+            left: { style: 'thin', color: { rgb: '000000' } },
+            right: { style: 'thin', color: { rgb: '000000' } }
+          },
+          alignment: {
+            vertical: 'center',
+            horizontal: 'left',
+            wrapText: false
+          }
+        };
+
+        // Estilo específico para cabeçalhos (primeira linha)
+        if (R === 0) {
+          worksheet[cellAddress].s = {
+            ...worksheet[cellAddress].s,
+            font: { bold: true, color: { rgb: '000000' } },
+            fill: { fgColor: { rgb: 'F2F2F2' } },
+            alignment: {
+              vertical: 'center',
+              horizontal: 'center',
+              wrapText: false
+            }
+          };
+        }
+      }
+    }
+
+    // Criar workbook e adicionar a worksheet
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Relatório');
+
+    // Exportar para arquivo .xlsx
+    XLSX.writeFile(workbook, `${filename}.xlsx`, { 
+      bookType: 'xlsx',
+      type: 'binary',
+      cellStyles: true
+    });
   };
 
   const downloadPDF = (data: any[], headers: string[], filename: string, employee: any) => {
