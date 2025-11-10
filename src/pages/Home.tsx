@@ -12,11 +12,18 @@ import {
   Star,
   CheckCircle,
   BarChart3,
-  UserPlus
+  UserPlus,
+  Zap,
+  Lock,
+  TrendingUp,
+  Award,
+  HeadphonesIcon,
+  Sparkles
 } from 'lucide-react';
 import { RegisterForm } from '@/components/RegisterForm';
 import { useNavigate } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
 
 export const Home = () => {
   const [showRegister, setShowRegister] = useState(false);
@@ -62,6 +69,29 @@ export const Home = () => {
     "Relatórios personalizáveis",
     "Sincronização em tempo real",
     "Suporte mobile e desktop"
+  ];
+
+  const qualityFeatures = [
+    {
+      icon: <Zap className="h-6 w-6" />,
+      title: "Desempenho Rápido",
+      description: "Carregamento instantâneo e navegação fluida em qualquer dispositivo"
+    },
+    {
+      icon: <Lock className="h-6 w-6" />,
+      title: "Segurança Total",
+      description: "Criptografia de ponta a ponta e conformidade com LGPD"
+    },
+    {
+      icon: <TrendingUp className="h-6 w-6" />,
+      title: "Sempre Atualizado",
+      description: "Atualizações automáticas com novas funcionalidades constantemente"
+    },
+    {
+      icon: <HeadphonesIcon className="h-6 w-6" />,
+      title: "Suporte Dedicado",
+      description: "Equipe pronta para ajudar quando você precisar"
+    }
   ];
 
   if (showRegister) {
@@ -268,6 +298,121 @@ export const Home = () => {
         </div>
       </section>
 
+      {/* Quality Section */}
+      <section className="py-20 px-4 bg-gradient-to-br from-primary/5 via-accent/5 to-background">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 text-sm px-6 py-2 bg-accent/10 text-accent border-accent/20">
+              <Sparkles className="h-4 w-4 mr-2 inline" />
+              Qualidade Garantida
+            </Badge>
+            <h3 className="text-3xl md:text-4xl font-bold mb-4">
+              Excelência em <span className="text-primary">Cada Detalhe</span>
+            </h3>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Desenvolvido com tecnologia de ponta para oferecer a melhor experiência possível
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            {qualityFeatures.map((feature, index) => (
+              <Card key={index} className="border-0 shadow-lg text-center hover:shadow-xl transition-all duration-300">
+                <CardContent className="pt-6">
+                  <div className="w-12 h-12 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
+                    {feature.icon}
+                  </div>
+                  <h4 className="font-bold text-lg mb-2">{feature.title}</h4>
+                  <p className="text-sm text-muted-foreground">{feature.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Sistema Explicado */}
+          <div className="max-w-5xl mx-auto">
+            <Card className="border-0 shadow-2xl overflow-hidden">
+              <div className="bg-gradient-to-r from-primary to-accent p-8 text-white">
+                <h3 className="text-2xl md:text-3xl font-bold mb-4 flex items-center justify-center">
+                  <Award className="h-8 w-8 mr-3" />
+                  Como Funciona o RondaTrack 2
+                </h3>
+                <p className="text-center text-lg opacity-90">
+                  Sistema completo de gestão para administradores de condomínios
+                </p>
+              </div>
+              <CardContent className="p-8">
+                <div className="space-y-6">
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
+                      1
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-lg mb-2">Cadastro de Funcionários e Condomínios</h4>
+                      <p className="text-muted-foreground">
+                        Registre todos os seus funcionários com informações detalhadas como cargo, turno, e local de trabalho. 
+                        Organize por condomínios para melhor controle.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0 w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center text-accent font-bold">
+                      2
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-lg mb-2">Registro de Folgas Trabalhadas (FTs)</h4>
+                      <p className="text-muted-foreground">
+                        Registre facilmente quando um funcionário trabalha em seu dia de folga. 
+                        Controle valores, datas e obtenha aprovação de supervisores com um clique.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
+                      3
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-lg mb-2">Controle de Faltas</h4>
+                      <p className="text-muted-foreground">
+                        Monitore todas as faltas com motivos detalhados (doença, atestado, falta injustificada, etc.). 
+                        Mantenha histórico completo e organizado.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0 w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center text-accent font-bold">
+                      4
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-lg mb-2">Dashboard e Relatórios</h4>
+                      <p className="text-muted-foreground">
+                        Visualize estatísticas em tempo real no dashboard interativo. 
+                        Exporte relatórios detalhados em Excel ou PDF para análises e arquivamento.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
+                      5
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-lg mb-2">Controle de Acesso Multinível</h4>
+                      <p className="text-muted-foreground">
+                        Sistema com diferentes níveis de acesso: Administradores têm controle total, 
+                        Supervisores aprovam FTs e faltas, e Funcionários podem visualizar seus próprios registros.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 px-4 bg-gradient-to-r from-primary to-accent text-white">
         <div className="container mx-auto text-center">
@@ -304,6 +449,9 @@ export const Home = () => {
           </p>
         </div>
       </footer>
+
+      {/* PWA Install Prompt */}
+      <PWAInstallPrompt />
     </div>
   );
 };
