@@ -20,7 +20,7 @@ interface ReportsPanelProps {
 
 export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
   const [reportType, setReportType] = useState<'ft' | 'absences'>('ft');
-  const [exportFormat, setExportFormat] = useState<'xlsx' | 'csv' | 'pdf'>('xlsx');
+  const [exportFormat, setExportFormat] = useState<'xlsx' | 'pdf'>('xlsx');
   const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
   const [employees, setEmployees] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -165,9 +165,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         return;
       }
 
-      if (exportFormat === 'csv') {
-        downloadCSV(data, headers, filename);
-      } else if (exportFormat === 'pdf') {
+      if (exportFormat === 'pdf') {
         downloadPDF(data, headers, filename, selectedEmployee);
       } else {
         downloadExcel(data, headers, filename);
@@ -211,30 +209,6 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
     return labels[reason] || reason;
   };
 
-  const downloadCSV = (data: any[], headers: string[], filename: string) => {
-    // Criar CSV com separador de vírgula e escape adequado
-    const escapeCSV = (value: string) => {
-      const stringValue = String(value || '');
-      // Se contém vírgula, aspas ou quebra de linha, precisa ser envolvido em aspas
-      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
-        return `"${stringValue.replace(/"/g, '""')}"`;
-      }
-      return stringValue;
-    };
-
-    const csvContent = [
-      headers.map(escapeCSV).join(','),
-      ...data.map(row => headers.map(header => escapeCSV(row[header] || '')).join(','))
-    ].join('\r\n');
-
-    // Adicionar BOM (Byte Order Mark) para UTF-8 para garantir compatibilidade com Excel
-    const BOM = '\uFEFF';
-    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `${filename}.csv`;
-    link.click();
-  };
 
   const downloadExcel = (data: any[], headers: string[], filename: string) => {
     // Criar worksheet com os dados
@@ -440,7 +414,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
           {/* Formato */}
           <div className="space-y-4">
             <Label className="text-base font-medium">Formato de Exportação</Label>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <Card 
                 className={`cursor-pointer border-2 transition-colors ${
                   exportFormat === 'xlsx' 
@@ -453,21 +427,6 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
                   <FileText className="h-8 w-8 mx-auto mb-2 text-primary" />
                   <p className="font-medium">Excel</p>
                   <p className="text-sm text-muted-foreground">.xlsx</p>
-                </CardContent>
-              </Card>
-
-              <Card 
-                className={`cursor-pointer border-2 transition-colors ${
-                  exportFormat === 'csv' 
-                    ? 'border-primary bg-primary/10' 
-                    : 'border-border hover:border-primary/50'
-                }`}
-                onClick={() => setExportFormat('csv')}
-              >
-                <CardContent className="p-4 text-center">
-                  <FileText className="h-8 w-8 mx-auto mb-2 text-primary" />
-                  <p className="font-medium">CSV</p>
-                  <p className="text-sm text-muted-foreground">.csv</p>
                 </CardContent>
               </Card>
 
