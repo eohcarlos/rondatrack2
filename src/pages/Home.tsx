@@ -33,32 +33,38 @@ export const Home = () => {
     {
       icon: <Clock className="h-8 w-8 text-primary" />,
       title: "Controle de FTs",
-      description: "Registre e acompanhe folgas trabalhadas com facilidade"
+      description: "Registre e acompanhe folgas trabalhadas com facilidade",
+      details: "Sistema completo para registro de folgas trabalhadas, com controle de valores, datas e aprovações. Visualize o histórico completo e gerencie pagamentos pendentes com facilidade."
     },
     {
       icon: <Calendar className="h-8 w-8 text-destructive" />,
       title: "Gestão de Faltas",
-      description: "Monitore faltas de funcionários em tempo real"
+      description: "Monitore faltas de funcionários em tempo real",
+      details: "Controle detalhado de todas as ausências, incluindo motivos (doença, atestado, falta injustificada). Acompanhe estatísticas mensais e identifique padrões para melhor gestão."
     },
     {
       icon: <FileText className="h-8 w-8 text-accent" />,
       title: "Relatórios Completos",
-      description: "Exporte dados em Excel/CSV para análise detalhada"
+      description: "Exporte dados em Excel/CSV para análise detalhada",
+      details: "Gere relatórios personalizados com filtros por período, funcionário, condomínio e status. Exporte para Excel, CSV ou PDF com um clique para análises e apresentações."
     },
     {
       icon: <Users className="h-8 w-8 text-primary" />,
       title: "Gestão de Funcionários",
-      description: "Cadastre e gerencie sua equipe por condomínio"
+      description: "Cadastre e gerencie sua equipe por condomínio",
+      details: "Mantenha um cadastro completo com foto, cargo, turno, telefone e local de trabalho. Organize funcionários por condomínio e controle seus níveis de acesso ao sistema."
     },
     {
       icon: <Building2 className="h-8 w-8 text-accent" />,
       title: "Multi-Condomínios",
-      description: "Controle múltiplos condomínios em uma única plataforma"
+      description: "Controle múltiplos condomínios em uma única plataforma",
+      details: "Gerencie quantos condomínios precisar em um único lugar. Cada condomínio mantém suas próprias equipes, relatórios e estatísticas de forma organizada e independente."
     },
     {
       icon: <BarChart3 className="h-8 w-8 text-primary" />,
       title: "Dashboard em Tempo Real",
-      description: "Visualize estatísticas atualizadas instantaneamente"
+      description: "Visualize estatísticas atualizadas instantaneamente",
+      details: "Acompanhe métricas em tempo real: total de funcionários, FTs do mês, faltas registradas e muito mais. Dados sempre atualizados automaticamente sem necessidade de refresh."
     }
   ];
 
@@ -75,22 +81,26 @@ export const Home = () => {
     {
       icon: <Zap className="h-6 w-6" />,
       title: "Desempenho Rápido",
-      description: "Carregamento instantâneo e navegação fluida em qualquer dispositivo"
+      description: "Carregamento instantâneo e navegação fluida em qualquer dispositivo",
+      details: "Desenvolvido com as melhores práticas de performance, garantindo carregamento rápido mesmo em conexões lentas. Interface responsiva que se adapta perfeitamente a todos os tamanhos de tela."
     },
     {
       icon: <Lock className="h-6 w-6" />,
       title: "Segurança Total",
-      description: "Criptografia de ponta a ponta e conformidade com LGPD"
+      description: "Criptografia de ponta a ponta e conformidade com LGPD",
+      details: "Seus dados são protegidos com criptografia de nível bancário. Sistema auditado e em conformidade com a Lei Geral de Proteção de Dados (LGPD). Backups automáticos diários."
     },
     {
       icon: <TrendingUp className="h-6 w-6" />,
       title: "Sempre Atualizado",
-      description: "Atualizações automáticas com novas funcionalidades constantemente"
+      description: "Atualizações automáticas com novas funcionalidades constantemente",
+      details: "Receba automaticamente as últimas funcionalidades e melhorias sem necessidade de instalação. Sistema sempre na versão mais recente, com novos recursos baseados no feedback dos usuários."
     },
     {
       icon: <HeadphonesIcon className="h-6 w-6" />,
       title: "Suporte Dedicado",
-      description: "Equipe pronta para ajudar quando você precisar"
+      description: "Equipe pronta para ajudar quando você precisar",
+      details: "Conte com nossa equipe de suporte especializada para tirar dúvidas e resolver problemas. Atendimento rápido e personalizado para garantir que você aproveite ao máximo o sistema."
     }
   ];
 
@@ -215,7 +225,7 @@ export const Home = () => {
 
       {/* Features Section */}
       <section className="py-20 px-4 bg-card/30">
-        <div className="container mx-auto">
+        <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-16">
             <h3 className="text-3xl md:text-4xl font-bold mb-4">
               Funcionalidades <span className="text-primary">Principais</span>
@@ -225,19 +235,22 @@ export const Home = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <CardHeader className="text-center pb-4">
-                  <div className="w-16 h-16 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+                <CardHeader className="text-center pb-4 lg:pb-6 lg:pt-8">
+                  <div className="w-16 h-16 lg:w-20 lg:h-20 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full flex items-center justify-center mx-auto mb-4 lg:mb-6 group-hover:scale-110 transition-transform duration-300">
                     {feature.icon}
                   </div>
-                  <CardTitle className="text-xl">{feature.title}</CardTitle>
+                  <CardTitle className="text-xl lg:text-2xl mb-2 lg:mb-3">{feature.title}</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-center text-base">
+                <CardContent className="lg:px-8 lg:pb-8">
+                  <CardDescription className="text-center text-base lg:text-lg mb-4">
                     {feature.description}
                   </CardDescription>
+                  <p className="hidden lg:block text-sm text-muted-foreground text-center leading-relaxed">
+                    {feature.details}
+                  </p>
                 </CardContent>
               </Card>
             ))}
@@ -247,49 +260,49 @@ export const Home = () => {
 
       {/* Benefits Section */}
       <section className="py-20 px-4">
-        <div className="container mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <h3 className="text-3xl md:text-4xl font-bold mb-6">
+        <div className="container mx-auto max-w-7xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            <div className="lg:pr-12">
+              <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 lg:mb-8">
                 Por que escolher o <span className="text-primary">RondaTrack 2</span>?
               </h3>
-              <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+              <p className="text-lg lg:text-xl text-muted-foreground mb-8 lg:mb-12 leading-relaxed">
                 Nossa plataforma foi desenvolvida especificamente para atender as necessidades 
                 de administradores de condomínios, oferecendo controle total sobre a gestão de pessoal.
               </p>
               
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 gap-4 lg:gap-6">
                 {benefits.map((benefit, index) => (
-                  <div key={index} className="flex items-center space-x-3">
-                    <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
-                    <span className="text-foreground">{benefit}</span>
+                  <div key={index} className="flex items-center space-x-3 lg:space-x-4 group">
+                    <CheckCircle className="h-5 w-5 lg:h-6 lg:w-6 text-primary flex-shrink-0 group-hover:scale-110 transition-transform duration-300" />
+                    <span className="text-foreground text-base lg:text-lg">{benefit}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="relative">
-              <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl p-8">
-                <div className="grid grid-cols-2 gap-6">
-                  <Card className="text-center p-6 border-0 shadow-md">
-                    <Star className="h-8 w-8 text-accent mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-primary">5.0</div>
-                    <div className="text-sm text-muted-foreground">Avaliação</div>
+            <div className="relative lg:pl-12">
+              <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl p-6 lg:p-12">
+                <div className="grid grid-cols-2 gap-4 lg:gap-8">
+                  <Card className="text-center p-4 lg:p-8 border-0 shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                    <Star className="h-8 w-8 lg:h-12 lg:w-12 text-accent mx-auto mb-2 lg:mb-4" />
+                    <div className="text-2xl lg:text-4xl font-bold text-primary">5.0</div>
+                    <div className="text-xs lg:text-base text-muted-foreground mt-1 lg:mt-2">Avaliação</div>
                   </Card>
-                  <Card className="text-center p-6 border-0 shadow-md">
-                    <Users className="h-8 w-8 text-primary mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-accent">500+</div>
-                    <div className="text-sm text-muted-foreground">Usuários</div>
+                  <Card className="text-center p-4 lg:p-8 border-0 shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                    <Users className="h-8 w-8 lg:h-12 lg:w-12 text-primary mx-auto mb-2 lg:mb-4" />
+                    <div className="text-2xl lg:text-4xl font-bold text-accent">500+</div>
+                    <div className="text-xs lg:text-base text-muted-foreground mt-1 lg:mt-2">Usuários</div>
                   </Card>
-                  <Card className="text-center p-6 border-0 shadow-md">
-                    <Building2 className="h-8 w-8 text-accent mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-primary">100+</div>
-                    <div className="text-sm text-muted-foreground">Condomínios</div>
+                  <Card className="text-center p-4 lg:p-8 border-0 shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                    <Building2 className="h-8 w-8 lg:h-12 lg:w-12 text-accent mx-auto mb-2 lg:mb-4" />
+                    <div className="text-2xl lg:text-4xl font-bold text-primary">100+</div>
+                    <div className="text-xs lg:text-base text-muted-foreground mt-1 lg:mt-2">Condomínios</div>
                   </Card>
-                  <Card className="text-center p-6 border-0 shadow-md">
-                    <Clock className="h-8 w-8 text-primary mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-accent">99.9%</div>
-                    <div className="text-sm text-muted-foreground">Uptime</div>
+                  <Card className="text-center p-4 lg:p-8 border-0 shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                    <Clock className="h-8 w-8 lg:h-12 lg:w-12 text-primary mx-auto mb-2 lg:mb-4" />
+                    <div className="text-2xl lg:text-4xl font-bold text-accent">99.9%</div>
+                    <div className="text-xs lg:text-base text-muted-foreground mt-1 lg:mt-2">Uptime</div>
                   </Card>
                 </div>
               </div>
@@ -300,7 +313,7 @@ export const Home = () => {
 
       {/* Quality Section */}
       <section className="py-20 px-4 bg-gradient-to-br from-primary/5 via-accent/5 to-background">
-        <div className="container mx-auto">
+        <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-16">
             <Badge className="mb-4 text-sm px-6 py-2 bg-accent/10 text-accent border-accent/20">
               <Sparkles className="h-4 w-4 mr-2 inline" />
@@ -314,82 +327,87 @@ export const Home = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mb-16">
             {qualityFeatures.map((feature, index) => (
-              <Card key={index} className="border-0 shadow-lg text-center hover:shadow-xl transition-all duration-300">
-                <CardContent className="pt-6">
-                  <div className="w-12 h-12 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
+              <Card key={index} className="border-0 shadow-lg text-center hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+                <CardContent className="pt-6 lg:pt-10 lg:pb-10 lg:px-6">
+                  <div className="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full flex items-center justify-center mx-auto mb-4 lg:mb-6 text-primary group-hover:scale-110 transition-transform duration-300">
                     {feature.icon}
                   </div>
-                  <h4 className="font-bold text-lg mb-2">{feature.title}</h4>
-                  <p className="text-sm text-muted-foreground">{feature.description}</p>
+                  <h4 className="font-bold text-lg lg:text-xl mb-2 lg:mb-4">{feature.title}</h4>
+                  <p className="text-sm lg:text-base text-muted-foreground mb-4">
+                    {feature.description}
+                  </p>
+                  <p className="hidden lg:block text-xs text-muted-foreground leading-relaxed">
+                    {feature.details}
+                  </p>
                 </CardContent>
               </Card>
             ))}
           </div>
 
           {/* Sistema Explicado */}
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <Card className="border-0 shadow-2xl overflow-hidden">
-              <div className="bg-gradient-to-r from-primary to-accent p-8 text-white">
-                <h3 className="text-2xl md:text-3xl font-bold mb-4 flex items-center justify-center">
-                  <Award className="h-8 w-8 mr-3" />
+              <div className="bg-gradient-to-r from-primary to-accent p-6 lg:p-12 text-white">
+                <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 flex items-center justify-center">
+                  <Award className="h-8 w-8 lg:h-10 lg:w-10 mr-3" />
                   Como Funciona o RondaTrack 2
                 </h3>
-                <p className="text-center text-lg opacity-90">
+                <p className="text-center text-base lg:text-xl opacity-90">
                   Sistema completo de gestão para administradores de condomínios
                 </p>
               </div>
-              <CardContent className="p-8">
-                <div className="space-y-6">
-                  <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
+              <CardContent className="p-6 lg:p-12">
+                <div className="space-y-6 lg:space-y-10">
+                  <div className="flex gap-4 lg:gap-6 group hover:bg-muted/20 p-3 lg:p-6 rounded-xl transition-all duration-300">
+                    <div className="flex-shrink-0 w-10 h-10 lg:w-14 lg:h-14 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-base lg:text-xl group-hover:scale-110 transition-transform duration-300">
                       1
                     </div>
-                    <div>
-                      <h4 className="font-bold text-lg mb-2">Cadastro de Funcionários e Condomínios</h4>
-                      <p className="text-muted-foreground">
+                    <div className="flex-1">
+                      <h4 className="font-bold text-lg lg:text-2xl mb-2 lg:mb-3">Cadastro de Funcionários e Condomínios</h4>
+                      <p className="text-muted-foreground text-base lg:text-lg leading-relaxed">
                         Registre todos os seus funcionários com informações detalhadas como cargo, turno, e local de trabalho. 
-                        Organize por condomínios para melhor controle.
+                        Organize por condomínios para melhor controle. Sistema permite adicionar fotos, telefones e definir níveis de acesso individuais.
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center text-accent font-bold">
+                  <div className="flex gap-4 lg:gap-6 group hover:bg-muted/20 p-3 lg:p-6 rounded-xl transition-all duration-300">
+                    <div className="flex-shrink-0 w-10 h-10 lg:w-14 lg:h-14 bg-accent/10 rounded-full flex items-center justify-center text-accent font-bold text-base lg:text-xl group-hover:scale-110 transition-transform duration-300">
                       2
                     </div>
-                    <div>
-                      <h4 className="font-bold text-lg mb-2">Registro de Folgas Trabalhadas (FTs)</h4>
-                      <p className="text-muted-foreground">
+                    <div className="flex-1">
+                      <h4 className="font-bold text-lg lg:text-2xl mb-2 lg:mb-3">Registro de Folgas Trabalhadas (FTs)</h4>
+                      <p className="text-muted-foreground text-base lg:text-lg leading-relaxed">
                         Registre facilmente quando um funcionário trabalha em seu dia de folga. 
-                        Controle valores, datas e obtenha aprovação de supervisores com um clique.
+                        Controle valores, datas e obtenha aprovação de supervisores com um clique. Acompanhe o status (pendente, aprovado, pago) e gerencie pagamentos.
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
+                  <div className="flex gap-4 lg:gap-6 group hover:bg-muted/20 p-3 lg:p-6 rounded-xl transition-all duration-300">
+                    <div className="flex-shrink-0 w-10 h-10 lg:w-14 lg:h-14 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-base lg:text-xl group-hover:scale-110 transition-transform duration-300">
                       3
                     </div>
-                    <div>
-                      <h4 className="font-bold text-lg mb-2">Controle de Faltas</h4>
-                      <p className="text-muted-foreground">
+                    <div className="flex-1">
+                      <h4 className="font-bold text-lg lg:text-2xl mb-2 lg:mb-3">Controle de Faltas</h4>
+                      <p className="text-muted-foreground text-base lg:text-lg leading-relaxed">
                         Monitore todas as faltas com motivos detalhados (doença, atestado, falta injustificada, etc.). 
-                        Mantenha histórico completo e organizado.
+                        Mantenha histórico completo e organizado. Adicione observações e justificativas para cada registro.
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center text-accent font-bold">
+                  <div className="flex gap-4 lg:gap-6 group hover:bg-muted/20 p-3 lg:p-6 rounded-xl transition-all duration-300">
+                    <div className="flex-shrink-0 w-10 h-10 lg:w-14 lg:h-14 bg-accent/10 rounded-full flex items-center justify-center text-accent font-bold text-base lg:text-xl group-hover:scale-110 transition-transform duration-300">
                       4
                     </div>
-                    <div>
-                      <h4 className="font-bold text-lg mb-2">Dashboard e Relatórios</h4>
-                      <p className="text-muted-foreground">
+                    <div className="flex-1">
+                      <h4 className="font-bold text-lg lg:text-2xl mb-2 lg:mb-3">Dashboard e Relatórios</h4>
+                      <p className="text-muted-foreground text-base lg:text-lg leading-relaxed">
                         Visualize estatísticas em tempo real no dashboard interativo. 
-                        Exporte relatórios detalhados em Excel ou PDF para análises e arquivamento.
+                        Exporte relatórios detalhados em Excel ou PDF para análises e arquivamento. Filtros avançados por período, funcionário, condomínio e status.
                       </p>
                     </div>
                   </div>
