@@ -264,75 +264,84 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-gradient-to-r from-background via-primary/5 to-background backdrop-blur-xl border-b border-primary/20" style={{ boxShadow: 'var(--shadow-elegant)' }}>
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-glow p-2 flex items-center justify-center shadow-lg">
-                <img 
-                  src="/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png" 
-                  alt="RondaTrack Logo" 
-                  className="w-full h-full object-contain"
-                  onError={(e) => {
-                    const img = e.currentTarget as HTMLImageElement;
-                    img.style.display = 'none';
-                    const icon = img.nextElementSibling as HTMLElement;
-                    if (icon) icon.style.display = 'flex';
-                  }}
-                />
-                <Shield className="h-7 w-7 text-primary-foreground hidden" />
-              </div>
-              <div>
-                <h1 className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  RondaTrack <span className="text-primary">2</span>
-                </h1>
-                <div className="flex flex-col">
-                  <p className="text-xs lg:text-sm text-muted-foreground font-medium">Sistema de Controle Profissional</p>
-                  {companyName && (
-                    <p className="text-xs text-primary font-semibold">{companyName}</p>
-                  )}
+      {/* Header - Moderno e Elegante */}
+      <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="flex items-center justify-between h-16 lg:h-20">
+            {/* Logo e Branding */}
+            <div className="flex items-center gap-3 lg:gap-4">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-2xl blur-sm group-hover:blur-md transition-all opacity-50"></div>
+                <div className="relative w-11 h-11 lg:w-12 lg:h-12 rounded-2xl bg-gradient-to-br from-primary via-primary to-accent p-2.5 flex items-center justify-center shadow-lg">
+                  <img 
+                    src="/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png" 
+                    alt="RondaTrack Logo" 
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      const img = e.currentTarget as HTMLImageElement;
+                      img.style.display = 'none';
+                      const icon = img.nextElementSibling as HTMLElement;
+                      if (icon) icon.style.display = 'flex';
+                    }}
+                  />
+                  <Shield className="h-6 w-6 text-primary-foreground hidden" />
                 </div>
+              </div>
+              <div className="flex flex-col">
+                <h1 className="text-lg lg:text-xl font-bold bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
+                  RondaTrack
+                </h1>
+                {companyName && (
+                  <p className="text-xs text-muted-foreground font-medium">{companyName}</p>
+                )}
               </div>
             </div>
 
-            <div className="flex items-center space-x-2 lg:space-x-3">
+            {/* User Info e Actions */}
+            <div className="flex items-center gap-2 lg:gap-3">
               {profile && (
-                <div className="text-right hidden sm:block mr-2">
-                  <p className="font-semibold text-foreground text-sm lg:text-base">
-                    {profile.first_name} {profile.last_name}
-                  </p>
-                  <Badge className={`${getRoleBadgeColor(profile.role)} shadow-sm`} variant="secondary">
-                    {getRoleLabel(profile.role)}
-                  </Badge>
+                <div className="hidden md:flex items-center gap-3 mr-2 px-3 py-2 rounded-xl bg-muted/50">
+                  <div className="text-right">
+                    <p className="font-semibold text-foreground text-sm leading-tight">
+                      {profile.first_name} {profile.last_name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{getRoleLabel(profile.role)}</p>
+                  </div>
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-semibold text-sm">
+                    {profile.first_name.charAt(0)}{profile.last_name.charAt(0)}
+                  </div>
                 </div>
               )}
+              
               <ThemeToggle />
+              
               <Button
                 onClick={() => navigate('/dashboard/profile')} 
-                variant="outline" 
+                variant="ghost" 
                 size="sm"
-                className="hover:bg-primary/10 hover:border-primary transition-all duration-300"
+                className="hover:bg-muted rounded-xl"
               >
                 <User className="h-4 w-4 lg:mr-2" />
                 <span className="hidden lg:inline">Perfil</span>
               </Button>
+              
               {!isLoadingRole && isAdmin && (
                 <Button 
                   onClick={() => navigate('/dashboard/admin')} 
-                  variant="outline" 
+                  variant="ghost" 
                   size="sm" 
-                  className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 shadow-sm hover:shadow-md"
+                  className="text-primary hover:bg-primary/10 rounded-xl"
                 >
                   <Shield className="h-4 w-4 lg:mr-2" />
                   <span className="hidden lg:inline">Admin</span>
                 </Button>
               )}
+              
               <Button 
                 onClick={handleLogout} 
-                variant="outline" 
+                variant="ghost" 
                 size="sm"
-                className="hover:bg-destructive/10 hover:border-destructive hover:text-destructive transition-all duration-300"
+                className="hover:bg-destructive/10 hover:text-destructive rounded-xl"
               >
                 <LogOut className="h-4 w-4 lg:mr-2" />
                 <span className="hidden lg:inline">Sair</span>

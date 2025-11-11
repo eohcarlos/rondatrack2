@@ -45,19 +45,26 @@ export const DailyPhrase = () => {
   if (!phrase) return null;
 
   return (
-    <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 shadow-lg">
-      <CardContent className="p-6">
-        <div className="flex items-start space-x-4">
-          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center flex-shrink-0">
-            <Quote className="h-5 w-5 text-white" />
+    <Card className="relative overflow-hidden border-primary/20 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 shadow-lg hover:shadow-xl transition-all duration-300">
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 opacity-50"></div>
+      <CardContent className="relative p-6">
+        <div className="flex items-start gap-4">
+          <div className="relative group flex-shrink-0">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-2xl blur-md group-hover:blur-lg transition-all opacity-50"></div>
+            <div className="relative w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center shadow-lg">
+              <Quote className="h-6 w-6 text-primary-foreground" />
+            </div>
           </div>
-          <div className="space-y-2">
-            <h3 className="font-semibold text-blue-900">Frase do Dia</h3>
-            <blockquote className="text-blue-800 italic font-medium">
+          <div className="space-y-2 flex-1">
+            <h3 className="font-bold text-lg text-foreground flex items-center gap-2">
+              Frase do Dia
+              <span className="text-xs font-normal text-muted-foreground">✨</span>
+            </h3>
+            <blockquote className="text-foreground/90 italic font-medium text-base leading-relaxed">
               "{phrase.phrase}"
             </blockquote>
             {phrase.author && (
-              <p className="text-blue-600 text-sm font-medium">
+              <p className="text-primary text-sm font-semibold">
                 — {phrase.author}
               </p>
             )}
