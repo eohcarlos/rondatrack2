@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, UserCheck, Activity, TrendingUp, BarChart3, Briefcase, Sparkles } from 'lucide-react';
+import { LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, UserCheck, Activity, TrendingUp, BarChart3, Briefcase, Sparkles, DollarSign } from 'lucide-react';
 import { EmployeeManagement } from './EmployeeManagement';
 import { CondominiumManagement } from './CondominiumManagement';
 import { PositionManagement } from './PositionManagement';
@@ -44,12 +44,14 @@ interface Stats {
   totalWorkedLeaves: number;
   previousMonthWorkedLeaves: number;
   previousMonthAbsences: number;
+  monthlyWorkedLeavesRevenue: number;
+  totalWorkedLeavesRevenue: number;
 }
 
 export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [stats, setStats] = useState<Stats>({ totalEmployees: 0, monthlyWorkedLeaves: 0, monthlyAbsences: 0, totalAbsences: 0, totalCondominiums: 0, totalWorkedLeaves: 0, previousMonthWorkedLeaves: 0, previousMonthAbsences: 0 });
+  const [stats, setStats] = useState<Stats>({ totalEmployees: 0, monthlyWorkedLeaves: 0, monthlyAbsences: 0, totalAbsences: 0, totalCondominiums: 0, totalWorkedLeaves: 0, previousMonthWorkedLeaves: 0, previousMonthAbsences: 0, monthlyWorkedLeavesRevenue: 0, totalWorkedLeavesRevenue: 0 });
   const [activeTab, setActiveTab] = useState('dashboard');
   const { toast } = useToast();
   const { isAdmin, isLoading: isLoadingRole } = useUserRole();
@@ -195,6 +197,23 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
         .select('*', { count: 'exact', head: true })
         .eq('company_id', companyId);
 
+      // Faturamento de FTs do mês atual
+      const { data: monthlyFtRevenue } = await supabase
+        .from('worked_leaves')
+        .select('amount')
+        .gte('date', startOfMonth)
+        .lt('date', startOfNextMonth)
+        .eq('company_id', companyId);
+
+      // Faturamento total de FTs
+      const { data: totalFtRevenue } = await supabase
+        .from('worked_leaves')
+        .select('amount')
+        .eq('company_id', companyId);
+
+      const monthlyRevenue = monthlyFtRevenue?.reduce((sum, item) => sum + (Number(item.amount) || 0), 0) || 0;
+      const totalRevenue = totalFtRevenue?.reduce((sum, item) => sum + (Number(item.amount) || 0), 0) || 0;
+
       const newStats = {
         totalEmployees: employeesCount || 0,
         monthlyWorkedLeaves: ftCount || 0,
@@ -204,6 +223,8 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
         totalWorkedLeaves: totalFtCount || 0,
         previousMonthWorkedLeaves: prevFtCount || 0,
         previousMonthAbsences: prevAbsencesCount || 0,
+        monthlyWorkedLeavesRevenue: monthlyRevenue,
+        totalWorkedLeavesRevenue: totalRevenue,
       };
 
       console.log('📈 Stats atualizadas:', newStats);
@@ -426,6 +447,24 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
                     <p className="text-sm text-muted-foreground">Faltas registradas no período</p>
                   </CardContent>
                 </Card>
+
+                <Card 
+                  className="group hover:shadow-xl transition-all duration-300 border-success/20 bg-gradient-to-br from-card to-success/5 cursor-pointer hover:scale-105"
+                  onClick={() => setActiveTab('worked-leaves')}
+                >
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                    <CardTitle className="text-base font-semibold text-success">Faturamento FT Mês</CardTitle>
+                    <div className="w-12 h-12 bg-success/10 rounded-xl flex items-center justify-center group-hover:bg-success/20 transition-colors">
+                      <DollarSign className="h-6 w-6 text-success" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold text-foreground mb-1">
+                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(stats.monthlyWorkedLeavesRevenue)}
+                    </div>
+                    <p className="text-sm text-muted-foreground">Total em folgas trabalhadas</p>
+                  </CardContent>
+                </Card>
               </div>
             </div>
 
@@ -509,6 +548,24 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
                   <CardContent>
                     <div className="text-3xl font-bold text-foreground mb-1">{stats.totalCondominiums}</div>
                     <p className="text-sm text-muted-foreground">Locais cadastrados</p>
+                  </CardContent>
+                </Card>
+
+                <Card 
+                  className="group hover:shadow-xl transition-all duration-300 border-success/20 bg-gradient-to-br from-card to-success/5 cursor-pointer hover:scale-105"
+                  onClick={() => setActiveTab('worked-leaves')}
+                >
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                    <CardTitle className="text-base font-semibold text-success">Faturamento Total FT</CardTitle>
+                    <div className="w-12 h-12 bg-success/10 rounded-xl flex items-center justify-center group-hover:bg-success/20 transition-colors">
+                      <DollarSign className="h-6 w-6 text-success" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold text-foreground mb-1">
+                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(stats.totalWorkedLeavesRevenue)}
+                    </div>
+                    <p className="text-sm text-muted-foreground">Total acumulado de FTs</p>
                   </CardContent>
                 </Card>
               </div>
