@@ -161,6 +161,19 @@ export const WorkedLeavesTab = () => {
     return `${d}/${m}/${y}`;
   };
 
+  const isCurrentMonth = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+  };
+
+  const isPreviousMonth = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1);
+    return date.getMonth() === prevMonth.getMonth() && date.getFullYear() === prevMonth.getFullYear();
+  };
+
   const exportToExcel = () => {
     try {
       const dataToExport = filteredWorkedLeaves.map(item => ({
@@ -328,6 +341,9 @@ export const WorkedLeavesTab = () => {
     return matchesSearch && matchesCondominium && matchesEmployee;
   });
 
+  const currentMonthWorkedLeaves = filteredWorkedLeaves.filter(item => isCurrentMonth(item.date));
+  const previousMonthWorkedLeaves = filteredWorkedLeaves.filter(item => isPreviousMonth(item.date));
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -407,9 +423,9 @@ export const WorkedLeavesTab = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Registro de Folgas Trabalhadas ({filteredWorkedLeaves.length})</CardTitle>
+          <CardTitle>Mês Atual ({currentMonthWorkedLeaves.length})</CardTitle>
           <CardDescription>
-            Histórico completo das folgas trabalhadas registradas no sistema
+            Folgas trabalhadas registradas no mês atual
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -429,7 +445,7 @@ export const WorkedLeavesTab = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredWorkedLeaves.map((item) => (
+                {currentMonthWorkedLeaves.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
@@ -487,9 +503,99 @@ export const WorkedLeavesTab = () => {
             </Table>
           </div>
 
-          {filteredWorkedLeaves.length === 0 && (
+          {currentMonthWorkedLeaves.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
-              Nenhuma folga trabalhada encontrada
+              Nenhuma folga trabalhada encontrada no mês atual
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Mês Anterior ({previousMonthWorkedLeaves.length})</CardTitle>
+          <CardDescription>
+            Folgas trabalhadas registradas no mês anterior
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Funcionário</TableHead>
+                  <TableHead>Cargo</TableHead>
+                  <TableHead>Condomínio</TableHead>
+                  <TableHead>Turno</TableHead>
+                  <TableHead>Data da Folga</TableHead>
+                  <TableHead>Valor</TableHead>
+                  <TableHead>Supervisor</TableHead>
+                  <TableHead>Observações</TableHead>
+                  <TableHead>Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {previousMonthWorkedLeaves.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-primary" />
+                        {item.employees.first_name} {item.employees.last_name}
+                      </div>
+                    </TableCell>
+                    <TableCell>{item.employees.positions?.title}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        {item.employees.condominiums?.name}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={getShiftColor(item.employees.shift)}>
+                        {getShiftLabel(item.employees.shift)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{formatDate(item.date)}</TableCell>
+                    <TableCell>
+                      {item.amount ? (
+                        <div className="flex items-center gap-1">
+                          <DollarSign className="h-4 w-4 text-green-600" />
+                          <span className="font-medium text-green-700">
+                            R$ {Number(item.amount).toFixed(2)}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">Não informado</span>
+                      )}
+                    </TableCell>
+                    <TableCell>{item.supervisor?.name || 'N/A'}</TableCell>
+                    <TableCell>
+                      <div className="max-w-xs truncate" title={item.observations || ''}>
+                        {item.observations || 'Sem observações'}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedEmployeeId(item.employees.id);
+                          setShowEmployeeModal(true);
+                        }}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        Ver Detalhes
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {previousMonthWorkedLeaves.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              Nenhuma folga trabalhada encontrada no mês anterior
             </div>
           )}
         </CardContent>

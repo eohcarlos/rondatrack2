@@ -181,6 +181,19 @@ export const AbsencesTab = () => {
     return `${d}/${m}/${y}`;
   };
 
+  const isCurrentMonth = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+  };
+
+  const isPreviousMonth = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1);
+    return date.getMonth() === prevMonth.getMonth() && date.getFullYear() === prevMonth.getFullYear();
+  };
+
   const filteredAbsences = absences.filter(item => {
     const matchesSearch = item.employees.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.employees.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -196,6 +209,9 @@ export const AbsencesTab = () => {
 
     return matchesSearch && matchesCondominium && matchesEmployee;
   });
+
+  const currentMonthAbsences = filteredAbsences.filter(item => isCurrentMonth(item.date));
+  const previousMonthAbsences = filteredAbsences.filter(item => isPreviousMonth(item.date));
 
   if (loading) {
     return (
@@ -258,9 +274,9 @@ export const AbsencesTab = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Registro de Faltas ({filteredAbsences.length})</CardTitle>
+          <CardTitle>Mês Atual ({currentMonthAbsences.length})</CardTitle>
           <CardDescription>
-            Histórico completo das faltas registradas no sistema
+            Faltas registradas no mês atual
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -280,7 +296,7 @@ export const AbsencesTab = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredAbsences.map((item) => (
+                {currentMonthAbsences.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
@@ -331,9 +347,92 @@ export const AbsencesTab = () => {
             </Table>
           </div>
 
-          {filteredAbsences.length === 0 && (
+          {currentMonthAbsences.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
-              Nenhuma falta encontrada
+              Nenhuma falta encontrada no mês atual
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Mês Anterior ({previousMonthAbsences.length})</CardTitle>
+          <CardDescription>
+            Faltas registradas no mês anterior
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Funcionário</TableHead>
+                  <TableHead>Cargo</TableHead>
+                  <TableHead>Condomínio</TableHead>
+                  <TableHead>Turno</TableHead>
+                  <TableHead>Data da Falta</TableHead>
+                  <TableHead>Motivo</TableHead>
+                  <TableHead>Supervisor</TableHead>
+                  <TableHead>Observações</TableHead>
+                  <TableHead>Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {previousMonthAbsences.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-primary" />
+                        {item.employees.first_name} {item.employees.last_name}
+                      </div>
+                    </TableCell>
+                    <TableCell>{item.employees.positions?.title}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        {item.employees.condominiums?.name}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={getShiftColor(item.employees.shift)}>
+                        {getShiftLabel(item.employees.shift)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{formatDate(item.date)}</TableCell>
+                    <TableCell>
+                      <Badge className={getReasonColor(item.reason)}>
+                        {getReasonLabel(item.reason)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{item.supervisor?.name || 'N/A'}</TableCell>
+                    <TableCell>
+                      <div className="max-w-xs truncate" title={item.observations || ''}>
+                        {item.observations || 'Sem observações'}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedEmployeeId(item.employees.id);
+                          setShowEmployeeModal(true);
+                        }}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        Ver Detalhes
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {previousMonthAbsences.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              Nenhuma falta encontrada no mês anterior
             </div>
           )}
         </CardContent>
