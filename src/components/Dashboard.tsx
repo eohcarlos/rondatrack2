@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, UserCheck, Activity, TrendingUp, BarChart3, Briefcase, Sparkles, DollarSign } from 'lucide-react';
@@ -33,6 +34,7 @@ interface Profile {
   last_name: string;
   email: string;
   role: 'supervisor' | 'gestor' | 'gerente';
+  avatar_url?: string;
 }
 
 interface Stats {
@@ -300,16 +302,23 @@ export const Dashboard = ({ onLogout, onGoHome, companyName }: DashboardProps) =
             {/* User Info e Actions */}
             <div className="flex items-center gap-2 lg:gap-3">
               {profile && (
-                <div className="hidden md:flex items-center gap-3 mr-2 px-3 py-2 rounded-xl bg-muted/50">
+                <div className="hidden md:flex items-center gap-3 mr-2 px-4 py-2 rounded-xl bg-muted/50 hover:bg-muted/70 transition-colors">
                   <div className="text-right">
                     <p className="font-semibold text-foreground text-sm leading-tight">
                       {profile.first_name} {profile.last_name}
                     </p>
                     <p className="text-xs text-muted-foreground">{getRoleLabel(profile.role)}</p>
                   </div>
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-semibold text-sm">
-                    {profile.first_name.charAt(0)}{profile.last_name.charAt(0)}
-                  </div>
+                  <Avatar className="h-10 w-10 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
+                    <AvatarImage 
+                      src={profile.avatar_url || undefined} 
+                      alt={`${profile.first_name} ${profile.last_name}`}
+                      className="object-cover"
+                    />
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground font-semibold text-sm">
+                      {profile.first_name.charAt(0)}{profile.last_name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
                 </div>
               )}
               
