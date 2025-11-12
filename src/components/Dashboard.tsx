@@ -323,7 +323,7 @@ export const Dashboard = ({
                 </div>
               </div>
               <div className="flex flex-col">
-                <h1 className="text-lg font-bold bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent lg:text-xl text-left px-[30px] py-0 my-0 mx-0">RondaTrack</h1>
+                <h1 className="text-lg font-bold bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent lg:text-xl text-left py-0 my-0 mx-0 px-[30px]">RondaTrack</h1>
                 {companyName && <p className="text-xs text-muted-foreground font-medium">{companyName}</p>}
               </div>
             </div>
