@@ -28,7 +28,7 @@ export function BottomNav({ activeTab, onChange }: BottomNavProps) {
       role="navigation"
       aria-label="Navegação principal"
     >
-      <div className="container mx-auto px-2">
+      <div className="container mx-auto px-0.5">
         <ul className="grid grid-cols-8">
           {items.map(({ value, label, Icon }) => {
             const active = activeTab === value;
@@ -40,10 +40,10 @@ export function BottomNav({ activeTab, onChange }: BottomNavProps) {
                   onClick={() => onChange(value)}
                   aria-current={active ? "page" : undefined}
                   aria-label={label}
-                  className={`w-full py-2 flex flex-col items-center justify-center gap-1 ${color}`}
+                  className={`w-full py-1.5 px-0.5 flex flex-col items-center justify-center gap-0.5 ${color} transition-colors`}
                 >
-                  <Icon className="h-5 w-5" />
-                  <span className="text-[10px] leading-none">{label}</span>
+                  <Icon className="h-4 w-4 flex-shrink-0" />
+                  <span className="text-[8px] leading-tight whitespace-nowrap overflow-hidden text-ellipsis max-w-full">{label}</span>
                 </button>
               </li>
             );
