@@ -110,6 +110,11 @@ export const Home = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-accent/5 overflow-y-auto overflow-x-hidden max-w-full">
+      {/* Theme Toggle - Fixed Top Right */}
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+
       {/* Header */}
       <header className="bg-card/80 backdrop-blur-md shadow-lg border-b border-border sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 max-w-full">
@@ -138,7 +143,6 @@ export const Home = () => {
             </div>
 
             <div className="flex gap-1 sm:gap-2 flex-shrink-0">
-              <ThemeToggle />
               <Button 
                 variant="outline"
                 size="sm"

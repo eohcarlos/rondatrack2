@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { User, Mail, Lock } from 'lucide-react';
+import { User, Mail, Lock, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface LoginFormProps {
   onSuccess: () => void;
@@ -21,6 +22,7 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
   const [lastName, setLastName] = useState('');
   const [role, setRole] = useState<'supervisor' | 'gestor' | 'gerente'>('supervisor');
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,7 +80,17 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-accent p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-accent p-4 relative">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate('/')}
+        className="absolute top-4 left-4 text-white hover:bg-white/10"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Voltar
+      </Button>
+
       <Card className="w-full max-w-md shadow-2xl border-0">
         <CardHeader className="text-center pb-8">
           <div className="mx-auto w-16 h-16 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center mb-4">
