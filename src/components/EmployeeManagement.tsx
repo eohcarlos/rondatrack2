@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -11,38 +11,76 @@ import { supabase } from '@/integrations/supabase/client';
 import { Plus, Edit, Trash2, Search, Users } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { getCurrentCompanyId } from '@/lib/company';
+import { useEmployees, Employee } from '@/hooks/useEmployees';
 
-interface Employee {
-  id: string;
-  first_name: string;
-  last_name: string;
-  position_id: string;
-  condominium_id: string;
-  shift: string;
-  active: boolean;
-  positions?: { title: string };
-  condominiums?: { name: string };
-}
+// Memoized helper functions
+const getShiftLabel = (shift: string) => {
+  const labels: Record<string, string> = {
+    'manha': 'Manhã',
+    'tarde': 'Tarde', 
+    'noite': 'Noite',
+    'madrugada': 'Madrugada'
+  };
+  return labels[shift] || shift;
+};
 
-interface Position {
-  id: string;
-  title: string;
-}
+const getShiftColor = (shift: string) => {
+  const colors: Record<string, string> = {
+    'manha': 'bg-yellow-100 text-yellow-800',
+    'tarde': 'bg-orange-100 text-orange-800',
+    'noite': 'bg-blue-100 text-blue-800',
+    'madrugada': 'bg-purple-100 text-purple-800'
+  };
+  return colors[shift] || 'bg-gray-100 text-gray-800';
+};
 
-interface Condominium {
-  id: string;
-  name: string;
-}
+// Memoized row component
+const EmployeeRow = memo(({ 
+  employee, 
+  onEdit, 
+  onDelete 
+}: { 
+  employee: Employee; 
+  onEdit: (employee: Employee) => void;
+  onDelete: (id: string) => void;
+}) => (
+  <TableRow>
+    <TableCell className="font-medium">
+      {employee.first_name} {employee.last_name}
+    </TableCell>
+    <TableCell>{employee.positions?.title}</TableCell>
+    <TableCell>{employee.condominiums?.name}</TableCell>
+    <TableCell>
+      <Badge className={getShiftColor(employee.shift)}>
+        {getShiftLabel(employee.shift)}
+      </Badge>
+    </TableCell>
+    <TableCell>
+      <Badge variant={employee.active ? "default" : "secondary"}>
+        {employee.active ? "Ativo" : "Inativo"}
+      </Badge>
+    </TableCell>
+    <TableCell>
+      <div className="flex items-center gap-2">
+        <Button size="sm" variant="outline" onClick={() => onEdit(employee)}>
+          <Edit className="h-4 w-4" />
+        </Button>
+        <Button size="sm" variant="destructive" onClick={() => onDelete(employee.id)}>
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    </TableCell>
+  </TableRow>
+));
 
-export const EmployeeManagement = () => {
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [positions, setPositions] = useState<Position[]>([]);
-  const [condominiums, setCondominiums] = useState<Condominium[]>([]);
-  const [loading, setLoading] = useState(false);
+EmployeeRow.displayName = 'EmployeeRow';
+
+export const EmployeeManagement = memo(() => {
   const [searchTerm, setSearchTerm] = useState('');
   const [condominiumFilter, setCondominiumFilter] = useState('all');
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -56,137 +94,13 @@ export const EmployeeManagement = () => {
   });
   const { toast } = useToast();
 
-  useEffect(() => {
-    const companyId = getCurrentCompanyId();
-    console.log('Company ID no EmployeeManagement:', companyId);
-    
-    loadEmployees();
-    loadPositions();
-    loadCondominiums();
-    setupRealtimeSubscription();
-  }, []);
+  // Use optimized hook
+  const { filteredEmployees, positions, condominiums, refetch } = useEmployees({
+    searchTerm,
+    condominiumFilter
+  });
 
-  const setupRealtimeSubscription = () => {
-    const channel = supabase
-      .channel('employees-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'employees'
-        },
-        () => {
-          loadEmployees();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  };
-
-  const loadEmployees = async () => {
-    try {
-      const companyId = getCurrentCompanyId();
-      if (!companyId) {
-        console.error('Company ID não encontrado');
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('employees')
-        .select(`
-          *,
-          positions(title),
-          condominiums(name)
-        `)
-        .eq('company_id', companyId)
-        .order('first_name');
-
-      if (error) throw error;
-      console.log('Funcionários carregados:', data);
-      setEmployees(data || []);
-    } catch (error: any) {
-      console.error('Erro ao carregar funcionários:', error);
-      toast({
-        title: "Erro ao carregar funcionários",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const loadPositions = async () => {
-    try {
-      const companyId = getCurrentCompanyId();
-      console.log('Company ID para cargos:', companyId);
-      
-      if (!companyId) {
-        console.error('Company ID não encontrado para carregar cargos');
-        // Tentar carregar todos os cargos para debug
-        const { data: allPositions } = await supabase
-          .from('positions')
-          .select('*');
-        console.log('Todos os cargos no banco:', allPositions);
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('positions')
-        .select('*')
-        .eq('company_id', companyId)
-        .order('title');
-
-      if (error) throw error;
-      console.log('Cargos filtrados por company_id:', data);
-      setPositions(data || []);
-    } catch (error: any) {
-      console.error('Erro ao carregar cargos:', error);
-      toast({
-        title: "Erro ao carregar cargos",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const loadCondominiums = async () => {
-    try {
-      const companyId = getCurrentCompanyId();
-      console.log('Company ID para condomínios:', companyId);
-      
-      if (!companyId) {
-        console.error('Company ID não encontrado para carregar condomínios');
-        // Tentar carregar todos os condomínios para debug
-        const { data: allCondos } = await supabase
-          .from('condominiums')
-          .select('*');
-        console.log('Todos os condomínios no banco:', allCondos);
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('condominiums')
-        .select('*')
-        .eq('company_id', companyId)
-        .order('name');
-
-      if (error) throw error;
-      console.log('Condomínios filtrados por company_id:', data);
-      setCondominiums(data || []);
-    } catch (error: any) {
-      console.error('Erro ao carregar condomínios:', error);
-      toast({
-        title: "Erro ao carregar condomínios",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
@@ -212,44 +126,30 @@ export const EmployeeManagement = () => {
           .eq('id', editingEmployee.id);
 
         if (error) throw error;
-
-        toast({
-          title: "Funcionário atualizado",
-          description: "Os dados foram atualizados com sucesso.",
-        });
+        toast({ title: "Funcionário atualizado", description: "Os dados foram atualizados com sucesso." });
       } else {
         const companyId = getCurrentCompanyId();
-        if (!companyId) {
-          throw new Error('Company ID não encontrado');
-        }
+        if (!companyId) throw new Error('Company ID não encontrado');
 
         const { error } = await supabase
           .from('employees')
           .insert([{ ...employeeData, company_id: companyId }]);
 
         if (error) throw error;
-
-        toast({
-          title: "Funcionário adicionado",
-          description: "O funcionário foi cadastrado com sucesso.",
-        });
+        toast({ title: "Funcionário adicionado", description: "O funcionário foi cadastrado com sucesso." });
       }
 
       resetForm();
       setShowAddForm(false);
       setEditingEmployee(null);
     } catch (error: any) {
-      toast({
-        title: "Erro ao salvar funcionário",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast({ title: "Erro ao salvar funcionário", description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
-  };
+  }, [formData, editingEmployee, toast]);
 
-  const handleEdit = (employee: Employee) => {
+  const handleEdit = useCallback((employee: Employee) => {
     setEditingEmployee(employee);
     setFormData({
       firstName: employee.first_name,
@@ -257,15 +157,15 @@ export const EmployeeManagement = () => {
       positionId: employee.position_id,
       condominiumId: employee.condominium_id,
       shift: employee.shift,
-      phone: (employee as any).phone || '',
-      age: (employee as any).age ? String((employee as any).age) : '',
-      companyTimeMonths: (employee as any).company_time_months ? String((employee as any).company_time_months) : '',
-      driverLicense: (employee as any).driver_license || 'Nenhuma'
+      phone: employee.phone || '',
+      age: employee.age ? String(employee.age) : '',
+      companyTimeMonths: employee.company_time_months ? String(employee.company_time_months) : '',
+      driverLicense: employee.driver_license || 'Nenhuma'
     });
     setShowAddForm(true);
-  };
+  }, []);
 
-  const handleDelete = async (employeeId: string) => {
+  const handleDelete = useCallback(async (employeeId: string) => {
     if (!confirm('Tem certeza que deseja excluir este funcionário?')) return;
 
     try {
@@ -275,21 +175,13 @@ export const EmployeeManagement = () => {
         .eq('id', employeeId);
 
       if (error) throw error;
-
-      toast({
-        title: "Funcionário desativado",
-        description: "O funcionário foi desativado do sistema.",
-      });
+      toast({ title: "Funcionário desativado", description: "O funcionário foi desativado do sistema." });
     } catch (error: any) {
-      toast({
-        title: "Erro ao desativar funcionário",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast({ title: "Erro ao desativar funcionário", description: error.message, variant: "destructive" });
     }
-  };
+  }, [toast]);
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setFormData({
       firstName: '',
       lastName: '',
@@ -301,36 +193,12 @@ export const EmployeeManagement = () => {
       companyTimeMonths: '',
       driverLicense: 'Nenhuma'
     });
-  };
+  }, []);
 
-  const getShiftLabel = (shift: string) => {
-    const labels: { [key: string]: string } = {
-      'manha': 'Manhã',
-      'tarde': 'Tarde', 
-      'noite': 'Noite',
-      'madrugada': 'Madrugada'
-    };
-    return labels[shift] || shift;
-  };
-
-  const getShiftColor = (shift: string) => {
-    const colors: { [key: string]: string } = {
-      'manha': 'bg-yellow-100 text-yellow-800',
-      'tarde': 'bg-orange-100 text-orange-800',
-      'noite': 'bg-blue-100 text-blue-800',
-      'madrugada': 'bg-purple-100 text-purple-800'
-    };
-    return colors[shift] || 'bg-gray-100 text-gray-800';
-  };
-
-  const filteredEmployees = employees.filter(employee =>
-    employee.active &&
-    (employee.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     employee.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     employee.positions?.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     employee.condominiums?.name.toLowerCase().includes(searchTerm.toLowerCase())) &&
-    (condominiumFilter === 'all' || condominiumFilter === '' || employee.condominium_id === condominiumFilter)
-  );
+  const handleOpenDialog = useCallback(() => {
+    resetForm();
+    setEditingEmployee(null);
+  }, [resetForm]);
 
   return (
     <div className="space-y-6">
@@ -345,22 +213,15 @@ export const EmployeeManagement = () => {
 
         <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
           <DialogTrigger asChild>
-            <Button onClick={() => {
-              resetForm();
-              setEditingEmployee(null);
-            }}>
+            <Button onClick={handleOpenDialog}>
               <Plus className="h-4 w-4 mr-2" />
               Novo Funcionário
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>
-                {editingEmployee ? 'Editar Funcionário' : 'Novo Funcionário'}
-              </DialogTitle>
-              <DialogDescription>
-                Preencha os dados do funcionário
-              </DialogDescription>
+              <DialogTitle>{editingEmployee ? 'Editar Funcionário' : 'Novo Funcionário'}</DialogTitle>
+              <DialogDescription>Preencha os dados do funcionário</DialogDescription>
             </DialogHeader>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -387,11 +248,7 @@ export const EmployeeManagement = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="position">Cargo *</Label>
-                <Select 
-                  value={formData.positionId} 
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, positionId: value }))}
-                  required
-                >
+                <Select value={formData.positionId} onValueChange={(value) => setFormData(prev => ({ ...prev, positionId: value }))} required>
                   <SelectTrigger>
                     <SelectValue placeholder={positions.length === 0 ? "Nenhum cargo disponível" : "Selecione o cargo"} />
                   </SelectTrigger>
@@ -402,9 +259,7 @@ export const EmployeeManagement = () => {
                       </div>
                     ) : (
                       positions.map(position => (
-                        <SelectItem key={position.id} value={position.id}>
-                          {position.title}
-                        </SelectItem>
+                        <SelectItem key={position.id} value={position.id}>{position.title}</SelectItem>
                       ))
                     )}
                   </SelectContent>
@@ -424,9 +279,7 @@ export const EmployeeManagement = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {condominiums.map(condominium => (
-                      <SelectItem key={condominium.id} value={condominium.id}>
-                        {condominium.name}
-                      </SelectItem>
+                      <SelectItem key={condominium.id} value={condominium.id}>{condominium.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -498,7 +351,7 @@ export const EmployeeManagement = () => {
 
               <div className="flex gap-2 pt-4">
                 <Button type="submit" disabled={loading} className="flex-1">
-                  {loading ? 'Salvando...' : (editingEmployee ? 'Atualizar' : 'Cadastrar')}
+                  {loading ? 'Salvando...' : editingEmployee ? 'Atualizar' : 'Adicionar'}
                 </Button>
                 <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
                   Cancelar
@@ -509,26 +362,23 @@ export const EmployeeManagement = () => {
         </Dialog>
       </div>
 
-      <div className="flex items-center space-x-2 flex-wrap gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="flex items-center space-x-2">
           <Search className="h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar funcionários..."
+            placeholder="Buscar funcionário..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-sm"
           />
         </div>
         <Select value={condominiumFilter} onValueChange={setCondominiumFilter}>
-          <SelectTrigger className="max-w-sm">
+          <SelectTrigger>
             <SelectValue placeholder="Filtrar por condomínio" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos os condomínios</SelectItem>
-            {condominiums.map(condominium => (
-              <SelectItem key={condominium.id} value={condominium.id}>
-                {condominium.name}
-              </SelectItem>
+            {condominiums.map((condo) => (
+              <SelectItem key={condo.id} value={condo.id}>{condo.name}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -536,60 +386,34 @@ export const EmployeeManagement = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Funcionários Ativos ({filteredEmployees.length})</CardTitle>
-          <CardDescription>
-            Lista de todos os funcionários cadastrados no sistema
-          </CardDescription>
+          <CardTitle>Funcionários ({filteredEmployees.length})</CardTitle>
+          <CardDescription>Lista de funcionários cadastrados</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nome Completo</TableHead>
+                  <TableHead>Nome</TableHead>
                   <TableHead>Cargo</TableHead>
                   <TableHead>Condomínio</TableHead>
                   <TableHead>Turno</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredEmployees.map((employee) => (
-                  <TableRow key={employee.id}>
-                    <TableCell className="font-medium">
-                      {employee.first_name} {employee.last_name}
-                    </TableCell>
-                    <TableCell>{employee.positions?.title}</TableCell>
-                    <TableCell>{employee.condominiums?.name}</TableCell>
-                    <TableCell>
-                      <Badge className={getShiftColor(employee.shift)}>
-                        {getShiftLabel(employee.shift)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEdit(employee)}
-                        >
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDelete(employee.id)}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                  <EmployeeRow 
+                    key={employee.id} 
+                    employee={employee} 
+                    onEdit={handleEdit} 
+                    onDelete={handleDelete} 
+                  />
                 ))}
               </TableBody>
             </Table>
           </div>
-
           {filteredEmployees.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
               Nenhum funcionário encontrado
@@ -599,4 +423,6 @@ export const EmployeeManagement = () => {
       </Card>
     </div>
   );
-};
+});
+
+EmployeeManagement.displayName = 'EmployeeManagement';
