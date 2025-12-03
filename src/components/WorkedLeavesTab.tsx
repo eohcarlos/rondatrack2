@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
@@ -34,7 +34,95 @@ interface WorkedLeave {
   };
 }
 
-export const WorkedLeavesTab = () => {
+// Memoized helper functions
+const getShiftLabel = (shift: string) => {
+  const labels: Record<string, string> = {
+    'manha': 'Manhã',
+    'tarde': 'Tarde', 
+    'noite': 'Noite',
+    'madrugada': 'Madrugada'
+  };
+  return labels[shift] || shift;
+};
+
+const getShiftColor = (shift: string) => {
+  const colors: Record<string, string> = {
+    'manha': 'bg-yellow-100 text-yellow-800',
+    'tarde': 'bg-orange-100 text-orange-800',
+    'noite': 'bg-blue-100 text-blue-800',
+    'madrugada': 'bg-purple-100 text-purple-800'
+  };
+  return colors[shift] || 'bg-gray-100 text-gray-800';
+};
+
+const formatDate = (dateString: string) => {
+  if (!dateString) return '';
+  const [y, m, d] = dateString.split('-');
+  return `${d}/${m}/${y}`;
+};
+
+// Memoized row component
+const WorkedLeaveRow = memo(({ 
+  item, 
+  onViewDetails 
+}: { 
+  item: WorkedLeave; 
+  onViewDetails: (id: string) => void;
+}) => (
+  <TableRow>
+    <TableCell className="font-medium">
+      <div className="flex items-center gap-2">
+        <User className="h-4 w-4 text-primary" />
+        {item.employees.first_name} {item.employees.last_name}
+      </div>
+    </TableCell>
+    <TableCell>{item.employees.positions?.title}</TableCell>
+    <TableCell>
+      <div className="flex items-center gap-2">
+        <MapPin className="h-4 w-4 text-muted-foreground" />
+        {item.employees.condominiums?.name}
+      </div>
+    </TableCell>
+    <TableCell>
+      <Badge className={getShiftColor(item.employees.shift)}>
+        {getShiftLabel(item.employees.shift)}
+      </Badge>
+    </TableCell>
+    <TableCell>{formatDate(item.date)}</TableCell>
+    <TableCell>
+      {item.amount ? (
+        <div className="flex items-center gap-1">
+          <DollarSign className="h-4 w-4 text-green-600" />
+          <span className="font-medium text-green-700">
+            R$ {Number(item.amount).toFixed(2)}
+          </span>
+        </div>
+      ) : (
+        <span className="text-muted-foreground">Não informado</span>
+      )}
+    </TableCell>
+    <TableCell>{item.supervisor?.name || 'N/A'}</TableCell>
+    <TableCell>
+      <div className="max-w-xs truncate" title={item.observations || ''}>
+        {item.observations || 'Sem observações'}
+      </div>
+    </TableCell>
+    <TableCell>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => onViewDetails(item.employees.id)}
+      >
+        <Eye className="h-4 w-4 mr-1" />
+        Ver Detalhes
+      </Button>
+    </TableCell>
+  </TableRow>
+));
+
+WorkedLeaveRow.displayName = 'WorkedLeaveRow';
+
+export const WorkedLeavesTab = memo(() => {
   const [workedLeaves, setWorkedLeaves] = useState<WorkedLeave[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -44,137 +132,133 @@ export const WorkedLeavesTab = () => {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const { toast } = useToast();
+  const mountedRef = useRef(true);
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+
+  const loadData = useCallback(async () => {
+    const companyId = getCurrentCompanyId();
+    if (!companyId) return;
+
+    try {
+      const [workedLeavesResult, condominiumsResult] = await Promise.all([
+        supabase
+          .from('worked_leaves')
+          .select(`
+            *,
+            employees!inner(
+              id, first_name, last_name, shift,
+              positions(title),
+              condominiums(name)
+            ),
+            supervisor:profiles!supervisor_id(name)
+          `)
+          .eq('company_id', companyId)
+          .order('date', { ascending: false }),
+        supabase
+          .from('condominiums')
+          .select('id, name')
+          .eq('company_id', companyId)
+          .order('name')
+      ]);
+
+      if (!mountedRef.current) return;
+
+      if (workedLeavesResult.error) throw workedLeavesResult.error;
+      if (condominiumsResult.error) throw condominiumsResult.error;
+
+      setWorkedLeaves(workedLeavesResult.data || []);
+      setCondominiums(condominiumsResult.data || []);
+    } catch (error: any) {
+      if (mountedRef.current) {
+        toast({
+          title: "Erro ao carregar dados",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    } finally {
+      if (mountedRef.current) setLoading(false);
+    }
+  }, [toast]);
+
+  // Debounced reload
+  const debouncedReload = useCallback(() => {
+    const timeoutId = setTimeout(loadData, 300);
+    return () => clearTimeout(timeoutId);
+  }, [loadData]);
 
   useEffect(() => {
-    loadWorkedLeaves();
-    loadCondominiums();
-    setupRealtimeSubscription();
-  }, []);
+    mountedRef.current = true;
+    loadData();
 
-  const setupRealtimeSubscription = () => {
-    const channel = supabase
+    channelRef.current = supabase
       .channel('worked-leaves-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'worked_leaves'
-        },
-        () => {
-          loadWorkedLeaves();
-        }
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'worked_leaves' }, debouncedReload)
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      mountedRef.current = false;
+      if (channelRef.current) supabase.removeChannel(channelRef.current);
     };
-  };
+  }, [loadData, debouncedReload]);
 
-  const loadWorkedLeaves = async () => {
-    try {
-      const companyId = getCurrentCompanyId();
-      if (!companyId) {
-        console.error('Company ID não encontrado');
-        return;
-      }
+  // Memoized filtered data
+  const filteredWorkedLeaves = useMemo(() => {
+    const searchLower = searchTerm.toLowerCase();
+    return workedLeaves.filter(item => {
+      const matchesSearch = !searchTerm ||
+        item.employees.first_name.toLowerCase().includes(searchLower) ||
+        item.employees.last_name.toLowerCase().includes(searchLower) ||
+        item.employees.positions?.title?.toLowerCase().includes(searchLower) ||
+        item.employees.condominiums?.name?.toLowerCase().includes(searchLower);
 
-      const { data, error } = await supabase
-        .from('worked_leaves')
-        .select(`
-          *,
-          employees!inner(
-            id,
-            first_name,
-            last_name,
-            shift,
-            positions(title),
-            condominiums(name)
-          ),
-          supervisor:profiles!supervisor_id(name)
-        `)
-        .eq('company_id', companyId)
-        .order('date', { ascending: false });
+      const matchesCondominium = !selectedCondominium || selectedCondominium === 'all' || 
+        item.employees.condominiums?.name === selectedCondominium;
 
-      if (error) throw error;
-      setWorkedLeaves(data || []);
-    } catch (error: any) {
-      toast({
-        title: "Erro ao carregar folgas trabalhadas",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+      const matchesEmployee = !selectedEmployeeFilter || selectedEmployeeFilter === 'all' ||
+        `${item.employees.first_name} ${item.employees.last_name}` === selectedEmployeeFilter;
 
-  const loadCondominiums = async () => {
-    try {
-      const companyId = getCurrentCompanyId();
-      if (!companyId) {
-        console.error('Company ID não encontrado');
-        return;
-      }
+      return matchesSearch && matchesCondominium && matchesEmployee;
+    });
+  }, [workedLeaves, searchTerm, selectedCondominium, selectedEmployeeFilter]);
 
-      const { data, error } = await supabase
-        .from('condominiums')
-        .select('id, name')
-        .eq('company_id', companyId)
-        .order('name');
-
-      if (error) throw error;
-      setCondominiums(data || []);
-    } catch (error: any) {
-      toast({
-        title: "Erro ao carregar condomínios",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const getShiftLabel = (shift: string) => {
-    const labels: { [key: string]: string } = {
-      'manha': 'Manhã',
-      'tarde': 'Tarde', 
-      'noite': 'Noite',
-      'madrugada': 'Madrugada'
-    };
-    return labels[shift] || shift;
-  };
-
-  const getShiftColor = (shift: string) => {
-    const colors: { [key: string]: string } = {
-      'manha': 'bg-yellow-100 text-yellow-800',
-      'tarde': 'bg-orange-100 text-orange-800',
-      'noite': 'bg-blue-100 text-blue-800',
-      'madrugada': 'bg-purple-100 text-purple-800'
-    };
-    return colors[shift] || 'bg-gray-100 text-gray-800';
-  };
-
-  const formatDate = (dateString: string) => {
-    if (!dateString) return '';
-    const [y, m, d] = dateString.split('-');
-    return `${d}/${m}/${y}`;
-  };
-
-  const isCurrentMonth = (dateString: string) => {
-    const date = new Date(dateString);
+  // Memoized month filters
+  const { currentMonthWorkedLeaves, previousMonthWorkedLeaves } = useMemo(() => {
     const now = new Date();
-    return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
-  };
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const prevMonth = new Date(currentYear, currentMonth - 1);
+    
+    return {
+      currentMonthWorkedLeaves: filteredWorkedLeaves.filter(item => {
+        const date = new Date(item.date);
+        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+      }),
+      previousMonthWorkedLeaves: filteredWorkedLeaves.filter(item => {
+        const date = new Date(item.date);
+        return date.getMonth() === prevMonth.getMonth() && date.getFullYear() === prevMonth.getFullYear();
+      })
+    };
+  }, [filteredWorkedLeaves]);
 
-  const isPreviousMonth = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1);
-    return date.getMonth() === prevMonth.getMonth() && date.getFullYear() === prevMonth.getFullYear();
-  };
+  // Memoized employee names for filter
+  const employeeNames = useMemo(() => 
+    [...new Set(workedLeaves.map(item => `${item.employees.first_name} ${item.employees.last_name}`))],
+    [workedLeaves]
+  );
 
-  const exportToExcel = () => {
+  // Callbacks
+  const handleViewDetails = useCallback((employeeId: string) => {
+    setSelectedEmployeeId(employeeId);
+    setShowEmployeeModal(true);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setShowEmployeeModal(false);
+    setSelectedEmployeeId(null);
+  }, []);
+
+  const exportToExcel = useCallback(() => {
     try {
       const dataToExport = filteredWorkedLeaves.map(item => ({
         'Data': formatDate(item.date),
@@ -191,158 +275,49 @@ export const WorkedLeavesTab = () => {
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Folgas Trabalhadas');
 
-      // Ajustar largura das colunas para melhor visualização
-      const columnWidths = [
-        { wch: 14 },  // Data
-        { wch: 28 },  // Nome
-        { wch: 22 },  // Cargo
-        { wch: 28 },  // Supervisor
-        { wch: 28 },  // Condomínio
-        { wch: 18 },  // Valor
-        { wch: 40 },  // Observações
-        { wch: 20 }   // Data do Registro
-      ];
-      worksheet['!cols'] = columnWidths;
-
-      // Aplicar estilo aos cabeçalhos e células
-      const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
-      
-      // Estilizar cabeçalhos (primeira linha)
-      for (let col = range.s.c; col <= range.e.c; col++) {
-        const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
-        if (!worksheet[cellAddress]) continue;
-        
-        worksheet[cellAddress].s = {
-          font: { bold: true, sz: 12, color: { rgb: "FFFFFF" } },
-          fill: { fgColor: { rgb: "4F46E5" } },
-          alignment: { horizontal: "center", vertical: "center", wrapText: true },
-          border: {
-            top: { style: "thin", color: { rgb: "000000" } },
-            bottom: { style: "thin", color: { rgb: "000000" } },
-            left: { style: "thin", color: { rgb: "000000" } },
-            right: { style: "thin", color: { rgb: "000000" } }
-          }
-        };
-      }
-
-      // Estilizar células de dados com bordas
-      for (let row = range.s.r + 1; row <= range.e.r; row++) {
-        for (let col = range.s.c; col <= range.e.c; col++) {
-          const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
-          if (!worksheet[cellAddress]) continue;
-          
-          worksheet[cellAddress].s = {
-            alignment: { vertical: "center", wrapText: true },
-            border: {
-              top: { style: "thin", color: { rgb: "D1D5DB" } },
-              bottom: { style: "thin", color: { rgb: "D1D5DB" } },
-              left: { style: "thin", color: { rgb: "D1D5DB" } },
-              right: { style: "thin", color: { rgb: "D1D5DB" } }
-            }
-          };
-        }
-      }
-
-      // Definir altura das linhas
-      worksheet['!rows'] = [
-        { hpt: 25 }, // Cabeçalho com altura maior
-        ...Array(dataToExport.length).fill({ hpt: 20 })
+      worksheet['!cols'] = [
+        { wch: 14 }, { wch: 28 }, { wch: 22 }, { wch: 28 },
+        { wch: 28 }, { wch: 18 }, { wch: 40 }, { wch: 20 }
       ];
 
       const today = new Date().toISOString().split('T')[0];
-      const fileName = `Relatorio_FT_${today}.xlsx`;
-      
-      XLSX.writeFile(workbook, fileName, { cellStyles: true });
+      XLSX.writeFile(workbook, `Relatorio_FT_${today}.xlsx`);
 
-      toast({
-        title: "Exportação concluída",
-        description: "Relatório em Excel baixado com sucesso!",
-      });
+      toast({ title: "Exportação concluída", description: "Relatório em Excel baixado!" });
     } catch (error: any) {
-      toast({
-        title: "Erro ao exportar",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast({ title: "Erro ao exportar", description: error.message, variant: "destructive" });
     }
-  };
+  }, [filteredWorkedLeaves, toast]);
 
-  const exportToCSV = () => {
+  const exportToCSV = useCallback(() => {
     try {
-      const dataToExport = filteredWorkedLeaves.map(item => ({
-        'Data': formatDate(item.date),
-        'Nome': `${item.employees.first_name} ${item.employees.last_name}`,
-        'Cargo': item.employees.positions?.title || 'N/A',
-        'Supervisor(a)': item.supervisor?.name || 'N/A',
-        'Condomínio': item.employees.condominiums?.name || 'N/A',
-        'Valor': item.amount ? `R$ ${Number(item.amount).toFixed(2)}` : 'Não informado',
-        'Observações': item.observations || 'Sem observações',
-        'Data do Registro': formatDate(item.created_at.split('T')[0])
-      }));
-
-      // Criar cabeçalho
       const headers = ['Data', 'Nome', 'Cargo', 'Supervisor(a)', 'Condomínio', 'Valor', 'Observações', 'Data do Registro'];
-      
-      // Criar linhas CSV
-      const csvRows = [
-        headers.join(','),
-        ...dataToExport.map(row => 
-          headers.map(header => {
-            const value = row[header as keyof typeof row] || '';
-            // Escapar aspas e vírgulas
-            return `"${String(value).replace(/"/g, '""')}"`;
-          }).join(',')
-        )
-      ];
+      const dataToExport = filteredWorkedLeaves.map(item => [
+        formatDate(item.date),
+        `${item.employees.first_name} ${item.employees.last_name}`,
+        item.employees.positions?.title || 'N/A',
+        item.supervisor?.name || 'N/A',
+        item.employees.condominiums?.name || 'N/A',
+        item.amount ? `R$ ${Number(item.amount).toFixed(2)}` : 'Não informado',
+        item.observations || 'Sem observações',
+        formatDate(item.created_at.split('T')[0])
+      ]);
 
-      const csvContent = csvRows.join('\n');
-      
-      // Adicionar BOM UTF-8 para compatibilidade com Excel Windows
-      const BOM = '\uFEFF';
-      const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
-      
-      const today = new Date().toISOString().split('T')[0];
-      const fileName = `Relatorio_FT_${today}.csv`;
-      
+      const csvContent = [headers.join(','), ...dataToExport.map(row => 
+        row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
+      )].join('\n');
+
+      const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', fileName);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
+      link.href = URL.createObjectURL(blob);
+      link.download = `Relatorio_FT_${new Date().toISOString().split('T')[0]}.csv`;
       link.click();
-      document.body.removeChild(link);
 
-      toast({
-        title: "Exportação concluída",
-        description: "Relatório em CSV baixado com sucesso!",
-      });
+      toast({ title: "Exportação concluída", description: "Relatório em CSV baixado!" });
     } catch (error: any) {
-      toast({
-        title: "Erro ao exportar",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast({ title: "Erro ao exportar", description: error.message, variant: "destructive" });
     }
-  };
-
-  const filteredWorkedLeaves = workedLeaves.filter(item => {
-    const matchesSearch = item.employees.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.employees.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.employees.positions?.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.employees.condominiums?.name.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesCondominium = selectedCondominium === '' || selectedCondominium === 'all' || 
-      item.employees.condominiums?.name === selectedCondominium;
-
-    const matchesEmployee = selectedEmployeeFilter === '' || selectedEmployeeFilter === 'all' ||
-      `${item.employees.first_name} ${item.employees.last_name}` === selectedEmployeeFilter;
-
-    return matchesSearch && matchesCondominium && matchesEmployee;
-  });
-
-  const currentMonthWorkedLeaves = filteredWorkedLeaves.filter(item => isCurrentMonth(item.date));
-  const previousMonthWorkedLeaves = filteredWorkedLeaves.filter(item => isPreviousMonth(item.date));
+  }, [filteredWorkedLeaves, toast]);
 
   if (loading) {
     return (
@@ -399,9 +374,7 @@ export const WorkedLeavesTab = () => {
           <SelectContent>
             <SelectItem value="all">Todos os condomínios</SelectItem>
             {condominiums.map((condo) => (
-              <SelectItem key={condo.id} value={condo.name}>
-                {condo.name}
-              </SelectItem>
+              <SelectItem key={condo.id} value={condo.name}>{condo.name}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -412,10 +385,8 @@ export const WorkedLeavesTab = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos os funcionários</SelectItem>
-            {[...new Set(workedLeaves.map(item => `${item.employees.first_name} ${item.employees.last_name}`))].map((name) => (
-              <SelectItem key={name} value={name}>
-                {name}
-              </SelectItem>
+            {employeeNames.map((name) => (
+              <SelectItem key={name} value={name}>{name}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -424,9 +395,7 @@ export const WorkedLeavesTab = () => {
       <Card>
         <CardHeader>
           <CardTitle>Mês Atual ({currentMonthWorkedLeaves.length})</CardTitle>
-          <CardDescription>
-            Folgas trabalhadas registradas no mês atual
-          </CardDescription>
+          <CardDescription>Folgas trabalhadas registradas no mês atual</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -446,66 +415,14 @@ export const WorkedLeavesTab = () => {
               </TableHeader>
               <TableBody>
                 {currentMonthWorkedLeaves.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-primary" />
-                        {item.employees.first_name} {item.employees.last_name}
-                      </div>
-                    </TableCell>
-                    <TableCell>{item.employees.positions?.title}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        {item.employees.condominiums?.name}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getShiftColor(item.employees.shift)}>
-                        {getShiftLabel(item.employees.shift)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{formatDate(item.date)}</TableCell>
-                    <TableCell>
-                      {item.amount ? (
-                        <div className="flex items-center gap-1">
-                          <DollarSign className="h-4 w-4 text-green-600" />
-                          <span className="font-medium text-green-700">
-                            R$ {Number(item.amount).toFixed(2)}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground">Não informado</span>
-                      )}
-                    </TableCell>
-                    <TableCell>{item.supervisor?.name || 'N/A'}</TableCell>
-                    <TableCell>
-                      <div className="max-w-xs truncate" title={item.observations || ''}>
-                        {item.observations || 'Sem observações'}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setSelectedEmployeeId(item.employees.id);
-                          setShowEmployeeModal(true);
-                        }}
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        Ver Detalhes
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                  <WorkedLeaveRow key={item.id} item={item} onViewDetails={handleViewDetails} />
                 ))}
               </TableBody>
             </Table>
           </div>
-
           {currentMonthWorkedLeaves.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
-              Nenhuma folga trabalhada encontrada no mês atual
+              Nenhuma folga encontrada no mês atual
             </div>
           )}
         </CardContent>
@@ -514,9 +431,7 @@ export const WorkedLeavesTab = () => {
       <Card>
         <CardHeader>
           <CardTitle>Mês Anterior ({previousMonthWorkedLeaves.length})</CardTitle>
-          <CardDescription>
-            Folgas trabalhadas registradas no mês anterior
-          </CardDescription>
+          <CardDescription>Folgas trabalhadas registradas no mês anterior</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -536,66 +451,14 @@ export const WorkedLeavesTab = () => {
               </TableHeader>
               <TableBody>
                 {previousMonthWorkedLeaves.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-primary" />
-                        {item.employees.first_name} {item.employees.last_name}
-                      </div>
-                    </TableCell>
-                    <TableCell>{item.employees.positions?.title}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        {item.employees.condominiums?.name}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getShiftColor(item.employees.shift)}>
-                        {getShiftLabel(item.employees.shift)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{formatDate(item.date)}</TableCell>
-                    <TableCell>
-                      {item.amount ? (
-                        <div className="flex items-center gap-1">
-                          <DollarSign className="h-4 w-4 text-green-600" />
-                          <span className="font-medium text-green-700">
-                            R$ {Number(item.amount).toFixed(2)}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground">Não informado</span>
-                      )}
-                    </TableCell>
-                    <TableCell>{item.supervisor?.name || 'N/A'}</TableCell>
-                    <TableCell>
-                      <div className="max-w-xs truncate" title={item.observations || ''}>
-                        {item.observations || 'Sem observações'}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setSelectedEmployeeId(item.employees.id);
-                          setShowEmployeeModal(true);
-                        }}
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        Ver Detalhes
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                  <WorkedLeaveRow key={item.id} item={item} onViewDetails={handleViewDetails} />
                 ))}
               </TableBody>
             </Table>
           </div>
-
           {previousMonthWorkedLeaves.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
-              Nenhuma folga trabalhada encontrada no mês anterior
+              Nenhuma folga encontrada no mês anterior
             </div>
           )}
         </CardContent>
@@ -604,11 +467,10 @@ export const WorkedLeavesTab = () => {
       <EmployeeDetailsModal
         employeeId={selectedEmployeeId}
         isOpen={showEmployeeModal}
-        onClose={() => {
-          setShowEmployeeModal(false);
-          setSelectedEmployeeId(null);
-        }}
+        onClose={handleCloseModal}
       />
     </div>
   );
-};
+});
+
+WorkedLeavesTab.displayName = 'WorkedLeavesTab';
