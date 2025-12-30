@@ -88,9 +88,7 @@ export const EmployeeManagement = memo(() => {
     condominiumId: '',
     shift: '',
     phone: '',
-    age: '',
-    companyTimeMonths: '',
-    driverLicense: 'Nenhuma'
+    age: ''
   });
   const { toast } = useToast();
 
@@ -114,8 +112,6 @@ export const EmployeeManagement = memo(() => {
         shift: formData.shift as 'manha' | 'tarde' | 'noite' | 'madrugada',
         phone: formData.phone,
         age: formData.age ? parseInt(formData.age) : null,
-        company_time_months: formData.companyTimeMonths ? parseInt(formData.companyTimeMonths) : null,
-        driver_license: formData.driverLicense,
         active: true
       };
 
@@ -158,9 +154,7 @@ export const EmployeeManagement = memo(() => {
       condominiumId: employee.condominium_id,
       shift: employee.shift,
       phone: employee.phone || '',
-      age: employee.age ? String(employee.age) : '',
-      companyTimeMonths: employee.company_time_months ? String(employee.company_time_months) : '',
-      driverLicense: employee.driver_license || 'Nenhuma'
+      age: employee.age ? String(employee.age) : ''
     });
     setShowAddForm(true);
   }, []);
@@ -189,9 +183,7 @@ export const EmployeeManagement = memo(() => {
       condominiumId: '',
       shift: '',
       phone: '',
-      age: '',
-      companyTimeMonths: '',
-      driverLicense: 'Nenhuma'
+      age: ''
     });
   }, []);
 
@@ -322,32 +314,6 @@ export const EmployeeManagement = memo(() => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <Label htmlFor="companyTime">Tempo de Empresa (meses)</Label>
-                  <Input
-                    id="companyTime"
-                    type="number"
-                    value={formData.companyTimeMonths}
-                    onChange={(e) => setFormData(prev => ({ ...prev, companyTimeMonths: e.target.value }))}
-                    placeholder="12"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="driverLicense">Habilitação</Label>
-                  <Select value={formData.driverLicense} onValueChange={(value) => setFormData(prev => ({ ...prev, driverLicense: value }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a habilitação" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Nenhuma">Nenhuma</SelectItem>
-                      <SelectItem value="A">Habilitado A (Moto)</SelectItem>
-                      <SelectItem value="B">Habilitado B (Carro)</SelectItem>
-                      <SelectItem value="AB">Habilitado A + B</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
 
               <div className="flex gap-2 pt-4">
                 <Button type="submit" disabled={loading} className="flex-1">
