@@ -82,8 +82,7 @@ export const EmployeeManagement = memo(() => {
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    fullName: '',
     positionId: '',
     condominiumId: '',
     shift: '',
@@ -103,10 +102,14 @@ export const EmployeeManagement = memo(() => {
     setLoading(true);
 
     try {
+      const nameParts = formData.fullName.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
       const employeeData = {
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        name: `${formData.firstName} ${formData.lastName}`,
+        first_name: firstName,
+        last_name: lastName,
+        name: formData.fullName.trim(),
         position_id: formData.positionId,
         condominium_id: formData.condominiumId,
         shift: formData.shift as 'manha' | 'tarde' | 'noite' | 'madrugada',
@@ -148,8 +151,7 @@ export const EmployeeManagement = memo(() => {
   const handleEdit = useCallback((employee: Employee) => {
     setEditingEmployee(employee);
     setFormData({
-      firstName: employee.first_name,
-      lastName: employee.last_name,
+      fullName: `${employee.first_name} ${employee.last_name}`.trim(),
       positionId: employee.position_id,
       condominiumId: employee.condominium_id,
       shift: employee.shift,
@@ -177,8 +179,7 @@ export const EmployeeManagement = memo(() => {
 
   const resetForm = useCallback(() => {
     setFormData({
-      firstName: '',
-      lastName: '',
+      fullName: '',
       positionId: '',
       condominiumId: '',
       shift: '',
@@ -217,25 +218,15 @@ export const EmployeeManagement = memo(() => {
             </DialogHeader>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">Nome</Label>
-                  <Input
-                    id="firstName"
-                    value={formData.firstName}
-                    onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Sobrenome</Label>
-                  <Input
-                    id="lastName"
-                    value={formData.lastName}
-                    onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
-                    required
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Nome Completo</Label>
+                <Input
+                  id="fullName"
+                  value={formData.fullName}
+                  onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
+                  placeholder="Ex: João Silva"
+                  required
+                />
               </div>
 
               <div className="space-y-2">
