@@ -4,11 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Edit, Trash2, Search, Users } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Users, Phone, MapPin, Clock } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { getCurrentCompanyId } from '@/lib/company';
 import { useEmployees, Employee } from '@/hooks/useEmployees';
@@ -26,16 +25,16 @@ const getShiftLabel = (shift: string) => {
 
 const getShiftColor = (shift: string) => {
   const colors: Record<string, string> = {
-    'manha': 'bg-yellow-100 text-yellow-800',
-    'tarde': 'bg-orange-100 text-orange-800',
-    'noite': 'bg-blue-100 text-blue-800',
-    'madrugada': 'bg-purple-100 text-purple-800'
+    'manha': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+    'tarde': 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
+    'noite': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+    'madrugada': 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400'
   };
-  return colors[shift] || 'bg-gray-100 text-gray-800';
+  return colors[shift] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
 };
 
-// Memoized row component
-const EmployeeRow = memo(({ 
+// Memoized card component
+const EmployeeCard = memo(({ 
   employee, 
   onEdit, 
   onDelete 
@@ -44,36 +43,53 @@ const EmployeeRow = memo(({
   onEdit: (employee: Employee) => void;
   onDelete: (id: string) => void;
 }) => (
-  <TableRow>
-    <TableCell className="font-medium">
-      {employee.first_name} {employee.last_name}
-    </TableCell>
-    <TableCell>{employee.positions?.title}</TableCell>
-    <TableCell>{employee.condominiums?.name}</TableCell>
-    <TableCell>
-      <Badge className={getShiftColor(employee.shift)}>
-        {getShiftLabel(employee.shift)}
-      </Badge>
-    </TableCell>
-    <TableCell>
-      <Badge variant={employee.active ? "default" : "secondary"}>
-        {employee.active ? "Ativo" : "Inativo"}
-      </Badge>
-    </TableCell>
-    <TableCell>
-      <div className="flex items-center gap-2">
-        <Button size="sm" variant="outline" onClick={() => onEdit(employee)}>
-          <Edit className="h-4 w-4" />
+  <Card className="hover:shadow-md transition-shadow">
+    <CardContent className="p-4">
+      <div className="flex justify-between items-start gap-3">
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-foreground truncate">
+            {employee.first_name} {employee.last_name}
+          </h3>
+          <p className="text-sm text-muted-foreground">{employee.positions?.title}</p>
+        </div>
+        <Badge variant={employee.active ? "default" : "secondary"} className="shrink-0">
+          {employee.active ? "Ativo" : "Inativo"}
+        </Badge>
+      </div>
+      
+      <div className="mt-3 space-y-2">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <MapPin className="h-3.5 w-3.5 shrink-0" />
+          <span className="truncate">{employee.condominiums?.name}</span>
+        </div>
+        <div className="flex items-center gap-2 text-sm">
+          <Clock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          <Badge className={getShiftColor(employee.shift)} variant="secondary">
+            {getShiftLabel(employee.shift)}
+          </Badge>
+        </div>
+        {employee.phone && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Phone className="h-3.5 w-3.5 shrink-0" />
+            <span>{employee.phone}</span>
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-center gap-2 mt-4 pt-3 border-t">
+        <Button size="sm" variant="outline" onClick={() => onEdit(employee)} className="flex-1">
+          <Edit className="h-4 w-4 mr-1" />
+          Editar
         </Button>
         <Button size="sm" variant="destructive" onClick={() => onDelete(employee.id)}>
           <Trash2 className="h-4 w-4" />
         </Button>
       </div>
-    </TableCell>
-  </TableRow>
+    </CardContent>
+  </Card>
 ));
 
-EmployeeRow.displayName = 'EmployeeRow';
+EmployeeCard.displayName = 'EmployeeCard';
 
 export const EmployeeManagement = memo(() => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -341,43 +357,31 @@ export const EmployeeManagement = memo(() => {
         </Select>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Funcionários ({filteredEmployees.length})</CardTitle>
-          <CardDescription>Lista de funcionários cadastrados</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Cargo</TableHead>
-                  <TableHead>Condomínio</TableHead>
-                  <TableHead>Turno</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredEmployees.map((employee) => (
-                  <EmployeeRow 
-                    key={employee.id} 
-                    employee={employee} 
-                    onEdit={handleEdit} 
-                    onDelete={handleDelete} 
-                  />
-                ))}
-              </TableBody>
-            </Table>
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold">Funcionários ({filteredEmployees.length})</h3>
+        </div>
+        
+        {filteredEmployees.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center text-muted-foreground">
+              <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>Nenhum funcionário encontrado</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredEmployees.map((employee) => (
+              <EmployeeCard 
+                key={employee.id} 
+                employee={employee} 
+                onEdit={handleEdit} 
+                onDelete={handleDelete} 
+              />
+            ))}
           </div>
-          {filteredEmployees.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
-              Nenhum funcionário encontrado
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        )}
+      </div>
     </div>
   );
 });
