@@ -36,7 +36,7 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
   const [date, setDate] = useState('');
   const [supervisorId, setSupervisorId] = useState('');
   const [observations, setObservations] = useState('');
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState('150');
   const [workShift, setWorkShift] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
