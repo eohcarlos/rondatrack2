@@ -166,7 +166,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
       }
 
       if (exportFormat === 'pdf') {
-        downloadPDF(data, headers, filename, selectedEmployee);
+        await downloadPDF(data, headers, filename, selectedEmployee);
       } else {
         downloadExcel(data, headers, filename);
       }
@@ -283,9 +283,32 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
     });
   };
 
-  const downloadPDF = (data: any[], headers: string[], filename: string, employee: any) => {
+  const downloadPDF = async (data: any[], headers: string[], filename: string, employee: any) => {
     try {
       const doc = new jsPDF();
+      
+      // Adicionar logotipo no canto direito
+      const logoUrl = '/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png';
+      
+      // Carregar a imagem como base64
+      try {
+        const response = await fetch(logoUrl);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        
+        await new Promise<void>((resolve, reject) => {
+          reader.onload = () => {
+            const base64 = reader.result as string;
+            // Adicionar logo no canto superior direito (x: 160, y: 10, width: 35, height: 20)
+            doc.addImage(base64, 'PNG', 160, 10, 35, 20);
+            resolve();
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      } catch (logoError) {
+        console.warn('Não foi possível carregar o logotipo:', logoError);
+      }
       
       // Título
       doc.setFontSize(18);
