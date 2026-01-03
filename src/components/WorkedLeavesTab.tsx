@@ -72,42 +72,42 @@ const WorkedLeaveCard = memo(({
     <CardContent className="p-4">
       <div className="flex flex-col gap-3">
         {/* Header com nome e turno */}
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2">
-            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
               <User className="h-5 w-5 text-primary" />
             </div>
-            <div>
-              <p className="font-semibold text-foreground">
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold text-foreground break-words">
                 {item.employees.first_name} {item.employees.last_name}
               </p>
               <p className="text-sm text-muted-foreground flex items-center gap-1">
-                <Briefcase className="h-3 w-3" />
-                {item.employees.positions?.title || 'Sem cargo'}
+                <Briefcase className="h-3 w-3 shrink-0" />
+                <span className="break-words">{item.employees.positions?.title || 'Sem cargo'}</span>
               </p>
             </div>
           </div>
-          <Badge className={getShiftColor(item.employees.shift)}>
+          <Badge className={`${getShiftColor(item.employees.shift)} shrink-0`}>
             {getShiftLabel(item.employees.shift)}
           </Badge>
         </div>
 
         {/* Informações */}
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="flex items-center gap-1.5 text-muted-foreground">
-            <MapPin className="h-3.5 w-3.5" />
-            <span className="truncate">{item.employees.condominiums?.name || 'N/A'}</span>
+        <div className="space-y-2 text-sm">
+          <div className="flex items-start gap-2 text-muted-foreground">
+            <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
+            <span className="break-words">{item.employees.condominiums?.name || 'N/A'}</span>
           </div>
-          <div className="flex items-center gap-1.5 text-muted-foreground">
-            <Calendar className="h-3.5 w-3.5" />
-            <span>{formatDate(item.date)}</span>
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Calendar className="h-4 w-4 shrink-0" />
+            <span>Data: {formatDate(item.date)}</span>
           </div>
-          <div className="flex items-center gap-1.5 text-muted-foreground">
-            <User className="h-3.5 w-3.5" />
-            <span className="truncate">{item.supervisor?.name || 'N/A'}</span>
+          <div className="flex items-start gap-2 text-muted-foreground">
+            <User className="h-4 w-4 mt-0.5 shrink-0" />
+            <span className="break-words">Supervisor: {item.supervisor?.name || 'N/A'}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <DollarSign className="h-3.5 w-3.5 text-green-600" />
+          <div className="flex items-center gap-2">
+            <DollarSign className="h-4 w-4 text-green-600 shrink-0" />
             {item.amount ? (
               <span className="font-medium text-green-700 dark:text-green-400">
                 R$ {Number(item.amount).toFixed(2)}
@@ -120,9 +120,9 @@ const WorkedLeaveCard = memo(({
 
         {/* Observações */}
         {item.observations && (
-          <div className="flex items-start gap-1.5 text-sm text-muted-foreground bg-muted/50 p-2 rounded">
-            <MessageSquare className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-            <span className="line-clamp-2">{item.observations}</span>
+          <div className="flex items-start gap-2 text-sm text-muted-foreground bg-muted/50 p-2 rounded">
+            <MessageSquare className="h-4 w-4 mt-0.5 shrink-0" />
+            <span className="break-words">{item.observations}</span>
           </div>
         )}
 

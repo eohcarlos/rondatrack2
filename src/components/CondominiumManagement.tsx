@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Edit, Trash2, Search, Building2, MapPin } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Building2, MapPin, Users, Calendar } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { getCurrentCompanyId } from '@/lib/company';
 
@@ -315,79 +315,73 @@ export const CondominiumManagement = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Endereço</TableHead>
-                  <TableHead>Funcionários</TableHead>
-                  <TableHead>Data de Cadastro</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredCondominiums.map((condominium) => (
-                  <TableRow key={condominium.id}>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-primary" />
-                        {condominium.name}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-start gap-2 max-w-xs">
-                        {condominium.address && (
-                          <>
-                            <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                            <span className="text-sm text-muted-foreground line-clamp-2">
-                              {condominium.address}
-                            </span>
-                          </>
-                        )}
-                        {!condominium.address && (
-                          <span className="text-sm text-muted-foreground italic">
-                            Endereço não informado
-                          </span>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <span className="font-medium">{condominium.employee_count || 0}</span>
-                        <span className="text-sm text-muted-foreground">funcionários</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {formatDate(condominium.created_at)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEdit(condominium)}
-                        >
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDelete(condominium.id, (condominium.employee_count || 0) > 0)}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-
-          {filteredCondominiums.length === 0 && (
+          {filteredCondominiums.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               Nenhum condomínio encontrado
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredCondominiums.map((condominium) => (
+                <Card key={condominium.id} className="hover:shadow-lg transition-shadow duration-200">
+                  <CardContent className="p-4">
+                    <div className="flex flex-col gap-3">
+                      {/* Header */}
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Building2 className="h-5 w-5 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-foreground">
+                              {condominium.name}
+                            </p>
+                          </div>
+                        </div>
+                        <Badge variant="secondary" className="shrink-0">
+                          <Users className="h-3 w-3 mr-1" />
+                          {condominium.employee_count || 0}
+                        </Badge>
+                      </div>
+
+                      {/* Endereço */}
+                      <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
+                        <span className="break-words">
+                          {condominium.address || 'Endereço não informado'}
+                        </span>
+                      </div>
+
+                      {/* Data de cadastro */}
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Calendar className="h-4 w-4 shrink-0" />
+                        <span>Cadastrado em {formatDate(condominium.created_at)}</span>
+                      </div>
+
+                      {/* Ações */}
+                      <div className="flex gap-2 mt-1">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => handleEdit(condominium)}
+                        >
+                          <Edit className="h-4 w-4 mr-1" />
+                          Editar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => handleDelete(condominium.id, (condominium.employee_count || 0) > 0)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Excluir
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           )}
         </CardContent>
