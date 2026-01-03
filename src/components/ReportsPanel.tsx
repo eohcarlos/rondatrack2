@@ -299,8 +299,8 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         await new Promise<void>((resolve, reject) => {
           reader.onload = () => {
             const base64 = reader.result as string;
-            // Adicionar logo no canto superior direito (x: 160, y: 10, width: 35, height: 20)
-            doc.addImage(base64, 'PNG', 160, 10, 35, 20);
+            // Adicionar logo no canto superior direito com proporção 1:1 (25x25)
+            doc.addImage(base64, 'PNG', 170, 8, 25, 25);
             resolve();
           };
           reader.onerror = reject;
