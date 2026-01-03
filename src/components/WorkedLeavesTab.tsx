@@ -1,13 +1,12 @@
 import { useState, useEffect, useCallback, useMemo, memo, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Calendar, User, MapPin, Eye, DollarSign, Download } from 'lucide-react';
+import { Search, Calendar, User, MapPin, Eye, DollarSign, Download, Clock, Briefcase, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { EmployeeDetailsModal } from './EmployeeDetailsModal';
 import { getCurrentCompanyId } from '@/lib/company';
@@ -47,10 +46,10 @@ const getShiftLabel = (shift: string) => {
 
 const getShiftColor = (shift: string) => {
   const colors: Record<string, string> = {
-    'manha': 'bg-yellow-100 text-yellow-800',
-    'tarde': 'bg-orange-100 text-orange-800',
-    'noite': 'bg-blue-100 text-blue-800',
-    'madrugada': 'bg-purple-100 text-purple-800'
+    'manha': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
+    'tarde': 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
+    'noite': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+    'madrugada': 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
   };
   return colors[shift] || 'bg-gray-100 text-gray-800';
 };
@@ -61,66 +60,88 @@ const formatDate = (dateString: string) => {
   return `${d}/${m}/${y}`;
 };
 
-// Memoized row component
-const WorkedLeaveRow = memo(({ 
+// Memoized card component
+const WorkedLeaveCard = memo(({ 
   item, 
   onViewDetails 
 }: { 
   item: WorkedLeave; 
   onViewDetails: (id: string) => void;
 }) => (
-  <TableRow>
-    <TableCell className="font-medium">
-      <div className="flex items-center gap-2">
-        <User className="h-4 w-4 text-primary" />
-        {item.employees.first_name} {item.employees.last_name}
-      </div>
-    </TableCell>
-    <TableCell>{item.employees.positions?.title}</TableCell>
-    <TableCell>
-      <div className="flex items-center gap-2">
-        <MapPin className="h-4 w-4 text-muted-foreground" />
-        {item.employees.condominiums?.name}
-      </div>
-    </TableCell>
-    <TableCell>
-      <Badge className={getShiftColor(item.employees.shift)}>
-        {getShiftLabel(item.employees.shift)}
-      </Badge>
-    </TableCell>
-    <TableCell>{formatDate(item.date)}</TableCell>
-    <TableCell>
-      {item.amount ? (
-        <div className="flex items-center gap-1">
-          <DollarSign className="h-4 w-4 text-green-600" />
-          <span className="font-medium text-green-700">
-            R$ {Number(item.amount).toFixed(2)}
-          </span>
+  <Card className="hover:shadow-lg transition-shadow duration-200">
+    <CardContent className="p-4">
+      <div className="flex flex-col gap-3">
+        {/* Header com nome e turno */}
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-2">
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <User className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="font-semibold text-foreground">
+                {item.employees.first_name} {item.employees.last_name}
+              </p>
+              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                <Briefcase className="h-3 w-3" />
+                {item.employees.positions?.title || 'Sem cargo'}
+              </p>
+            </div>
+          </div>
+          <Badge className={getShiftColor(item.employees.shift)}>
+            {getShiftLabel(item.employees.shift)}
+          </Badge>
         </div>
-      ) : (
-        <span className="text-muted-foreground">Não informado</span>
-      )}
-    </TableCell>
-    <TableCell>{item.supervisor?.name || 'N/A'}</TableCell>
-    <TableCell>
-      <div className="max-w-xs truncate" title={item.observations || ''}>
-        {item.observations || 'Sem observações'}
+
+        {/* Informações */}
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <MapPin className="h-3.5 w-3.5" />
+            <span className="truncate">{item.employees.condominiums?.name || 'N/A'}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <Calendar className="h-3.5 w-3.5" />
+            <span>{formatDate(item.date)}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <User className="h-3.5 w-3.5" />
+            <span className="truncate">{item.supervisor?.name || 'N/A'}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <DollarSign className="h-3.5 w-3.5 text-green-600" />
+            {item.amount ? (
+              <span className="font-medium text-green-700 dark:text-green-400">
+                R$ {Number(item.amount).toFixed(2)}
+              </span>
+            ) : (
+              <span className="text-muted-foreground">Não informado</span>
+            )}
+          </div>
+        </div>
+
+        {/* Observações */}
+        {item.observations && (
+          <div className="flex items-start gap-1.5 text-sm text-muted-foreground bg-muted/50 p-2 rounded">
+            <MessageSquare className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+            <span className="line-clamp-2">{item.observations}</span>
+          </div>
+        )}
+
+        {/* Ações */}
+        <Button
+          size="sm"
+          variant="outline"
+          className="w-full mt-1"
+          onClick={() => onViewDetails(item.employees.id)}
+        >
+          <Eye className="h-4 w-4 mr-1" />
+          Ver Detalhes
+        </Button>
       </div>
-    </TableCell>
-    <TableCell>
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={() => onViewDetails(item.employees.id)}
-      >
-        <Eye className="h-4 w-4 mr-1" />
-        Ver Detalhes
-      </Button>
-    </TableCell>
-  </TableRow>
+    </CardContent>
+  </Card>
 ));
 
-WorkedLeaveRow.displayName = 'WorkedLeaveRow';
+WorkedLeaveCard.displayName = 'WorkedLeaveCard';
 
 export const WorkedLeavesTab = memo(() => {
   const [workedLeaves, setWorkedLeaves] = useState<WorkedLeave[]>([]);
@@ -398,31 +419,15 @@ export const WorkedLeavesTab = memo(() => {
           <CardDescription>Folgas trabalhadas registradas no mês atual</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Funcionário</TableHead>
-                  <TableHead>Cargo</TableHead>
-                  <TableHead>Condomínio</TableHead>
-                  <TableHead>Turno</TableHead>
-                  <TableHead>Data da Folga</TableHead>
-                  <TableHead>Valor</TableHead>
-                  <TableHead>Supervisor</TableHead>
-                  <TableHead>Observações</TableHead>
-                  <TableHead>Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {currentMonthWorkedLeaves.map((item) => (
-                  <WorkedLeaveRow key={item.id} item={item} onViewDetails={handleViewDetails} />
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-          {currentMonthWorkedLeaves.length === 0 && (
+          {currentMonthWorkedLeaves.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               Nenhuma folga encontrada no mês atual
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {currentMonthWorkedLeaves.map((item) => (
+                <WorkedLeaveCard key={item.id} item={item} onViewDetails={handleViewDetails} />
+              ))}
             </div>
           )}
         </CardContent>
@@ -434,31 +439,15 @@ export const WorkedLeavesTab = memo(() => {
           <CardDescription>Folgas trabalhadas registradas no mês anterior</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Funcionário</TableHead>
-                  <TableHead>Cargo</TableHead>
-                  <TableHead>Condomínio</TableHead>
-                  <TableHead>Turno</TableHead>
-                  <TableHead>Data da Folga</TableHead>
-                  <TableHead>Valor</TableHead>
-                  <TableHead>Supervisor</TableHead>
-                  <TableHead>Observações</TableHead>
-                  <TableHead>Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {previousMonthWorkedLeaves.map((item) => (
-                  <WorkedLeaveRow key={item.id} item={item} onViewDetails={handleViewDetails} />
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-          {previousMonthWorkedLeaves.length === 0 && (
+          {previousMonthWorkedLeaves.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               Nenhuma folga encontrada no mês anterior
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {previousMonthWorkedLeaves.map((item) => (
+                <WorkedLeaveCard key={item.id} item={item} onViewDetails={handleViewDetails} />
+              ))}
             </div>
           )}
         </CardContent>
