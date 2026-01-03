@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback, useMemo, memo, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, AlertTriangle, User, MapPin, Eye } from 'lucide-react';
+import { Search, AlertTriangle, User, MapPin, Eye, Calendar, Briefcase, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { EmployeeDetailsModal } from './EmployeeDetailsModal';
 import { getCurrentCompanyId } from '@/lib/company';
@@ -43,22 +42,22 @@ const getShiftLabel = (shift: string) => {
 
 const getShiftColor = (shift: string) => {
   const colors: Record<string, string> = {
-    'manha': 'bg-yellow-100 text-yellow-800',
-    'tarde': 'bg-orange-100 text-orange-800',
-    'noite': 'bg-blue-100 text-blue-800',
-    'madrugada': 'bg-purple-100 text-purple-800'
+    'manha': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
+    'tarde': 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
+    'noite': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+    'madrugada': 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
   };
   return colors[shift] || 'bg-gray-100 text-gray-800';
 };
 
 const getReasonColor = (reason: string) => {
   const colors: Record<string, string> = {
-    'doenca': 'bg-red-100 text-red-800',
-    'atestado': 'bg-orange-100 text-orange-800',
-    'falta_injustificada': 'bg-gray-100 text-gray-800',
-    'licenca': 'bg-blue-100 text-blue-800',
-    'ferias': 'bg-green-100 text-green-800',
-    'outros': 'bg-purple-100 text-purple-800'
+    'doenca': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+    'atestado': 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
+    'falta_injustificada': 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300',
+    'licenca': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+    'ferias': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+    'outros': 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
   };
   return colors[reason] || 'bg-gray-100 text-gray-800';
 };
@@ -81,59 +80,86 @@ const formatDate = (dateString: string) => {
   return `${d}/${m}/${y}`;
 };
 
-// Memoized row component
-const AbsenceRow = memo(({ 
+// Memoized card component
+const AbsenceCard = memo(({ 
   item, 
   onViewDetails 
 }: { 
   item: Absence; 
   onViewDetails: (id: string) => void;
 }) => (
-  <TableRow>
-    <TableCell className="font-medium">
-      <div className="flex items-center gap-2">
-        <User className="h-4 w-4 text-primary" />
-        {item.employees.first_name} {item.employees.last_name}
+  <Card className="hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-destructive">
+    <CardContent className="p-4">
+      <div className="flex flex-col gap-3">
+        {/* Header com nome e turno */}
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-2">
+            <div className="h-10 w-10 rounded-full bg-destructive/10 flex items-center justify-center">
+              <User className="h-5 w-5 text-destructive" />
+            </div>
+            <div>
+              <p className="font-semibold text-foreground">
+                {item.employees.first_name} {item.employees.last_name}
+              </p>
+              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                <Briefcase className="h-3 w-3" />
+                {item.employees.positions?.title || 'Sem cargo'}
+              </p>
+            </div>
+          </div>
+          <Badge className={getShiftColor(item.employees.shift)}>
+            {getShiftLabel(item.employees.shift)}
+          </Badge>
+        </div>
+
+        {/* Motivo da falta */}
+        <div className="flex justify-center">
+          <Badge className={`${getReasonColor(item.reason)} px-3 py-1`}>
+            <AlertTriangle className="h-3 w-3 mr-1" />
+            {getReasonLabel(item.reason)}
+          </Badge>
+        </div>
+
+        {/* Informações */}
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <MapPin className="h-3.5 w-3.5" />
+            <span className="truncate">{item.employees.condominiums?.name || 'N/A'}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <Calendar className="h-3.5 w-3.5" />
+            <span>{formatDate(item.date)}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-muted-foreground col-span-2">
+            <User className="h-3.5 w-3.5" />
+            <span className="truncate">Supervisor: {item.supervisor?.name || 'N/A'}</span>
+          </div>
+        </div>
+
+        {/* Observações */}
+        {item.observations && (
+          <div className="flex items-start gap-1.5 text-sm text-muted-foreground bg-muted/50 p-2 rounded">
+            <MessageSquare className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+            <span className="line-clamp-2">{item.observations}</span>
+          </div>
+        )}
+
+        {/* Ações */}
+        <Button
+          size="sm"
+          variant="outline"
+          className="w-full mt-1"
+          onClick={() => onViewDetails(item.employees.id)}
+        >
+          <Eye className="h-4 w-4 mr-1" />
+          Ver Detalhes
+        </Button>
       </div>
-    </TableCell>
-    <TableCell>{item.employees.positions?.title}</TableCell>
-    <TableCell>
-      <div className="flex items-center gap-2">
-        <MapPin className="h-4 w-4 text-muted-foreground" />
-        {item.employees.condominiums?.name}
-      </div>
-    </TableCell>
-    <TableCell>
-      <Badge className={getShiftColor(item.employees.shift)}>
-        {getShiftLabel(item.employees.shift)}
-      </Badge>
-    </TableCell>
-    <TableCell>{formatDate(item.date)}</TableCell>
-    <TableCell>
-      <Badge className={getReasonColor(item.reason)}>
-        {getReasonLabel(item.reason)}
-      </Badge>
-    </TableCell>
-    <TableCell>{item.supervisor?.name || 'N/A'}</TableCell>
-    <TableCell>
-      <div className="max-w-xs truncate" title={item.observations || ''}>
-        {item.observations || 'Sem observações'}
-      </div>
-    </TableCell>
-    <TableCell>
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={() => onViewDetails(item.employees.id)}
-      >
-        <Eye className="h-4 w-4 mr-1" />
-        Ver Detalhes
-      </Button>
-    </TableCell>
-  </TableRow>
+    </CardContent>
+  </Card>
 ));
 
-AbsenceRow.displayName = 'AbsenceRow';
+AbsenceCard.displayName = 'AbsenceCard';
 
 export const AbsencesTab = memo(() => {
   const [absences, setAbsences] = useState<Absence[]>([]);
@@ -333,31 +359,15 @@ export const AbsencesTab = memo(() => {
           <CardDescription>Faltas registradas no mês atual</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Funcionário</TableHead>
-                  <TableHead>Cargo</TableHead>
-                  <TableHead>Condomínio</TableHead>
-                  <TableHead>Turno</TableHead>
-                  <TableHead>Data da Falta</TableHead>
-                  <TableHead>Motivo</TableHead>
-                  <TableHead>Supervisor</TableHead>
-                  <TableHead>Observações</TableHead>
-                  <TableHead>Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {currentMonthAbsences.map((item) => (
-                  <AbsenceRow key={item.id} item={item} onViewDetails={handleViewDetails} />
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-          {currentMonthAbsences.length === 0 && (
+          {currentMonthAbsences.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               Nenhuma falta encontrada no mês atual
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {currentMonthAbsences.map((item) => (
+                <AbsenceCard key={item.id} item={item} onViewDetails={handleViewDetails} />
+              ))}
             </div>
           )}
         </CardContent>
@@ -369,31 +379,15 @@ export const AbsencesTab = memo(() => {
           <CardDescription>Faltas registradas no mês anterior</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Funcionário</TableHead>
-                  <TableHead>Cargo</TableHead>
-                  <TableHead>Condomínio</TableHead>
-                  <TableHead>Turno</TableHead>
-                  <TableHead>Data da Falta</TableHead>
-                  <TableHead>Motivo</TableHead>
-                  <TableHead>Supervisor</TableHead>
-                  <TableHead>Observações</TableHead>
-                  <TableHead>Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {previousMonthAbsences.map((item) => (
-                  <AbsenceRow key={item.id} item={item} onViewDetails={handleViewDetails} />
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-          {previousMonthAbsences.length === 0 && (
+          {previousMonthAbsences.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               Nenhuma falta encontrada no mês anterior
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {previousMonthAbsences.map((item) => (
+                <AbsenceCard key={item.id} item={item} onViewDetails={handleViewDetails} />
+              ))}
             </div>
           )}
         </CardContent>
