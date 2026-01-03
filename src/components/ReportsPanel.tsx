@@ -299,6 +299,20 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
     const reportTitle = reportType === 'ft' ? 'Relatório de Folgas Trabalhadas' : 'Relatório de Faltas';
     const generatedAt = `Gerado em: ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: ptBR })}`;
 
+    // Agrupar dados por funcionário e adicionar linha em branco entre cada um
+    const groupedData: any[][] = [];
+    let currentEmployee = '';
+    
+    data.forEach((row, index) => {
+      const employeeName = row['Nome'];
+      // Se mudou de funcionário e não é o primeiro, adiciona linha em branco
+      if (employeeName !== currentEmployee && currentEmployee !== '') {
+        groupedData.push(headers.map(() => '')); // Linha em branco
+      }
+      groupedData.push(headers.map(header => row[header] || ''));
+      currentEmployee = employeeName;
+    });
+
     // Criar worksheet com os dados
     const worksheetData = [
       [reportTitle],
@@ -306,7 +320,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
       [generatedAt],
       [], // Linha vazia
       headers,
-      ...data.map(row => headers.map(header => row[header] || ''))
+      ...groupedData
     ];
 
     // Adicionar linha de total para FT
