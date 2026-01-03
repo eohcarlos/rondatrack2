@@ -351,7 +351,8 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
 
   const downloadPDF = async (data: any[], headers: string[], filename: string, employee: any) => {
     try {
-      const doc = new jsPDF({ orientation: 'landscape' });
+      // Usar orientação padrão (portrait) para PDF
+      const doc = new jsPDF();
       
       // Adicionar logotipo no canto direito
       const logoUrl = '/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png';
@@ -366,7 +367,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
           reader.onload = () => {
             const base64 = reader.result as string;
             // Adicionar logo no canto superior direito
-            doc.addImage(base64, 'PNG', 260, 6, 25, 25);
+            doc.addImage(base64, 'PNG', 168, 6, 30, 30);
             resolve();
           };
           reader.onerror = reject;
@@ -377,53 +378,56 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
       }
       
       // Título
-      doc.setFontSize(18);
+      doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
       doc.text(`Relatório de ${reportType === 'ft' ? 'Folgas Trabalhadas' : 'Faltas'}`, 20, 20);
       
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(11);
+      doc.setFontSize(10);
 
       let currentY = 32;
 
       // Período
       if (startDate && endDate) {
         doc.text(`Período: ${format(startDate, 'dd/MM/yyyy')} a ${format(endDate, 'dd/MM/yyyy')}`, 20, currentY);
-        currentY += 8;
+        currentY += 7;
       }
 
       // Informações do funcionário ou indicação de todos
       if (employee) {
         doc.text(`Funcionário: ${employee.first_name} ${employee.last_name}`, 20, currentY);
-        currentY += 6;
+        currentY += 5;
         doc.text(`Cargo: ${employee.positions?.title || 'Não informado'}`, 20, currentY);
-        currentY += 6;
-        doc.text(`Local de Trabalho: ${employee.condominiums?.name || 'Não informado'}`, 20, currentY);
-        currentY += 6;
-        
-        const address = employee.condominiums?.address || 'Não informado';
-        const maxWidth = 180;
-        const addressLines = doc.splitTextToSize(`Endereço: ${address}`, maxWidth);
-        doc.text(addressLines, 20, currentY);
-        currentY += addressLines.length * 5;
+        currentY += 5;
+        doc.text(`Local: ${employee.condominiums?.name || 'Não informado'}`, 20, currentY);
+        currentY += 5;
       } else {
         doc.text(`Escopo: Todos os funcionários`, 20, currentY);
-        currentY += 6;
+        currentY += 5;
       }
       
       doc.text(`Data de Geração: ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: ptBR })}`, 20, currentY);
       currentY += 10;
 
-      // Tabela
-      const tableData = data.map(row => headers.map(header => String(row[header] || '')));
-      
+      // Tabela com colunas otimizadas para PDF portrait
+      // Usar colunas reduzidas para caber em portrait
+      const pdfHeaders = ['Data', 'Nome', 'Cargo', 'Condomínio', reportType === 'ft' ? 'Valor' : 'Motivo', 'Observações'];
+      const pdfData = data.map(row => [
+        row['Data'],
+        row['Nome'],
+        row['Cargo'],
+        row['Condomínio'],
+        reportType === 'ft' ? row['Valor'] : row['Motivo'],
+        row['Observações']
+      ]);
+
       autoTable(doc, {
-        head: [headers],
-        body: tableData,
+        head: [pdfHeaders],
+        body: pdfData,
         startY: currentY,
         styles: {
-          fontSize: 7,
-          cellPadding: 2,
+          fontSize: 8,
+          cellPadding: 3,
         },
         headStyles: {
           fillColor: reportType === 'absences' ? [220, 53, 69] : [59, 130, 246],
@@ -437,13 +441,9 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
           0: { cellWidth: 22 }, // Data
           1: { cellWidth: 35 }, // Nome
           2: { cellWidth: 25 }, // Cargo
-          3: { cellWidth: 30 }, // Supervisor
-          4: { cellWidth: 35 }, // Condomínio
-          5: { cellWidth: 45 }, // Endereço
-          6: { cellWidth: 20 }, // Turno
-          7: { cellWidth: 25 }, // Valor/Motivo
-          8: { cellWidth: 35 }, // Observações
-          9: { cellWidth: 30 }, // Data do Registro
+          3: { cellWidth: 35 }, // Condomínio
+          4: { cellWidth: 25 }, // Valor/Motivo
+          5: { cellWidth: 40 }, // Observações
         },
       });
 
