@@ -299,6 +299,13 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
     const reportTitle = reportType === 'ft' ? 'Relatório de Folgas Trabalhadas' : 'Relatório de Faltas';
     const generatedAt = `Gerado em: ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: ptBR })}`;
 
+    // Ordenar dados por nome do funcionário
+    const sortedData = [...data].sort((a, b) => {
+      const nameA = a['Nome'] || '';
+      const nameB = b['Nome'] || '';
+      return nameA.localeCompare(nameB, 'pt-BR');
+    });
+
     // Agrupar dados por funcionário e adicionar subtotal + linha em branco entre cada um
     const groupedData: any[][] = [];
     let currentEmployee = '';
@@ -318,17 +325,16 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         }, 0);
         
         // Adicionar linha de subtotal
-        const subtotalRow = headers.map((header, idx) => {
+        const subtotalRow = headers.map((header) => {
           if (header === 'Nome') return `Subtotal: ${currentEmployee}`;
           if (header === 'Valor') return `R$ ${subtotal.toFixed(2)}`;
-          if (header === 'Data') return `${employeeRecords.length} registro(s)`;
           return '';
         });
         groupedData.push(subtotalRow);
       }
     };
     
-    data.forEach((row) => {
+    sortedData.forEach((row) => {
       const employeeName = row['Nome'];
       
       // Se mudou de funcionário
