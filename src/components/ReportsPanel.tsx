@@ -299,19 +299,58 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
     const reportTitle = reportType === 'ft' ? 'Relatório de Folgas Trabalhadas' : 'Relatório de Faltas';
     const generatedAt = `Gerado em: ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: ptBR })}`;
 
-    // Agrupar dados por funcionário e adicionar linha em branco entre cada um
+    // Agrupar dados por funcionário e adicionar subtotal + linha em branco entre cada um
     const groupedData: any[][] = [];
     let currentEmployee = '';
+    let employeeRecords: any[] = [];
     
-    data.forEach((row, index) => {
-      const employeeName = row['Nome'];
-      // Se mudou de funcionário e não é o primeiro, adiciona linha em branco
-      if (employeeName !== currentEmployee && currentEmployee !== '') {
-        groupedData.push(headers.map(() => '')); // Linha em branco
+    const addEmployeeSubtotal = () => {
+      if (employeeRecords.length > 0 && reportType === 'ft') {
+        // Calcular subtotal do funcionário
+        const subtotal = employeeRecords.reduce((sum, row) => {
+          const valorStr = row['Valor'] || '';
+          const match = valorStr.match(/R\$\s*([\d.,]+)/);
+          if (match) {
+            const value = parseFloat(match[1].replace(',', '.'));
+            return sum + (isNaN(value) ? 0 : value);
+          }
+          return sum;
+        }, 0);
+        
+        // Adicionar linha de subtotal
+        const subtotalRow = headers.map((header, idx) => {
+          if (header === 'Nome') return `Subtotal: ${currentEmployee}`;
+          if (header === 'Valor') return `R$ ${subtotal.toFixed(2)}`;
+          if (header === 'Data') return `${employeeRecords.length} registro(s)`;
+          return '';
+        });
+        groupedData.push(subtotalRow);
       }
+    };
+    
+    data.forEach((row) => {
+      const employeeName = row['Nome'];
+      
+      // Se mudou de funcionário
+      if (employeeName !== currentEmployee) {
+        // Adicionar subtotal do funcionário anterior (se houver)
+        addEmployeeSubtotal();
+        
+        // Adicionar linha em branco entre funcionários (se não for o primeiro)
+        if (currentEmployee !== '') {
+          groupedData.push(headers.map(() => '')); // Linha em branco
+        }
+        
+        currentEmployee = employeeName;
+        employeeRecords = [];
+      }
+      
       groupedData.push(headers.map(header => row[header] || ''));
-      currentEmployee = employeeName;
+      employeeRecords.push(row);
     });
+    
+    // Adicionar subtotal do último funcionário
+    addEmployeeSubtotal();
 
     // Criar worksheet com os dados
     const worksheetData = [
