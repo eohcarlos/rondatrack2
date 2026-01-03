@@ -299,8 +299,8 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         await new Promise<void>((resolve, reject) => {
           reader.onload = () => {
             const base64 = reader.result as string;
-            // Adicionar logo no canto superior direito com proporção 1:1 (25x25)
-            doc.addImage(base64, 'PNG', 170, 8, 25, 25);
+            // Adicionar logo no canto superior direito com proporção 1:1 (30x30)
+            doc.addImage(base64, 'PNG', 168, 6, 30, 30);
             resolve();
           };
           reader.onerror = reject;
@@ -319,16 +319,26 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
       doc.text(`Funcionário: ${employee.first_name} ${employee.last_name}`, 20, 35);
       doc.text(`Cargo: ${employee.positions?.title || 'Não informado'}`, 20, 45);
       doc.text(`Local de Trabalho: ${employee.condominiums?.name || 'Não informado'}`, 20, 55);
-      doc.text(`Endereço: ${employee.condominiums?.address || 'Não informado'}`, 20, 65);
-      doc.text(`Data de Geração: ${new Date().toLocaleDateString('pt-BR')}`, 20, 75);
+      
+      // Endereço com quebra de linha para textos longos
+      const address = employee.condominiums?.address || 'Não informado';
+      const maxWidth = 130; // Largura máxima em mm para o texto
+      const addressLines = doc.splitTextToSize(`Endereço: ${address}`, maxWidth);
+      doc.text(addressLines, 20, 65);
+      
+      // Calcular posição Y após o endereço
+      const addressHeight = addressLines.length * 6; // ~6mm por linha
+      const dateY = 65 + addressHeight;
+      doc.text(`Data de Geração: ${new Date().toLocaleDateString('pt-BR')}`, 20, dateY);
 
-      // Tabela
+      // Tabela - ajustar startY baseado no endereço
+      const tableStartY = dateY + 10;
       const tableData = data.map(row => headers.map(header => String(row[header] || '')));
       
       autoTable(doc, {
         head: [headers],
         body: tableData,
-        startY: 85,
+        startY: tableStartY,
         styles: {
           fontSize: 8,
           cellPadding: 3,
