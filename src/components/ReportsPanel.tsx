@@ -240,13 +240,12 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
 
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
 
-    // Calcular largura automática das colunas
+    // Calcular largura automática das colunas considerando todos os dados
     const colWidths = headers.map((header, colIndex) => {
       const headerLength = header.length;
-      const maxDataLength = Math.max(
-        ...data.map(row => String(row[header] || '').length)
-      );
-      return { wch: Math.max(headerLength, maxDataLength, 10) + 2 };
+      const dataLengths = worksheetData.map(row => String(row[colIndex] || '').length);
+      const maxDataLength = Math.max(...dataLengths);
+      return { wch: Math.max(headerLength, maxDataLength, 12) + 4 };
     });
     worksheet['!cols'] = colWidths;
 
