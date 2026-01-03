@@ -352,6 +352,29 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         },
       });
 
+      // Adicionar valor total para relatório de FT
+      if (reportType === 'ft') {
+        const totalValue = data.reduce((sum, row) => {
+          const valorStr = row['Valor'] || '';
+          // Extrair número do formato "R$ XX.XX"
+          const match = valorStr.match(/R\$\s*([\d.,]+)/);
+          if (match) {
+            const value = parseFloat(match[1].replace(',', '.'));
+            return sum + (isNaN(value) ? 0 : value);
+          }
+          return sum;
+        }, 0);
+
+        // Posição Y após a tabela
+        const finalY = (doc as any).lastAutoTable?.finalY || tableStartY + 50;
+        
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Valor Total: R$ ${totalValue.toFixed(2)}`, 20, finalY + 10);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Total de Registros: ${data.length}`, 20, finalY + 18);
+      }
+
       doc.save(`${filename}.pdf`);
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);
