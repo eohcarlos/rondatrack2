@@ -211,11 +211,32 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
 
 
   const downloadExcel = (data: any[], headers: string[], filename: string) => {
+    // Calcular valor total para relatório de FT
+    let totalValue = 0;
+    if (reportType === 'ft') {
+      totalValue = data.reduce((sum, row) => {
+        const valorStr = row['Valor'] || '';
+        const match = valorStr.match(/R\$\s*([\d.,]+)/);
+        if (match) {
+          const value = parseFloat(match[1].replace(',', '.'));
+          return sum + (isNaN(value) ? 0 : value);
+        }
+        return sum;
+      }, 0);
+    }
+
     // Criar worksheet com os dados
     const worksheetData = [
       headers,
       ...data.map(row => headers.map(header => row[header] || ''))
     ];
+
+    // Adicionar linha de total para FT
+    if (reportType === 'ft') {
+      worksheetData.push([]); // Linha vazia
+      worksheetData.push(['', '', '', '', '', `VALOR TOTAL: R$ ${totalValue.toFixed(2)}`, '', '']);
+      worksheetData.push([`Total de Registros: ${data.length}`, '', '', '', '', '', '', '']);
+    }
 
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
 
@@ -240,20 +261,22 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
           worksheet[cellAddress] = { t: 's', v: '' };
         }
 
-        // Aplicar estilo de borda em todas as células
-        worksheet[cellAddress].s = {
-          border: {
-            top: { style: 'thin', color: { rgb: '000000' } },
-            bottom: { style: 'thin', color: { rgb: '000000' } },
-            left: { style: 'thin', color: { rgb: '000000' } },
-            right: { style: 'thin', color: { rgb: '000000' } }
-          },
-          alignment: {
-            vertical: 'center',
-            horizontal: 'left',
-            wrapText: false
-          }
-        };
+        // Aplicar estilo de borda em todas as células de dados
+        if (R <= data.length) {
+          worksheet[cellAddress].s = {
+            border: {
+              top: { style: 'thin', color: { rgb: '000000' } },
+              bottom: { style: 'thin', color: { rgb: '000000' } },
+              left: { style: 'thin', color: { rgb: '000000' } },
+              right: { style: 'thin', color: { rgb: '000000' } }
+            },
+            alignment: {
+              vertical: 'center',
+              horizontal: 'left',
+              wrapText: false
+            }
+          };
+        }
 
         // Estilo específico para cabeçalhos (primeira linha)
         if (R === 0) {
@@ -264,6 +287,18 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
             alignment: {
               vertical: 'center',
               horizontal: 'center',
+              wrapText: false
+            }
+          };
+        }
+
+        // Estilo para linha de total (negrito)
+        if (reportType === 'ft' && R === data.length + 2) {
+          worksheet[cellAddress].s = {
+            font: { bold: true, color: { rgb: '006400' } },
+            alignment: {
+              vertical: 'center',
+              horizontal: 'left',
               wrapText: false
             }
           };
