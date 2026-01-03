@@ -277,6 +277,20 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
   };
 
   const downloadExcel = (data: any[], headers: string[], filename: string) => {
+    // Calcular valor total para relatório de FT
+    let totalValue = 0;
+    if (reportType === 'ft') {
+      totalValue = data.reduce((sum, row) => {
+        const valorStr = row['Valor'] || '';
+        const match = valorStr.match(/R\$\s*([\d.,]+)/);
+        if (match) {
+          const value = parseFloat(match[1].replace(',', '.'));
+          return sum + (isNaN(value) ? 0 : value);
+        }
+        return sum;
+      }, 0);
+    }
+
     // Adicionar informações do período no início
     const periodInfo = startDate && endDate
       ? `Período: ${format(startDate, 'dd/MM/yyyy')} a ${format(endDate, 'dd/MM/yyyy')}`
@@ -285,113 +299,24 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
     const reportTitle = reportType === 'ft' ? 'Relatório de Folgas Trabalhadas' : 'Relatório de Faltas';
     const generatedAt = `Gerado em: ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: ptBR })}`;
 
-    // Agrupar dados por funcionário
-    const groupedByEmployee: Record<string, any[]> = {};
-    data.forEach(row => {
-      const employeeName = row['Nome'] || 'Sem nome';
-      if (!groupedByEmployee[employeeName]) {
-        groupedByEmployee[employeeName] = [];
-      }
-      groupedByEmployee[employeeName].push(row);
-    });
-
-    // Criar worksheet com os dados agrupados
-    const worksheetData: any[][] = [
+    // Criar worksheet com os dados
+    const worksheetData = [
       [reportTitle],
       [periodInfo],
       [generatedAt],
       [], // Linha vazia
+      headers,
+      ...data.map(row => headers.map(header => row[header] || ''))
     ];
 
-    let grandTotalValue = 0;
-    let grandTotalRecords = 0;
-
-    // Para cada funcionário, adicionar seus dados e subtotal
-    Object.entries(groupedByEmployee).forEach(([employeeName, employeeData], index) => {
-      // Adicionar espaço entre funcionários (exceto o primeiro)
-      if (index > 0) {
-        worksheetData.push([]); // Linha vazia de separação
-        worksheetData.push([]); // Outra linha vazia para melhor visualização
-      }
-
-      // Cabeçalho do funcionário
-      worksheetData.push([`📋 ${employeeName}`]);
-      worksheetData.push(headers);
-
-      // Dados do funcionário
-      employeeData.forEach(row => {
-        worksheetData.push(headers.map(header => row[header] || ''));
-      });
-
-      // Calcular subtotal do funcionário para FT
-      if (reportType === 'ft') {
-        const employeeTotal = employeeData.reduce((sum, row) => {
-          const valorStr = row['Valor'] || '';
-          const match = valorStr.match(/R\$\s*([\d.,]+)/);
-          if (match) {
-            const value = parseFloat(match[1].replace(',', '.'));
-            return sum + (isNaN(value) ? 0 : value);
-          }
-          return sum;
-        }, 0);
-        grandTotalValue += employeeTotal;
-
-        // Linha de subtotal do funcionário
-        worksheetData.push([]);
-        const subtotalRow = new Array(headers.length).fill('');
-        subtotalRow[0] = `Subtotal ${employeeName}:`;
-        subtotalRow[headers.indexOf('Valor')] = `R$ ${employeeTotal.toFixed(2)}`;
-        subtotalRow[headers.length - 1] = `${employeeData.length} registro(s)`;
-        worksheetData.push(subtotalRow);
-      } else {
-        // Para faltas, apenas mostrar contagem
-        worksheetData.push([]);
-        const subtotalRow = new Array(headers.length).fill('');
-        subtotalRow[0] = `Subtotal ${employeeName}:`;
-        subtotalRow[headers.length - 1] = `${employeeData.length} registro(s)`;
-        worksheetData.push(subtotalRow);
-      }
-
-      grandTotalRecords += employeeData.length;
-    });
-
-    // Adicionar total geral no final
-    worksheetData.push([]); // Linha vazia
-    worksheetData.push([]); // Outra linha vazia
-    
+    // Adicionar linha de total para FT
     if (reportType === 'ft') {
-      const totalRow = new Array(headers.length).fill('');
-      totalRow[0] = '═══ TOTAL GERAL ═══';
-      worksheetData.push(totalRow);
-      
-      const valueRow = new Array(headers.length).fill('');
-      valueRow[0] = 'Valor Total:';
-      valueRow[headers.indexOf('Valor')] = `R$ ${grandTotalValue.toFixed(2)}`;
-      worksheetData.push(valueRow);
-      
-      const countRow = new Array(headers.length).fill('');
-      countRow[0] = 'Total de Registros:';
-      countRow[1] = `${grandTotalRecords}`;
-      worksheetData.push(countRow);
-      
-      const employeesRow = new Array(headers.length).fill('');
-      employeesRow[0] = 'Total de Funcionários:';
-      employeesRow[1] = `${Object.keys(groupedByEmployee).length}`;
-      worksheetData.push(employeesRow);
+      worksheetData.push([]); // Linha vazia
+      worksheetData.push(['', '', '', '', '', '', '', `VALOR TOTAL: R$ ${totalValue.toFixed(2)}`, '', '']);
+      worksheetData.push([`Total de Registros: ${data.length}`, '', '', '', '', '', '', '', '', '']);
     } else {
-      const totalRow = new Array(headers.length).fill('');
-      totalRow[0] = '═══ TOTAL GERAL ═══';
-      worksheetData.push(totalRow);
-      
-      const countRow = new Array(headers.length).fill('');
-      countRow[0] = 'Total de Registros:';
-      countRow[1] = `${grandTotalRecords}`;
-      worksheetData.push(countRow);
-      
-      const employeesRow = new Array(headers.length).fill('');
-      employeesRow[0] = 'Total de Funcionários:';
-      employeesRow[1] = `${Object.keys(groupedByEmployee).length}`;
-      worksheetData.push(employeesRow);
+      worksheetData.push([]); // Linha vazia
+      worksheetData.push([`Total de Registros: ${data.length}`, '', '', '', '', '', '', '', '', '']);
     }
 
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
