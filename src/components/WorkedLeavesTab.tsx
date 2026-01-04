@@ -418,7 +418,12 @@ export const WorkedLeavesTab = memo(() => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Mês Atual ({currentMonthWorkedLeaves.length})</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            Mês Atual
+            <span className="inline-flex items-center justify-center h-6 min-w-6 px-2 rounded-full bg-primary text-primary-foreground text-xs font-medium">
+              {currentMonthWorkedLeaves.length}
+            </span>
+          </CardTitle>
           <CardDescription>Folgas trabalhadas registradas no mês atual</CardDescription>
         </CardHeader>
         <CardContent>
@@ -438,7 +443,12 @@ export const WorkedLeavesTab = memo(() => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Mês Anterior ({previousMonthWorkedLeaves.length})</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            Mês Anterior
+            <span className="inline-flex items-center justify-center h-6 min-w-6 px-2 rounded-full bg-muted text-muted-foreground text-xs font-medium">
+              {previousMonthWorkedLeaves.length}
+            </span>
+          </CardTitle>
           <CardDescription>Folgas trabalhadas registradas no mês anterior</CardDescription>
         </CardHeader>
         <CardContent>

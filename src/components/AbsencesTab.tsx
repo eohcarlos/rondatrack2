@@ -358,7 +358,12 @@ export const AbsencesTab = memo(() => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Mês Atual ({currentMonthAbsences.length})</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            Mês Atual
+            <span className="inline-flex items-center justify-center h-6 min-w-6 px-2 rounded-full bg-destructive text-destructive-foreground text-xs font-medium">
+              {currentMonthAbsences.length}
+            </span>
+          </CardTitle>
           <CardDescription>Faltas registradas no mês atual</CardDescription>
         </CardHeader>
         <CardContent>
@@ -378,7 +383,12 @@ export const AbsencesTab = memo(() => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Mês Anterior ({previousMonthAbsences.length})</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            Mês Anterior
+            <span className="inline-flex items-center justify-center h-6 min-w-6 px-2 rounded-full bg-muted text-muted-foreground text-xs font-medium">
+              {previousMonthAbsences.length}
+            </span>
+          </CardTitle>
           <CardDescription>Faltas registradas no mês anterior</CardDescription>
         </CardHeader>
         <CardContent>
