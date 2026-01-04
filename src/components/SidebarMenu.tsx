@@ -84,7 +84,7 @@ export const SidebarMenu = memo(({
                 />
                 <div>
                   <SheetTitle className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                    RondaTrack
+                    RondaTrack 2
                   </SheetTitle>
                   {companyName && (
                     <p className="text-xs text-muted-foreground">{companyName}</p>

@@ -136,7 +136,7 @@ const DashboardHeader = memo(({
             />
             <div className="flex flex-col">
               <h1 className="text-lg font-bold bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent lg:text-xl">
-                RondaTrack
+                RondaTrack 2
               </h1>
               {companyName && (
                 <p className="text-xs text-muted-foreground font-medium hidden sm:block">{companyName}</p>
