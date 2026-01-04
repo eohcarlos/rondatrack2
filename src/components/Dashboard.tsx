@@ -113,17 +113,12 @@ const DashboardHeader = memo(({
               <Menu className="h-5 w-5" />
             </Button>
 
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-2xl blur-md group-hover:blur-lg transition-all opacity-60"></div>
-              <div className="relative w-10 h-10 lg:w-11 lg:h-11 rounded-2xl bg-gradient-to-br from-primary via-primary to-accent p-2 flex items-center justify-center shadow-xl">
-                <img 
-                  src="/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png" 
-                  alt="RondaTrack Logo" 
-                  className="w-full h-full object-contain"
-                  loading="lazy"
-                />
-              </div>
-            </div>
+            <img 
+              src="/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png" 
+              alt="RondaTrack Logo" 
+              className="w-10 h-10 lg:w-11 lg:h-11 object-contain"
+              loading="lazy"
+            />
             <div className="flex flex-col">
               <h1 className="text-lg font-bold bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent lg:text-xl">
                 RondaTrack
@@ -135,21 +130,25 @@ const DashboardHeader = memo(({
           </div>
 
           <div className="flex items-center gap-2 lg:gap-3">
+            {/* Profile avatar - always visible */}
             {profile && (
-              <div className="hidden md:flex items-center gap-3 mr-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-muted/50 to-muted/30 hover:from-muted/70 hover:to-muted/50 transition-all border border-border/30">
-                <div className="text-right">
-                  <p className="font-semibold text-foreground text-sm leading-tight">
-                    {profile.first_name} {profile.last_name}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{getRoleLabel(profile.role)}</p>
-                </div>
-                <Avatar className="h-10 w-10 ring-2 ring-primary/30 ring-offset-2 ring-offset-background shadow-lg">
+              <button 
+                onClick={onNavigateProfile}
+                className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-muted/50 transition-colors"
+              >
+                <Avatar className="h-9 w-9 ring-2 ring-primary/30 ring-offset-1 ring-offset-background shadow-md">
                   <AvatarImage src={profile.avatar_url || undefined} alt={`${profile.first_name} ${profile.last_name}`} className="object-cover" />
                   <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground font-semibold text-sm">
                     {profile.first_name.charAt(0)}{profile.last_name?.charAt(0) || ''}
                   </AvatarFallback>
                 </Avatar>
-              </div>
+                <div className="hidden md:flex flex-col text-left">
+                  <p className="font-semibold text-foreground text-sm leading-tight">
+                    {profile.first_name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{getRoleLabel(profile.role)}</p>
+                </div>
+              </button>
             )}
             
             <ThemeToggle />
