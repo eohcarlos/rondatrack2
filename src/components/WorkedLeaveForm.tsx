@@ -38,7 +38,6 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
   const [observations, setObservations] = useState('');
   const [amount, setAmount] = useState('150');
   const [workShift, setWorkShift] = useState('');
-  const [customTime, setCustomTime] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -160,9 +159,6 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
         throw new Error('Company ID não encontrado');
       }
 
-      // Determinar o valor do turno a salvar
-      const shiftToSave = workShift === 'personalizado' ? customTime : workShift;
-
       const { error } = await supabase
         .from('worked_leaves')
         .insert({
@@ -171,7 +167,7 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
           supervisor_id: supervisorId,
           observations,
           amount: amount ? parseFloat(amount) : null,
-          work_shift: shiftToSave,
+          work_shift: workShift,
           created_by: profile.id,
           company_id: companyId,
         });
@@ -302,25 +298,9 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
                 <SelectContent>
                   <SelectItem value="diurno">Diurno (06:00 - 18:00)</SelectItem>
                   <SelectItem value="noturno">Noturno (18:00 - 06:00)</SelectItem>
-                  <SelectItem value="personalizado">Horário Personalizado</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-
-            {workShift === 'personalizado' && (
-              <div className="space-y-2">
-                <Label htmlFor="customTime">Horário Personalizado *</Label>
-                <Input
-                  id="customTime"
-                  type="text"
-                  value={customTime}
-                  onChange={(e) => setCustomTime(e.target.value)}
-                  placeholder="Ex: 08:00 - 16:00"
-                  className="rounded-lg"
-                  required
-                />
-              </div>
-            )}
           </div>
 
           <div className="space-y-2">
