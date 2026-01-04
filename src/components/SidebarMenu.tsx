@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from '@/components/ui/sheet';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { 
@@ -14,7 +14,8 @@ import {
   User,
   Shield,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  PanelLeftClose
 } from 'lucide-react';
 
 interface SidebarMenuProps {
@@ -71,25 +72,36 @@ export const SidebarMenu = memo(({
       <SheetContent 
         side="left" 
         className="w-[300px] sm:w-[350px] p-0 bg-gradient-to-b from-card via-card to-muted/30 border-r border-border/50"
+        hideCloseButton
       >
         <div className="flex flex-col h-full">
           {/* Header com perfil */}
           <div className="p-6 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
             <SheetHeader className="mb-4">
-              <div className="flex items-center gap-3">
-                <img 
-                  src="/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png" 
-                  alt="RondaTrack Logo" 
-                  className="w-10 h-10 object-contain"
-                />
-                <div>
-                  <SheetTitle className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                    RondaTrack 2
-                  </SheetTitle>
-                  {companyName && (
-                    <p className="text-xs text-muted-foreground">{companyName}</p>
-                  )}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <img 
+                    src="/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png" 
+                    alt="RondaTrack Logo" 
+                    className="w-10 h-10 object-contain"
+                  />
+                  <div>
+                    <SheetTitle className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                      RondaTrack 2
+                    </SheetTitle>
+                    {companyName && (
+                      <p className="text-xs text-muted-foreground">{companyName}</p>
+                    )}
+                  </div>
                 </div>
+                <SheetClose asChild>
+                  <button
+                    className="p-2 rounded-lg hover:bg-muted/80 transition-colors group"
+                    aria-label="Recolher menu"
+                  >
+                    <PanelLeftClose className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  </button>
+                </SheetClose>
               </div>
             </SheetHeader>
 
