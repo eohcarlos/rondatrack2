@@ -71,35 +71,35 @@ export const SidebarMenu = memo(({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent 
         side="left" 
-        className="w-[300px] sm:w-[350px] p-0 bg-gradient-to-b from-card via-card to-muted/30 border-r border-border/50"
+        className="w-[280px] sm:w-[300px] p-0 bg-gradient-to-b from-card via-card to-muted/30 border-r border-border/50 overflow-hidden"
         hideCloseButton
       >
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full overflow-hidden">
           {/* Header com perfil */}
-          <div className="p-6 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
-            <SheetHeader className="mb-4">
+          <div className="p-4 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
+            <SheetHeader className="mb-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <img 
                     src="/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png" 
                     alt="RondaTrack Logo" 
-                    className="w-10 h-10 object-contain"
+                    className="w-8 h-8 object-contain"
                   />
                   <div>
-                    <SheetTitle className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    <SheetTitle className="text-base font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                       RondaTrack 2
                     </SheetTitle>
                     {companyName && (
-                      <p className="text-xs text-muted-foreground">{companyName}</p>
+                      <p className="text-[10px] text-muted-foreground">{companyName}</p>
                     )}
                   </div>
                 </div>
                 <SheetClose asChild>
                   <button
-                    className="p-2 rounded-lg hover:bg-muted/80 transition-colors group"
+                    className="p-1.5 rounded-lg hover:bg-muted/80 transition-colors group"
                     aria-label="Recolher menu"
                   >
-                    <PanelLeftClose className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <PanelLeftClose className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                   </button>
                 </SheetClose>
               </div>
@@ -107,18 +107,18 @@ export const SidebarMenu = memo(({
 
             {/* Perfil do usuário */}
             {profile && (
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-background/50 backdrop-blur-sm border border-border/30">
-                <Avatar className="h-12 w-12 ring-2 ring-primary/30 ring-offset-2 ring-offset-background">
+              <div className="flex items-center gap-2 p-2 rounded-lg bg-background/50 backdrop-blur-sm border border-border/30">
+                <Avatar className="h-9 w-9 ring-2 ring-primary/30 ring-offset-1 ring-offset-background">
                   <AvatarImage src={profile.avatar_url || undefined} alt={`${profile.first_name} ${profile.last_name}`} />
-                  <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground font-semibold">
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground font-semibold text-xs">
                     {profile.first_name.charAt(0)}{profile.last_name?.charAt(0) || ''}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-foreground truncate">
+                  <p className="text-sm font-semibold text-foreground truncate">
                     {profile.first_name} {profile.last_name}
                   </p>
-                  <p className="text-xs text-muted-foreground">{getRoleLabel(profile.role)}</p>
+                  <p className="text-[10px] text-muted-foreground">{getRoleLabel(profile.role)}</p>
                 </div>
               </div>
             )}
@@ -127,8 +127,8 @@ export const SidebarMenu = memo(({
           <Separator className="opacity-50" />
 
           {/* Menu Items */}
-          <nav className="flex-1 overflow-y-auto p-4 space-y-1">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2">
+          <nav className="flex-1 p-3 space-y-0.5">
+            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 py-1">
               Menu Principal
             </p>
             {menuItems.map((item) => {
@@ -139,21 +139,21 @@ export const SidebarMenu = memo(({
                 <button
                   key={item.value}
                   onClick={() => handleTabChange(item.value)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
+                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 group ${
                     isActive 
-                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25' 
+                      ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25' 
                       : 'hover:bg-muted/80 text-foreground'
                   }`}
                 >
-                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
+                  <div className={`w-7 h-7 rounded-md flex items-center justify-center transition-colors ${
                     isActive 
                       ? 'bg-primary-foreground/20' 
                       : 'bg-muted group-hover:bg-background'
                   }`}>
-                    <Icon className={`h-5 w-5 ${isActive ? 'text-primary-foreground' : item.color}`} />
+                    <Icon className={`h-4 w-4 ${isActive ? 'text-primary-foreground' : item.color}`} />
                   </div>
-                  <span className="flex-1 text-left font-medium">{item.label}</span>
-                  <ChevronRight className={`h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity ${
+                  <span className="flex-1 text-left text-sm font-medium">{item.label}</span>
+                  <ChevronRight className={`h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity ${
                     isActive ? 'opacity-100 text-primary-foreground' : 'text-muted-foreground'
                   }`} />
                 </button>
@@ -164,43 +164,43 @@ export const SidebarMenu = memo(({
           <Separator className="opacity-50" />
 
           {/* Footer Actions */}
-          <div className="p-4 space-y-1">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2">
+          <div className="p-3 space-y-0.5">
+            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 py-1">
               Configurações
             </p>
             
             <button
               onClick={() => { onNavigateProfile(); onClose(); }}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted/80 transition-all group"
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted/80 transition-all group"
             >
-              <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center group-hover:bg-background">
-                <User className="h-5 w-5 text-primary" />
+              <div className="w-7 h-7 rounded-md bg-muted flex items-center justify-center group-hover:bg-background">
+                <User className="h-4 w-4 text-primary" />
               </div>
-              <span className="flex-1 text-left font-medium">Meu Perfil</span>
-              <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+              <span className="flex-1 text-left text-sm font-medium">Meu Perfil</span>
+              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </button>
 
             {isAdmin && (
               <button
                 onClick={() => { onNavigateAdmin(); onClose(); }}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted/80 transition-all group"
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted/80 transition-all group"
               >
-                <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center group-hover:bg-background">
-                  <Shield className="h-5 w-5 text-warning" />
+                <div className="w-7 h-7 rounded-md bg-muted flex items-center justify-center group-hover:bg-background">
+                  <Shield className="h-4 w-4 text-warning" />
                 </div>
-                <span className="flex-1 text-left font-medium">Administração</span>
-                <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                <span className="flex-1 text-left text-sm font-medium">Administração</span>
+                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
               </button>
             )}
 
             <button
               onClick={() => { onLogout(); onClose(); }}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-destructive/10 transition-all group text-destructive"
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-destructive/10 transition-all group text-destructive"
             >
-              <div className="w-9 h-9 rounded-lg bg-destructive/10 flex items-center justify-center group-hover:bg-destructive/20">
-                <LogOut className="h-5 w-5" />
+              <div className="w-7 h-7 rounded-md bg-destructive/10 flex items-center justify-center group-hover:bg-destructive/20">
+                <LogOut className="h-4 w-4" />
               </div>
-              <span className="flex-1 text-left font-medium">Sair</span>
+              <span className="flex-1 text-left text-sm font-medium">Sair</span>
             </button>
           </div>
         </div>
