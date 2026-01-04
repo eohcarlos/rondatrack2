@@ -312,7 +312,12 @@ export const CondominiumManagement = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Condomínios Cadastrados ({filteredCondominiums.length})</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            Condomínios Cadastrados
+            <span className="inline-flex items-center justify-center h-6 min-w-6 px-2 rounded-full bg-primary text-primary-foreground text-xs font-medium">
+              {filteredCondominiums.length}
+            </span>
+          </CardTitle>
           <CardDescription>
             Lista de todos os condomínios no sistema
           </CardDescription>

@@ -361,8 +361,11 @@ export const EmployeeManagement = memo(() => {
       </div>
 
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">Funcionários ({filteredEmployees.length})</h3>
+        <div className="flex items-center gap-2 mb-4">
+          <h3 className="text-lg font-semibold">Funcionários</h3>
+          <span className="inline-flex items-center justify-center h-6 min-w-6 px-2 rounded-full bg-primary text-primary-foreground text-xs font-medium">
+            {filteredEmployees.length}
+          </span>
         </div>
         
         {filteredEmployees.length === 0 ? (
