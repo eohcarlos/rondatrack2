@@ -77,16 +77,11 @@ export const SidebarMenu = memo(({
           <div className="p-6 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
             <SheetHeader className="mb-4">
               <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-xl blur-sm opacity-50"></div>
-                  <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent p-2 flex items-center justify-center">
-                    <img 
-                      src="/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png" 
-                      alt="RondaTrack Logo" 
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                </div>
+                <img 
+                  src="/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png" 
+                  alt="RondaTrack Logo" 
+                  className="w-10 h-10 object-contain"
+                />
                 <div>
                   <SheetTitle className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                     RondaTrack
