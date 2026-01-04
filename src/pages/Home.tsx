@@ -171,7 +171,7 @@ export const Home = () => {
               <Button 
                 variant="outline"
                 size="sm"
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/dashboard', { replace: true })}
                 className="border-primary text-primary hover:bg-primary/5 px-2 sm:px-4"
               >
                 <span className="hidden xs:inline">Login</span>
@@ -213,7 +213,7 @@ export const Home = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Button 
                 size="lg" 
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/dashboard', { replace: true })}
                 variant="outline"
                 className="border-primary text-primary hover:bg-primary/5 px-8 py-6 text-lg"
               >
