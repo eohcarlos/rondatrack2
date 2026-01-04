@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -24,10 +24,25 @@ import { RegisterForm } from '@/components/RegisterForm';
 import { useNavigate } from 'react-router-dom';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
+import { supabase } from '@/integrations/supabase/client';
 
 export const Home = () => {
   const [showRegister, setShowRegister] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const navigate = useNavigate();
+
+  // Redirecionar para dashboard se já estiver autenticado
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate('/dashboard', { replace: true });
+      } else {
+        setIsCheckingAuth(false);
+      }
+    };
+    checkAuth();
+  }, [navigate]);
 
   const features = [
     {
@@ -103,6 +118,18 @@ export const Home = () => {
       details: "Conte com nossa equipe de suporte especializada para tirar dúvidas e resolver problemas. Atendimento rápido e personalizado para garantir que você aproveite ao máximo o sistema."
     }
   ];
+
+  // Mostrar loading enquanto verifica autenticação
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-accent">
+        <div className="text-center text-white">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p>Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (showRegister) {
     return <RegisterForm onBack={() => setShowRegister(false)} />;
