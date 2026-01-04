@@ -77,7 +77,7 @@ export const LoginForm = ({
     }
   };
   return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-accent p-4 relative">
-      <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="absolute top-4 left-4 text-white hover:bg-white/10">
+      <Button variant="ghost" size="sm" onClick={() => navigate('/', { replace: true })} className="absolute top-4 left-4 text-white hover:bg-white/10">
         <ArrowLeft className="h-4 w-4 mr-2" />
         Voltar
       </Button>
