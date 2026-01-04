@@ -353,7 +353,10 @@ export const WorkedLeavesTab = memo(() => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Calendar className="h-6 w-6 text-primary" />
+            <div className="relative">
+              <Calendar className="h-6 w-6 text-primary" />
+              <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-background" />
+            </div>
             Folgas Trabalhadas
           </h2>
           <p className="text-muted-foreground">Acompanhe as folgas trabalhadas dos funcionários</p>
