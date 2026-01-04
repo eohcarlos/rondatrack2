@@ -37,9 +37,7 @@ interface WorkedLeave {
 const getShiftLabel = (shift: string) => {
   const labels: Record<string, string> = {
     'manha': 'Manhã',
-    'tarde': 'Tarde', 
-    'noite': 'Noite',
-    'madrugada': 'Madrugada'
+    'noite': 'Noite'
   };
   return labels[shift] || shift;
 };
@@ -47,9 +45,7 @@ const getShiftLabel = (shift: string) => {
 const getShiftColor = (shift: string) => {
   const colors: Record<string, string> = {
     'manha': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-    'tarde': 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
-    'noite': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-    'madrugada': 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
+    'noite': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
   };
   return colors[shift] || 'bg-gray-100 text-gray-800';
 };
