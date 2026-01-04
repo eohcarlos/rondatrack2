@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { Menu, LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, Activity, TrendingUp, BarChart3, DollarSign, ChevronRight } from 'lucide-react';
 import { PWAInstallPrompt } from './PWAInstallPrompt';
 import { DailyPhrase } from './DailyPhrase';
-import { BottomNav } from './BottomNav';
+
 import { SidebarMenu } from './SidebarMenu';
 import { useUserRole } from '@/hooks/useUserRole';
 import { ThemeToggle } from './ThemeToggle';
@@ -475,7 +475,6 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
         </Tabs>
       </div>
       
-        <BottomNav activeTab={activeTab} onChange={setActiveTab} />
         <PWAInstallPrompt />
       </div>
     </>
