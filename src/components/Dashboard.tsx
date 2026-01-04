@@ -1,4 +1,4 @@
-import { useState, useCallback, memo, useMemo, useEffect } from 'react';
+import { useState, useCallback, memo, useMemo, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
@@ -201,6 +201,41 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Evita que o botão "Voltar" feche o PWA quando o usuário está em alguma aba interna.
+  // Regra: se estiver em qualquer aba (activeTab != 'dashboard'), "Voltar" retorna para o dashboard.
+  const activeTabRef = useRef(activeTab);
+  useEffect(() => {
+    activeTabRef.current = activeTab;
+  }, [activeTab]);
+
+  useEffect(() => {
+    // Marca a entrada base do /dashboard no histórico
+    const current = window.history.state ?? {};
+    if (current?.rt !== 'rt_dashboard_base') {
+      window.history.replaceState({ ...current, rt: 'rt_dashboard_base' }, '', window.location.href);
+    }
+
+    const handlePopState = () => {
+      if (window.location.pathname === '/dashboard' && activeTabRef.current !== 'dashboard') {
+        setActiveTab('dashboard');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'dashboard') return;
+
+    // Cria uma única entrada "fantasma" no histórico quando sai do dashboard.
+    // Assim, o back volta para o dashboard (em vez de sair do app).
+    const current = window.history.state ?? {};
+    if (current?.rt !== 'rt_dashboard_tab') {
+      window.history.pushState({ ...current, rt: 'rt_dashboard_tab' }, '', window.location.href);
+    }
+  }, [activeTab]);
   
   // Use optimized hooks
   const { stats } = useStats();
