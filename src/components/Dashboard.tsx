@@ -38,8 +38,7 @@ const StatCard = memo(({
   description, 
   icon: Icon, 
   gradient,
-  iconBg,
-  onClick 
+  iconBg
 }: { 
   title: string; 
   value: string | number; 
@@ -47,16 +46,14 @@ const StatCard = memo(({
   icon: React.ElementType;
   gradient: string;
   iconBg: string;
-  onClick?: () => void;
 }) => (
   <Card 
-    className={`group relative overflow-hidden cursor-pointer transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl border-0 ${gradient}`}
-    onClick={onClick}
+    className={`group relative overflow-hidden transition-all duration-300 border-0 ${gradient}`}
   >
     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
       <CardTitle className="text-sm font-semibold text-foreground/90">{title}</CardTitle>
-      <div className={`w-12 h-12 ${iconBg} rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+      <div className={`w-12 h-12 ${iconBg} rounded-2xl flex items-center justify-center shadow-lg`}>
         <Icon className="h-6 w-6 text-white" />
       </div>
     </CardHeader>
@@ -317,7 +314,6 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
                   icon={Clock}
                   gradient="bg-gradient-to-br from-card via-card to-primary/10 border border-primary/20 shadow-lg"
                   iconBg="bg-gradient-to-br from-primary to-primary/70"
-                  onClick={setTabWorkedLeaves}
                 />
 
                 <StatCard
@@ -327,7 +323,6 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
                   icon={Calendar}
                   gradient="bg-gradient-to-br from-card via-card to-destructive/10 border border-destructive/20 shadow-lg"
                   iconBg="bg-gradient-to-br from-destructive to-destructive/70"
-                  onClick={setTabAbsences}
                 />
 
                 <StatCard
@@ -337,7 +332,6 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
                   icon={DollarSign}
                   gradient="bg-gradient-to-br from-card via-card to-emerald-500/10 border border-emerald-500/20 shadow-lg"
                   iconBg="bg-gradient-to-br from-emerald-500 to-emerald-600"
-                  onClick={setTabWorkedLeaves}
                 />
               </div>
             </div>
@@ -359,7 +353,6 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
                   icon={Clock}
                   gradient="bg-gradient-to-br from-card via-card to-muted/50 border border-border/50 shadow-md"
                   iconBg="bg-gradient-to-br from-primary/70 to-primary/50"
-                  onClick={setTabWorkedLeaves}
                 />
 
                 <StatCard
@@ -369,7 +362,6 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
                   icon={Calendar}
                   gradient="bg-gradient-to-br from-card via-card to-muted/50 border border-border/50 shadow-md"
                   iconBg="bg-gradient-to-br from-destructive/70 to-destructive/50"
-                  onClick={setTabAbsences}
                 />
               </div>
             </div>
@@ -391,7 +383,6 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
                   icon={Users}
                   gradient="bg-gradient-to-br from-card via-card to-accent/10 border border-accent/20 shadow-lg"
                   iconBg="bg-gradient-to-br from-accent to-accent/70"
-                  onClick={setTabEmployees}
                 />
 
                 <StatCard
@@ -401,7 +392,6 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
                   icon={Building2}
                   gradient="bg-gradient-to-br from-card via-card to-warning/10 border border-warning/20 shadow-lg"
                   iconBg="bg-gradient-to-br from-warning to-warning/70"
-                  onClick={setTabCondominiums}
                 />
 
                 <StatCard
@@ -411,7 +401,6 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
                   icon={DollarSign}
                   gradient="bg-gradient-to-br from-card via-card to-emerald-500/10 border border-emerald-500/20 shadow-lg"
                   iconBg="bg-gradient-to-br from-emerald-500 to-emerald-600"
-                  onClick={setTabWorkedLeaves}
                 />
               </div>
             </div>
