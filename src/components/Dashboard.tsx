@@ -1,11 +1,10 @@
 import { useState, useCallback, memo, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useNavigate } from 'react-router-dom';
-import { Menu, LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, Activity, TrendingUp, BarChart3, Briefcase, Sparkles, DollarSign, ChevronRight } from 'lucide-react';
+import { Menu, LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, Activity, TrendingUp, BarChart3, DollarSign, ChevronRight } from 'lucide-react';
 import { PWAInstallPrompt } from './PWAInstallPrompt';
 import { DailyPhrase } from './DailyPhrase';
 import { BottomNav } from './BottomNav';
@@ -249,42 +248,7 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
 
       <div className={`container mx-auto px-4 lg:px-8 py-6 pb-24 sm:pb-8 space-y-8 overflow-x-hidden max-w-[1600px] transition-all duration-300`}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="hidden sm:grid sm:grid-cols-4 lg:grid-cols-4 xl:grid-cols-8 mb-8 h-auto p-1.5 bg-card/80 backdrop-blur-md gap-1 w-full rounded-2xl border border-border/30 shadow-lg">
-            <TabsTrigger value="dashboard" className="flex items-center justify-center gap-2 p-3 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-xl transition-all hover:bg-muted/50">
-              <BarChart3 className="h-4 w-4" />
-              <span className="hidden lg:inline">Dashboard</span>
-            </TabsTrigger>
-            <TabsTrigger value="employees" className="flex items-center justify-center gap-2 p-3 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-xl transition-all hover:bg-muted/50">
-              <Users className="h-4 w-4" />
-              <span className="hidden lg:inline">Funcionários</span>
-            </TabsTrigger>
-            <TabsTrigger value="positions" className="flex items-center justify-center gap-2 p-3 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-xl transition-all hover:bg-muted/50">
-              <Briefcase className="h-4 w-4" />
-              <span className="hidden lg:inline">Cargos</span>
-            </TabsTrigger>
-            <TabsTrigger value="condominiums" className="flex items-center justify-center gap-2 p-3 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-xl transition-all hover:bg-muted/50">
-              <Building2 className="h-4 w-4" />
-              <span className="hidden lg:inline">Condomínios</span>
-            </TabsTrigger>
-            <TabsTrigger value="worked-leaves" className="flex items-center justify-center gap-2 p-3 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-xl transition-all hover:bg-muted/50">
-              <Clock className="h-4 w-4" />
-              <span className="hidden lg:inline">FT</span>
-            </TabsTrigger>
-            <TabsTrigger value="absences" className="flex items-center justify-center gap-2 p-3 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-xl transition-all hover:bg-muted/50">
-              <Calendar className="h-4 w-4" />
-              <span className="hidden lg:inline">Faltas</span>
-            </TabsTrigger>
-            <TabsTrigger value="reports" className="flex items-center justify-center gap-2 p-3 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-xl transition-all hover:bg-muted/50">
-              <Download className="h-4 w-4" />
-              <span className="hidden lg:inline">Relatórios</span>
-            </TabsTrigger>
-            <TabsTrigger value="ai" className="flex items-center justify-center gap-2 p-3 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-xl transition-all hover:bg-muted/50">
-              <Sparkles className="h-4 w-4" />
-              <span className="hidden lg:inline">IA</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="dashboard" className="space-y-8">
+          <TabsContent value="dashboard" className="space-y-8 mt-0">
             <DailyPhrase />
 
             {/* Stats do Mês Atual */}

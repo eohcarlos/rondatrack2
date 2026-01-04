@@ -1,6 +1,5 @@
 import { memo } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { 
@@ -15,7 +14,6 @@ import {
   User,
   Shield,
   LogOut,
-  X,
   ChevronRight
 } from 'lucide-react';
 
@@ -78,30 +76,25 @@ export const SidebarMenu = memo(({
           {/* Header com perfil */}
           <div className="p-6 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
             <SheetHeader className="mb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-xl blur-sm opacity-50"></div>
-                    <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent p-2 flex items-center justify-center">
-                      <img 
-                        src="/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png" 
-                        alt="RondaTrack Logo" 
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <SheetTitle className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                      RondaTrack
-                    </SheetTitle>
-                    {companyName && (
-                      <p className="text-xs text-muted-foreground">{companyName}</p>
-                    )}
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-xl blur-sm opacity-50"></div>
+                  <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent p-2 flex items-center justify-center">
+                    <img 
+                      src="/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png" 
+                      alt="RondaTrack Logo" 
+                      className="w-full h-full object-contain"
+                    />
                   </div>
                 </div>
-                <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full hover:bg-muted">
-                  <X className="h-5 w-5" />
-                </Button>
+                <div>
+                  <SheetTitle className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    RondaTrack
+                  </SheetTitle>
+                  {companyName && (
+                    <p className="text-xs text-muted-foreground">{companyName}</p>
+                  )}
+                </div>
               </div>
             </SheetHeader>
 
