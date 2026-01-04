@@ -205,9 +205,7 @@ export const AbsenceForm = ({ onClose, onSuccess }: AbsenceFormProps) => {
   const getShiftLabel = (shift: string) => {
     const shifts = {
       manha: 'Manhã',
-      tarde: 'Tarde', 
-      noite: 'Noite',
-      madrugada: 'Madrugada'
+      noite: 'Noite'
     };
     return shifts[shift as keyof typeof shifts] || shift;
   };

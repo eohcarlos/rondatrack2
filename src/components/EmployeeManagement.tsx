@@ -16,9 +16,7 @@ import { useEmployees, Employee } from '@/hooks/useEmployees';
 const getShiftLabel = (shift: string) => {
   const labels: Record<string, string> = {
     'manha': 'Manhã',
-    'tarde': 'Tarde', 
-    'noite': 'Noite',
-    'madrugada': 'Madrugada'
+    'noite': 'Noite'
   };
   return labels[shift] || shift;
 };
@@ -26,9 +24,7 @@ const getShiftLabel = (shift: string) => {
 const getShiftColor = (shift: string) => {
   const colors: Record<string, string> = {
     'manha': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-    'tarde': 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-    'noite': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-    'madrugada': 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400'
+    'noite': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
   };
   return colors[shift] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
 };
@@ -295,9 +291,7 @@ export const EmployeeManagement = memo(() => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="manha">Manhã</SelectItem>
-                    <SelectItem value="tarde">Tarde</SelectItem>
                     <SelectItem value="noite">Noite</SelectItem>
-                    <SelectItem value="madrugada">Madrugada</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

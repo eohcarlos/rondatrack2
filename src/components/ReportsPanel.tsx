@@ -257,9 +257,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
   const getShiftLabel = (shift: string) => {
     const shifts: Record<string, string> = {
       manha: 'Manhã',
-      tarde: 'Tarde', 
-      noite: 'Noite',
-      madrugada: 'Madrugada'
+      noite: 'Noite'
     };
     return shifts[shift] || shift || 'Não informado';
   };

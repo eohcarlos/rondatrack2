@@ -13,7 +13,7 @@ interface Employee {
   age?: number;
   company_time_months?: number;
   driver_license?: string;
-  shift: 'manha' | 'tarde' | 'noite' | 'madrugada';
+  shift: string;
   positions?: { title: string };
   condominiums?: { name: string };
 }
@@ -68,9 +68,7 @@ export const EmployeeDetailsModal = ({ employeeId, isOpen, onClose }: EmployeeDe
   const getShiftLabel = (shift: string) => {
     const shifts = {
       manha: 'Manhã',
-      tarde: 'Tarde',
-      noite: 'Noite',
-      madrugada: 'Madrugada'
+      noite: 'Noite'
     };
     return shifts[shift as keyof typeof shifts] || shift;
   };
@@ -78,9 +76,7 @@ export const EmployeeDetailsModal = ({ employeeId, isOpen, onClose }: EmployeeDe
   const getShiftColor = (shift: string) => {
     const colors = {
       manha: 'bg-yellow-100 text-yellow-800',
-      tarde: 'bg-orange-100 text-orange-800',
-      noite: 'bg-blue-100 text-blue-800',
-      madrugada: 'bg-purple-100 text-purple-800'
+      noite: 'bg-blue-100 text-blue-800'
     };
     return colors[shift as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
