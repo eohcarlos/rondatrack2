@@ -5,10 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, Activity, TrendingUp, BarChart3, Briefcase, Sparkles, DollarSign } from 'lucide-react';
+import { Menu, LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, Activity, TrendingUp, BarChart3, Briefcase, Sparkles, DollarSign, ChevronRight } from 'lucide-react';
 import { PWAInstallPrompt } from './PWAInstallPrompt';
 import { DailyPhrase } from './DailyPhrase';
 import { BottomNav } from './BottomNav';
+import { SidebarMenu } from './SidebarMenu';
 import { useUserRole } from '@/hooks/useUserRole';
 import { ThemeToggle } from './ThemeToggle';
 import { useStats } from '@/hooks/useStats';
@@ -31,42 +32,46 @@ interface DashboardProps {
   companyName?: string;
 }
 
-// Memoized stat card component
+// Premium stat card component
 const StatCard = memo(({ 
   title, 
   value, 
   description, 
   icon: Icon, 
-  colorClass,
+  gradient,
+  iconBg,
   onClick 
 }: { 
   title: string; 
   value: string | number; 
   description: string; 
   icon: React.ElementType;
-  colorClass: string;
+  gradient: string;
+  iconBg: string;
   onClick?: () => void;
 }) => (
   <Card 
-    className={`group hover:shadow-xl transition-all duration-300 border-${colorClass}/20 bg-gradient-to-br from-card to-${colorClass}/5 cursor-pointer hover:scale-105`} 
+    className={`group relative overflow-hidden cursor-pointer transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl border-0 ${gradient}`}
     onClick={onClick}
   >
-    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-      <CardTitle className={`text-base font-semibold text-${colorClass}`}>{title}</CardTitle>
-      <div className={`w-12 h-12 bg-${colorClass}/10 rounded-xl flex items-center justify-center group-hover:bg-${colorClass}/20 transition-colors`}>
-        <Icon className={`h-6 w-6 text-${colorClass}`} />
+    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
+      <CardTitle className="text-sm font-semibold text-foreground/90">{title}</CardTitle>
+      <div className={`w-12 h-12 ${iconBg} rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+        <Icon className="h-6 w-6 text-white" />
       </div>
     </CardHeader>
-    <CardContent>
-      <div className="text-3xl font-bold text-foreground mb-1">{value}</div>
+    <CardContent className="relative z-10">
+      <div className="text-3xl font-bold text-foreground mb-1 tracking-tight">{value}</div>
       <p className="text-sm text-muted-foreground">{description}</p>
     </CardContent>
+    <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-primary/5 to-transparent rounded-tl-full opacity-50" />
   </Card>
 ));
 
 StatCard.displayName = 'StatCard';
 
-// Memoized header component
+// Premium header component
 const DashboardHeader = memo(({ 
   companyName, 
   profile, 
@@ -74,7 +79,8 @@ const DashboardHeader = memo(({
   isLoadingRole,
   onLogout,
   onNavigateProfile,
-  onNavigateAdmin
+  onNavigateAdmin,
+  onMenuOpen
 }: {
   companyName?: string;
   profile: { first_name: string; last_name: string; role: string; avatar_url?: string } | null;
@@ -83,6 +89,7 @@ const DashboardHeader = memo(({
   onLogout: () => void;
   onNavigateProfile: () => void;
   onNavigateAdmin: () => void;
+  onMenuOpen: () => void;
 }) => {
   const getRoleLabel = (role: string) => {
     switch (role) {
@@ -93,13 +100,23 @@ const DashboardHeader = memo(({
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-border/30 bg-background/60 backdrop-blur-xl">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           <div className="flex items-center gap-3 lg:gap-4">
+            {/* Menu Button - Always visible */}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onMenuOpen}
+              className="rounded-xl hover:bg-primary/10 hover:text-primary transition-all"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+
             <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-2xl blur-sm group-hover:blur-md transition-all opacity-50"></div>
-              <div className="relative w-11 h-11 lg:w-12 lg:h-12 rounded-2xl bg-gradient-to-br from-primary via-primary to-accent p-2.5 flex items-center justify-center shadow-lg">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-2xl blur-md group-hover:blur-lg transition-all opacity-60"></div>
+              <div className="relative w-10 h-10 lg:w-11 lg:h-11 rounded-2xl bg-gradient-to-br from-primary via-primary to-accent p-2 flex items-center justify-center shadow-xl">
                 <img 
                   src="/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png" 
                   alt="RondaTrack Logo" 
@@ -109,25 +126,25 @@ const DashboardHeader = memo(({
               </div>
             </div>
             <div className="flex flex-col">
-              <h1 className="text-lg font-bold bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent lg:text-xl text-left py-0 my-0 px-0 mx-[30px]">
+              <h1 className="text-lg font-bold bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent lg:text-xl">
                 RondaTrack
               </h1>
               {companyName && (
-                <p className="text-xs text-muted-foreground font-medium px-0 mx-[30px]">{companyName}</p>
+                <p className="text-xs text-muted-foreground font-medium hidden sm:block">{companyName}</p>
               )}
             </div>
           </div>
 
           <div className="flex items-center gap-2 lg:gap-3">
             {profile && (
-              <div className="hidden md:flex items-center gap-3 mr-2 px-4 py-2 rounded-xl bg-muted/50 hover:bg-muted/70 transition-colors">
+              <div className="hidden md:flex items-center gap-3 mr-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-muted/50 to-muted/30 hover:from-muted/70 hover:to-muted/50 transition-all border border-border/30">
                 <div className="text-right">
                   <p className="font-semibold text-foreground text-sm leading-tight">
                     {profile.first_name} {profile.last_name}
                   </p>
                   <p className="text-xs text-muted-foreground">{getRoleLabel(profile.role)}</p>
                 </div>
-                <Avatar className="h-10 w-10 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
+                <Avatar className="h-10 w-10 ring-2 ring-primary/30 ring-offset-2 ring-offset-background shadow-lg">
                   <AvatarImage src={profile.avatar_url || undefined} alt={`${profile.first_name} ${profile.last_name}`} className="object-cover" />
                   <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground font-semibold text-sm">
                     {profile.first_name.charAt(0)}{profile.last_name?.charAt(0) || ''}
@@ -138,21 +155,21 @@ const DashboardHeader = memo(({
             
             <ThemeToggle />
             
-            <Button onClick={onNavigateProfile} variant="ghost" size="sm" className="hover:bg-muted rounded-xl">
-              <User className="h-4 w-4 lg:mr-2" />
-              <span className="hidden lg:inline">Perfil</span>
+            <Button onClick={onNavigateProfile} variant="ghost" size="sm" className="hover:bg-primary/10 rounded-xl hidden lg:flex">
+              <User className="h-4 w-4 mr-2" />
+              <span>Perfil</span>
             </Button>
             
             {!isLoadingRole && isAdmin && (
-              <Button onClick={onNavigateAdmin} variant="ghost" size="sm" className="text-primary hover:bg-primary/10 rounded-xl">
-                <Shield className="h-4 w-4 lg:mr-2" />
-                <span className="hidden lg:inline">Admin</span>
+              <Button onClick={onNavigateAdmin} variant="ghost" size="sm" className="text-warning hover:bg-warning/10 rounded-xl hidden lg:flex">
+                <Shield className="h-4 w-4 mr-2" />
+                <span>Admin</span>
               </Button>
             )}
             
-            <Button onClick={onLogout} variant="ghost" size="sm" className="hover:bg-destructive/10 hover:text-destructive rounded-xl">
-              <LogOut className="h-4 w-4 lg:mr-2" />
-              <span className="hidden lg:inline">Sair</span>
+            <Button onClick={onLogout} variant="ghost" size="sm" className="hover:bg-destructive/10 hover:text-destructive rounded-xl hidden lg:flex">
+              <LogOut className="h-4 w-4 mr-2" />
+              <span>Sair</span>
             </Button>
           </div>
         </div>
@@ -170,6 +187,7 @@ const formatCurrency = (value: number) =>
 export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardProps) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   // Use optimized hooks
   const { stats } = useStats();
@@ -188,6 +206,9 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
   const handleNavigateAbsence = useCallback(() => navigate('/dashboard/absence'), [navigate]);
   const handleNavigateReports = useCallback(() => navigate('/dashboard/reports'), [navigate]);
   
+  const handleOpenSidebar = useCallback(() => setIsSidebarOpen(true), []);
+  const handleCloseSidebar = useCallback(() => setIsSidebarOpen(false), []);
+  
   const setTabDashboard = useCallback(() => setActiveTab('dashboard'), []);
   const setTabEmployees = useCallback(() => setActiveTab('employees'), []);
   const setTabWorkedLeaves = useCallback(() => setActiveTab('worked-leaves'), []);
@@ -199,51 +220,67 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
   const totalRevenue = useMemo(() => formatCurrency(stats.totalWorkedLeavesRevenue), [stats.totalWorkedLeavesRevenue]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
-      <DashboardHeader
-        companyName={companyName}
+    <>
+      {/* Sidebar Menu - rendered outside main container */}
+      <SidebarMenu
+        isOpen={isSidebarOpen}
+        onClose={handleCloseSidebar}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
         profile={profile}
         isAdmin={isAdmin}
-        isLoadingRole={isLoadingRole}
-        onLogout={handleLogout}
         onNavigateProfile={handleNavigateProfile}
         onNavigateAdmin={handleNavigateAdmin}
+        onLogout={handleLogout}
+        companyName={companyName}
       />
 
-      <div className="container mx-auto px-6 lg:px-12 py-8 pb-24 sm:pb-8 space-y-8 overflow-x-hidden max-w-[1600px]">
+      <div className={`min-h-screen bg-gradient-to-br from-background via-background to-muted/20 transition-all duration-300 ${isSidebarOpen ? 'blur-sm pointer-events-none' : ''}`}>
+        <DashboardHeader
+          companyName={companyName}
+          profile={profile}
+          isAdmin={isAdmin}
+          isLoadingRole={isLoadingRole}
+          onLogout={handleLogout}
+          onNavigateProfile={handleNavigateProfile}
+          onNavigateAdmin={handleNavigateAdmin}
+          onMenuOpen={handleOpenSidebar}
+        />
+
+      <div className={`container mx-auto px-4 lg:px-8 py-6 pb-24 sm:pb-8 space-y-8 overflow-x-hidden max-w-[1600px] transition-all duration-300`}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="hidden sm:grid sm:grid-cols-4 lg:grid-cols-4 xl:grid-cols-8 mb-8 h-auto p-2 bg-card/50 backdrop-blur-sm gap-2 w-full rounded-xl border border-border/50 shadow-sm">
-            <TabsTrigger value="dashboard" className="flex items-center justify-center gap-2 p-4 text-sm lg:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50">
-              <BarChart3 className="h-4 w-4 lg:h-5 lg:w-5" />
-              <span>Dashboard</span>
+          <TabsList className="hidden sm:grid sm:grid-cols-4 lg:grid-cols-4 xl:grid-cols-8 mb-8 h-auto p-1.5 bg-card/80 backdrop-blur-md gap-1 w-full rounded-2xl border border-border/30 shadow-lg">
+            <TabsTrigger value="dashboard" className="flex items-center justify-center gap-2 p-3 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-xl transition-all hover:bg-muted/50">
+              <BarChart3 className="h-4 w-4" />
+              <span className="hidden lg:inline">Dashboard</span>
             </TabsTrigger>
-            <TabsTrigger value="employees" className="flex items-center justify-center gap-2 p-4 text-sm lg:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50">
-              <Users className="h-4 w-4 lg:h-5 lg:w-5" />
-              <span>Funcionários</span>
+            <TabsTrigger value="employees" className="flex items-center justify-center gap-2 p-3 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-xl transition-all hover:bg-muted/50">
+              <Users className="h-4 w-4" />
+              <span className="hidden lg:inline">Funcionários</span>
             </TabsTrigger>
-            <TabsTrigger value="positions" className="flex items-center justify-center gap-2 p-4 text-sm lg:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50">
-              <Briefcase className="h-4 w-4 lg:h-5 lg:w-5" />
-              <span>Cargos</span>
+            <TabsTrigger value="positions" className="flex items-center justify-center gap-2 p-3 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-xl transition-all hover:bg-muted/50">
+              <Briefcase className="h-4 w-4" />
+              <span className="hidden lg:inline">Cargos</span>
             </TabsTrigger>
-            <TabsTrigger value="condominiums" className="flex items-center justify-center gap-2 p-4 text-sm lg:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50">
-              <Building2 className="h-4 w-4 lg:h-5 lg:w-5" />
-              <span>Condomínios</span>
+            <TabsTrigger value="condominiums" className="flex items-center justify-center gap-2 p-3 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-xl transition-all hover:bg-muted/50">
+              <Building2 className="h-4 w-4" />
+              <span className="hidden lg:inline">Condomínios</span>
             </TabsTrigger>
-            <TabsTrigger value="worked-leaves" className="flex items-center justify-center gap-2 p-4 text-sm lg:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50">
-              <Clock className="h-4 w-4 lg:h-5 lg:w-5" />
-              <span>FT</span>
+            <TabsTrigger value="worked-leaves" className="flex items-center justify-center gap-2 p-3 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-xl transition-all hover:bg-muted/50">
+              <Clock className="h-4 w-4" />
+              <span className="hidden lg:inline">FT</span>
             </TabsTrigger>
-            <TabsTrigger value="absences" className="flex items-center justify-center gap-2 p-4 text-sm lg:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50">
-              <Calendar className="h-4 w-4 lg:h-5 lg:w-5" />
-              <span>Faltas</span>
+            <TabsTrigger value="absences" className="flex items-center justify-center gap-2 p-3 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-xl transition-all hover:bg-muted/50">
+              <Calendar className="h-4 w-4" />
+              <span className="hidden lg:inline">Faltas</span>
             </TabsTrigger>
-            <TabsTrigger value="reports" className="flex items-center justify-center gap-2 p-4 text-sm lg:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50">
-              <Download className="h-4 w-4 lg:h-5 lg:w-5" />
-              <span>Relatórios</span>
+            <TabsTrigger value="reports" className="flex items-center justify-center gap-2 p-3 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-xl transition-all hover:bg-muted/50">
+              <Download className="h-4 w-4" />
+              <span className="hidden lg:inline">Relatórios</span>
             </TabsTrigger>
-            <TabsTrigger value="ai" className="flex items-center justify-center gap-2 p-4 text-sm lg:text-base font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl transition-all hover:bg-muted/50">
-              <Sparkles className="h-4 w-4 lg:h-5 lg:w-5" />
-              <span>IA</span>
+            <TabsTrigger value="ai" className="flex items-center justify-center gap-2 p-3 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg rounded-xl transition-all hover:bg-muted/50">
+              <Sparkles className="h-4 w-4" />
+              <span className="hidden lg:inline">IA</span>
             </TabsTrigger>
           </TabsList>
 
@@ -251,180 +288,179 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
             <DailyPhrase />
 
             {/* Stats do Mês Atual */}
-            <div className="space-y-6">
-              <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
-                <TrendingUp className="h-6 w-6 text-primary" />
-                Estatísticas do Mês Atual
-              </h2>
+            <div className="space-y-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
+                  <TrendingUp className="h-5 w-5 text-white" />
+                </div>
+                <h2 className="text-xl font-bold text-foreground">Estatísticas do Mês</h2>
+              </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
-                <Card className="group hover:shadow-xl transition-all duration-300 border-primary/20 bg-gradient-to-br from-card to-primary/5 cursor-pointer hover:scale-105" onClick={setTabWorkedLeaves}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                    <CardTitle className="text-base font-semibold text-primary">FTs do Mês</CardTitle>
-                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                      <Clock className="h-6 w-6 text-primary" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-foreground mb-1">{stats.monthlyWorkedLeaves}</div>
-                    <p className="text-sm text-muted-foreground">Folgas trabalhadas registradas</p>
-                  </CardContent>
-                </Card>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                <StatCard
+                  title="FTs do Mês"
+                  value={stats.monthlyWorkedLeaves}
+                  description="Folgas trabalhadas registradas"
+                  icon={Clock}
+                  gradient="bg-gradient-to-br from-card via-card to-primary/10 border border-primary/20 shadow-lg"
+                  iconBg="bg-gradient-to-br from-primary to-primary/70"
+                  onClick={setTabWorkedLeaves}
+                />
 
-                <Card className="group hover:shadow-xl transition-all duration-300 border-destructive/20 bg-gradient-to-br from-card to-destructive/5 cursor-pointer hover:scale-105" onClick={setTabAbsences}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                    <CardTitle className="text-base font-semibold text-destructive">Faltas do Mês</CardTitle>
-                    <div className="w-12 h-12 bg-destructive/10 rounded-xl flex items-center justify-center group-hover:bg-destructive/20 transition-colors">
-                      <Calendar className="h-6 w-6 text-destructive" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-foreground mb-1">{stats.monthlyAbsences}</div>
-                    <p className="text-sm text-muted-foreground">Faltas registradas no período</p>
-                  </CardContent>
-                </Card>
+                <StatCard
+                  title="Faltas do Mês"
+                  value={stats.monthlyAbsences}
+                  description="Faltas registradas no período"
+                  icon={Calendar}
+                  gradient="bg-gradient-to-br from-card via-card to-destructive/10 border border-destructive/20 shadow-lg"
+                  iconBg="bg-gradient-to-br from-destructive to-destructive/70"
+                  onClick={setTabAbsences}
+                />
 
-                <Card className="group hover:shadow-xl transition-all duration-300 border-success/20 bg-gradient-to-br from-card to-success/5 cursor-pointer hover:scale-105" onClick={setTabWorkedLeaves}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                    <CardTitle className="text-base font-semibold text-success">Faturamento FT Mês</CardTitle>
-                    <div className="w-12 h-12 bg-success/10 rounded-xl flex items-center justify-center group-hover:bg-success/20 transition-colors">
-                      <DollarSign className="h-6 w-6 text-success" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-foreground mb-1">{monthlyRevenue}</div>
-                    <p className="text-sm text-muted-foreground">Total em folgas trabalhadas</p>
-                  </CardContent>
-                </Card>
+                <StatCard
+                  title="Faturamento FT Mês"
+                  value={monthlyRevenue}
+                  description="Total em folgas trabalhadas"
+                  icon={DollarSign}
+                  gradient="bg-gradient-to-br from-card via-card to-emerald-500/10 border border-emerald-500/20 shadow-lg"
+                  iconBg="bg-gradient-to-br from-emerald-500 to-emerald-600"
+                  onClick={setTabWorkedLeaves}
+                />
               </div>
             </div>
 
             {/* Stats do Mês Anterior */}
-            <div className="space-y-6">
-              <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
-                <Activity className="h-6 w-6 text-muted-foreground" />
-                Estatísticas do Mês Anterior
-              </h2>
+            <div className="space-y-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-muted-foreground/50 to-muted-foreground/30 flex items-center justify-center">
+                  <Activity className="h-5 w-5 text-white" />
+                </div>
+                <h2 className="text-xl font-bold text-foreground">Mês Anterior</h2>
+              </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
-                <Card className="group hover:shadow-xl transition-all duration-300 border-primary/10 bg-gradient-to-br from-card to-primary/3 cursor-pointer hover:scale-105" onClick={setTabWorkedLeaves}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                    <CardTitle className="text-base font-semibold text-primary/80">FTs do Mês Anterior</CardTitle>
-                    <div className="w-12 h-12 bg-primary/5 rounded-xl flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                      <Clock className="h-6 w-6 text-primary/70" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-foreground mb-1">{stats.previousMonthWorkedLeaves}</div>
-                    <p className="text-sm text-muted-foreground">Folgas trabalhadas no mês passado</p>
-                  </CardContent>
-                </Card>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <StatCard
+                  title="FTs do Mês Anterior"
+                  value={stats.previousMonthWorkedLeaves}
+                  description="Folgas trabalhadas no mês passado"
+                  icon={Clock}
+                  gradient="bg-gradient-to-br from-card via-card to-muted/50 border border-border/50 shadow-md"
+                  iconBg="bg-gradient-to-br from-primary/70 to-primary/50"
+                  onClick={setTabWorkedLeaves}
+                />
 
-                <Card className="group hover:shadow-xl transition-all duration-300 border-destructive/10 bg-gradient-to-br from-card to-destructive/3 cursor-pointer hover:scale-105" onClick={setTabAbsences}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                    <CardTitle className="text-base font-semibold text-destructive/80">Faltas do Mês Anterior</CardTitle>
-                    <div className="w-12 h-12 bg-destructive/5 rounded-xl flex items-center justify-center group-hover:bg-destructive/10 transition-colors">
-                      <Calendar className="h-6 w-6 text-destructive/70" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-foreground mb-1">{stats.previousMonthAbsences}</div>
-                    <p className="text-sm text-muted-foreground">Faltas registradas no mês passado</p>
-                  </CardContent>
-                </Card>
+                <StatCard
+                  title="Faltas do Mês Anterior"
+                  value={stats.previousMonthAbsences}
+                  description="Faltas registradas no mês passado"
+                  icon={Calendar}
+                  gradient="bg-gradient-to-br from-card via-card to-muted/50 border border-border/50 shadow-md"
+                  iconBg="bg-gradient-to-br from-destructive/70 to-destructive/50"
+                  onClick={setTabAbsences}
+                />
               </div>
             </div>
 
             {/* Stats Gerais */}
-            <div className="space-y-6">
-              <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
-                <BarChart3 className="h-6 w-6 text-accent" />
-                Estatísticas Gerais
-              </h2>
+            <div className="space-y-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center shadow-lg">
+                  <BarChart3 className="h-5 w-5 text-white" />
+                </div>
+                <h2 className="text-xl font-bold text-foreground">Estatísticas Gerais</h2>
+              </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
-                <Card className="group hover:shadow-xl transition-all duration-300 border-accent/20 bg-gradient-to-br from-card to-accent/5 cursor-pointer hover:scale-105" onClick={setTabEmployees}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                    <CardTitle className="text-base font-semibold text-accent">Funcionários</CardTitle>
-                    <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center group-hover:bg-accent/20 transition-colors">
-                      <Users className="h-6 w-6 text-accent" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-foreground mb-1">{stats.totalEmployees}</div>
-                    <p className="text-sm text-muted-foreground">Total ativos</p>
-                  </CardContent>
-                </Card>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                <StatCard
+                  title="Funcionários"
+                  value={stats.totalEmployees}
+                  description="Total ativos"
+                  icon={Users}
+                  gradient="bg-gradient-to-br from-card via-card to-accent/10 border border-accent/20 shadow-lg"
+                  iconBg="bg-gradient-to-br from-accent to-accent/70"
+                  onClick={setTabEmployees}
+                />
 
-                <Card className="group hover:shadow-xl transition-all duration-300 border-warning/20 bg-gradient-to-br from-card to-warning/5 cursor-pointer hover:scale-105" onClick={setTabCondominiums}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                    <CardTitle className="text-base font-semibold text-warning">Condomínios</CardTitle>
-                    <div className="w-12 h-12 bg-warning/10 rounded-xl flex items-center justify-center group-hover:bg-warning/20 transition-colors">
-                      <Building2 className="h-6 w-6 text-warning" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-foreground mb-1">{stats.totalCondominiums}</div>
-                    <p className="text-sm text-muted-foreground">Locais cadastrados</p>
-                  </CardContent>
-                </Card>
+                <StatCard
+                  title="Condomínios"
+                  value={stats.totalCondominiums}
+                  description="Locais cadastrados"
+                  icon={Building2}
+                  gradient="bg-gradient-to-br from-card via-card to-warning/10 border border-warning/20 shadow-lg"
+                  iconBg="bg-gradient-to-br from-warning to-warning/70"
+                  onClick={setTabCondominiums}
+                />
 
-                <Card className="group hover:shadow-xl transition-all duration-300 border-success/20 bg-gradient-to-br from-card to-success/5 cursor-pointer hover:scale-105" onClick={setTabWorkedLeaves}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                    <CardTitle className="text-base font-semibold text-success">Faturamento Total FT</CardTitle>
-                    <div className="w-12 h-12 bg-success/10 rounded-xl flex items-center justify-center group-hover:bg-success/20 transition-colors">
-                      <DollarSign className="h-6 w-6 text-success" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-foreground mb-1">{totalRevenue}</div>
-                    <p className="text-sm text-muted-foreground">Total acumulado de FTs</p>
-                  </CardContent>
-                </Card>
+                <StatCard
+                  title="Faturamento Total FT"
+                  value={totalRevenue}
+                  description="Total acumulado de FTs"
+                  icon={DollarSign}
+                  gradient="bg-gradient-to-br from-card via-card to-emerald-500/10 border border-emerald-500/20 shadow-lg"
+                  iconBg="bg-gradient-to-br from-emerald-500 to-emerald-600"
+                  onClick={setTabWorkedLeaves}
+                />
               </div>
             </div>
 
             {/* Quick Actions */}
-            <div className="space-y-6">
-              <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
-                <Plus className="h-6 w-6 text-primary" />
-                Ações Rápidas
-              </h2>
+            <div className="space-y-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
+                  <Plus className="h-5 w-5 text-white" />
+                </div>
+                <h2 className="text-xl font-bold text-foreground">Ações Rápidas</h2>
+              </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <Button className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 h-auto p-6 rounded-xl" onClick={handleNavigateFT}>
-                  <div className="flex items-center space-x-4 w-full">
-                    <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                      <Clock className="h-6 w-6 text-white" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <Button 
+                  className="group relative overflow-hidden bg-gradient-to-r from-primary via-primary to-primary/90 text-primary-foreground shadow-xl hover:shadow-2xl transition-all duration-500 h-auto p-5 rounded-2xl border-0" 
+                  onClick={handleNavigateFT}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                  <div className="flex items-center space-x-4 w-full relative z-10">
+                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                      <Clock className="h-6 w-6" />
                     </div>
-                    <div className="text-left">
-                      <div className="text-lg font-semibold text-white">Registrar FT</div>
-                      <div className="text-sm text-primary-foreground/90">Adicionar folga trabalhada</div>
+                    <div className="text-left flex-1">
+                      <div className="text-lg font-bold">Registrar FT</div>
+                      <div className="text-sm opacity-90">Adicionar folga trabalhada</div>
                     </div>
+                    <ChevronRight className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                   </div>
                 </Button>
 
-                <Button className="bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 h-auto p-6 rounded-xl" onClick={handleNavigateAbsence}>
-                  <div className="flex items-center space-x-4 w-full">
-                    <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                      <Calendar className="h-6 w-6 text-white" />
+                <Button 
+                  className="group relative overflow-hidden bg-gradient-to-r from-destructive via-destructive to-destructive/90 text-destructive-foreground shadow-xl hover:shadow-2xl transition-all duration-500 h-auto p-5 rounded-2xl border-0" 
+                  onClick={handleNavigateAbsence}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                  <div className="flex items-center space-x-4 w-full relative z-10">
+                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                      <Calendar className="h-6 w-6" />
                     </div>
-                    <div className="text-left">
-                      <div className="text-lg font-semibold text-white">Registrar Falta</div>
-                      <div className="text-sm text-destructive-foreground/90">Adicionar falta de funcionário</div>
+                    <div className="text-left flex-1">
+                      <div className="text-lg font-bold">Registrar Falta</div>
+                      <div className="text-sm opacity-90">Adicionar falta de funcionário</div>
                     </div>
+                    <ChevronRight className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                   </div>
                 </Button>
 
-                <Button className="bg-gradient-to-r from-accent to-accent/80 text-accent-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 h-auto p-6 rounded-xl" onClick={handleNavigateReports}>
-                  <div className="flex items-center space-x-4 w-full">
-                    <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                      <Download className="h-6 w-6 text-white" />
+                <Button 
+                  className="group relative overflow-hidden bg-gradient-to-r from-accent via-accent to-accent/90 text-accent-foreground shadow-xl hover:shadow-2xl transition-all duration-500 h-auto p-5 rounded-2xl border-0" 
+                  onClick={handleNavigateReports}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                  <div className="flex items-center space-x-4 w-full relative z-10">
+                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                      <Download className="h-6 w-6" />
                     </div>
-                    <div className="text-left">
-                      <div className="text-lg font-semibold text-white">Relatórios</div>
-                      <div className="text-sm text-accent-foreground/90">Gerar relatórios do sistema</div>
+                    <div className="text-left flex-1">
+                      <div className="text-lg font-bold">Relatórios</div>
+                      <div className="text-sm opacity-90">Gerar relatórios do sistema</div>
                     </div>
+                    <ChevronRight className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                   </div>
                 </Button>
               </div>
@@ -475,9 +511,10 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
         </Tabs>
       </div>
       
-      <BottomNav activeTab={activeTab} onChange={setActiveTab} />
-      <PWAInstallPrompt />
-    </div>
+        <BottomNav activeTab={activeTab} onChange={setActiveTab} />
+        <PWAInstallPrompt />
+      </div>
+    </>
   );
 });
 
