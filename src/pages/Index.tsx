@@ -89,11 +89,11 @@ const Index = () => {
           }, 0);
         }
       } else {
-        // Limpar estados quando deslogar
+        // Limpar estados quando deslogar (manter accessCodeVerified para não pedir novamente)
         setHasAccessCode(null);
         setHasCompanyCode(null);
         setCompanyName('');
-        localStorage.removeItem('accessCodeVerified');
+        // NÃO remover accessCodeVerified - manter para próximos logins
         localStorage.removeItem('companyCodeVerified');
         localStorage.removeItem('companyId');
         localStorage.removeItem('companyName');
@@ -176,11 +176,11 @@ const Index = () => {
         setHasAccessCode(null);
         setHasCompanyCode(null);
         setCompanyName('');
-        localStorage.removeItem('accessCodeVerified');
+        // NÃO remover accessCodeVerified - manter para próximos logins
         localStorage.removeItem('companyCodeVerified');
         localStorage.removeItem('companyId');
         localStorage.removeItem('companyName');
-      }} 
+      }}
       onGoHome={() => {}}
       companyName={companyName}
     />
