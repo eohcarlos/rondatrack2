@@ -1,4 +1,4 @@
-import { useState, useCallback, memo, useMemo } from 'react';
+import { useState, useCallback, memo, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
@@ -90,6 +90,17 @@ const DashboardHeader = memo(({
   onNavigateAdmin: () => void;
   onMenuOpen: () => void;
 }) => {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const getRoleLabel = (role: string) => {
     switch (role) {
       case 'gerente': return 'Gerente';
@@ -99,7 +110,11 @@ const DashboardHeader = memo(({
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/30 bg-background/60 backdrop-blur-xl">
+    <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+      isScrolled 
+        ? 'bg-background/70 backdrop-blur-xl shadow-lg border-b border-border/50' 
+        : 'bg-background/40 backdrop-blur-sm border-b border-transparent'
+    }`}>
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           <div className="flex items-center gap-3 lg:gap-4">
@@ -245,7 +260,7 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
           onMenuOpen={handleOpenSidebar}
         />
 
-      <div className={`container mx-auto px-4 lg:px-8 py-6 pb-24 sm:pb-8 space-y-8 overflow-x-hidden max-w-[1600px] transition-all duration-300`}>
+      <div className={`container mx-auto px-4 lg:px-8 pt-20 lg:pt-24 pb-24 sm:pb-8 space-y-8 overflow-x-hidden max-w-[1600px] transition-all duration-300`}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsContent value="dashboard" className="space-y-8 mt-0">
             <MainHeroCard companyName={companyName} userName={profile?.first_name} />
