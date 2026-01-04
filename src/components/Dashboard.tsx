@@ -6,7 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useNavigate } from 'react-router-dom';
 import { Menu, LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, Activity, TrendingUp, BarChart3, DollarSign, ChevronRight } from 'lucide-react';
 import { PWAInstallPrompt } from './PWAInstallPrompt';
-import { DailyPhrase } from './DailyPhrase';
+import { MainHeroCard } from './MainHeroCard';
 
 import { SidebarMenu } from './SidebarMenu';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -249,7 +249,7 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
       <div className={`container mx-auto px-4 lg:px-8 py-6 pb-24 sm:pb-8 space-y-8 overflow-x-hidden max-w-[1600px] transition-all duration-300`}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsContent value="dashboard" className="space-y-8 mt-0">
-            <DailyPhrase />
+            <MainHeroCard companyName={companyName} userName={profile?.first_name} />
 
             {/* Stats do Mês Atual */}
             <div className="space-y-5">
