@@ -451,8 +451,10 @@ export type Database = {
           created_by: string
           date: string
           employee_id: string
+          end_time: string | null
           id: string
           observations: string | null
+          start_time: string | null
           supervisor_id: string
           updated_at: string | null
           work_shift: string | null
@@ -464,8 +466,10 @@ export type Database = {
           created_by: string
           date: string
           employee_id: string
+          end_time?: string | null
           id?: string
           observations?: string | null
+          start_time?: string | null
           supervisor_id: string
           updated_at?: string | null
           work_shift?: string | null
@@ -477,8 +481,10 @@ export type Database = {
           created_by?: string
           date?: string
           employee_id?: string
+          end_time?: string | null
           id?: string
           observations?: string | null
+          start_time?: string | null
           supervisor_id?: string
           updated_at?: string | null
           work_shift?: string | null
