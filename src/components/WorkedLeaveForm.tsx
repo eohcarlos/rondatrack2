@@ -295,7 +295,20 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
 
             <div className="space-y-2">
               <Label htmlFor="workShift">Turno de Trabalho *</Label>
-              <Select value={workShift} onValueChange={setWorkShift} required>
+              <Select 
+                value={workShift} 
+                onValueChange={(value) => {
+                  setWorkShift(value);
+                  if (value === 'diurno') {
+                    setStartTime('06:00');
+                    setEndTime('18:00');
+                  } else if (value === 'noturno') {
+                    setStartTime('18:00');
+                    setEndTime('06:00');
+                  }
+                }} 
+                required
+              >
                 <SelectTrigger className="rounded-lg text-foreground">
                   <SelectValue placeholder="Selecione o turno" />
                 </SelectTrigger>
