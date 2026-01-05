@@ -468,11 +468,12 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
 
       // Tabela com colunas otimizadas para PDF portrait
       // Usar colunas reduzidas para caber em portrait
-      const pdfHeaders = ['Data', 'Nome', 'Cargo', 'Condomínio', reportType === 'ft' ? 'Valor' : 'Motivo', 'Observações'];
+      const pdfHeaders = ['Data', 'Nome', 'Cargo', 'Turno', 'Condomínio', reportType === 'ft' ? 'Valor' : 'Motivo', 'Obs.'];
       const pdfData = data.map(row => [
         row['Data'],
         row['Nome'],
         row['Cargo'],
+        row['Turno'] || '-',
         row['Condomínio'],
         reportType === 'ft' ? row['Valor'] : row['Motivo'],
         row['Observações']
@@ -483,8 +484,8 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         body: pdfData,
         startY: currentY,
         styles: {
-          fontSize: 8,
-          cellPadding: 3,
+          fontSize: 7,
+          cellPadding: 2,
         },
         headStyles: {
           fillColor: reportType === 'absences' ? [220, 53, 69] : [59, 130, 246],
@@ -495,12 +496,13 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
           fillColor: [245, 247, 250],
         },
         columnStyles: {
-          0: { cellWidth: 22 }, // Data
-          1: { cellWidth: 35 }, // Nome
-          2: { cellWidth: 25 }, // Cargo
-          3: { cellWidth: 35 }, // Condomínio
-          4: { cellWidth: 25 }, // Valor/Motivo
-          5: { cellWidth: 40 }, // Observações
+          0: { cellWidth: 20 }, // Data
+          1: { cellWidth: 30 }, // Nome
+          2: { cellWidth: 22 }, // Cargo
+          3: { cellWidth: 18 }, // Turno
+          4: { cellWidth: 30 }, // Condomínio
+          5: { cellWidth: 22 }, // Valor/Motivo
+          6: { cellWidth: 38 }, // Obs.
         },
       });
 
