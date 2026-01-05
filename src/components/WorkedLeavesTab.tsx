@@ -407,25 +407,6 @@ export const WorkedLeavesTab = memo(() => {
                 <p className="text-lg font-bold text-emerald-700 dark:text-emerald-400">R$ {totalCurrentMonth.toFixed(0)}</p>
               </div>
             </div>
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-2 bg-card/50 backdrop-blur-sm hover:bg-card">
-                  <Download className="h-4 w-4" />
-                  Exportar
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem onClick={exportToExcel} className="cursor-pointer">
-                  <Download className="h-4 w-4 mr-2" />
-                  Baixar em Excel (.xlsx)
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={exportToCSV} className="cursor-pointer">
-                  <Download className="h-4 w-4 mr-2" />
-                  Baixar em CSV (.csv)
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
         </div>
       </div>
