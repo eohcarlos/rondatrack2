@@ -38,6 +38,8 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
   const [observations, setObservations] = useState('');
   const [amount, setAmount] = useState('150');
   const [workShift, setWorkShift] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -168,6 +170,8 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
           observations,
           amount: amount ? parseFloat(amount) : null,
           work_shift: workShift,
+          start_time: startTime || null,
+          end_time: endTime || null,
           created_by: profile.id,
           company_id: companyId,
         });
@@ -300,6 +304,28 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
                   <SelectItem value="noturno">Noturno (18:00 - 06:00)</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="startTime">Horário de Início</Label>
+              <Input
+                id="startTime"
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                className="rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="endTime">Horário Final</Label>
+              <Input
+                id="endTime"
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                className="rounded-lg"
+              />
             </div>
           </div>
 
