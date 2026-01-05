@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Search, Calendar, User, MapPin, Eye, DollarSign, Download, Clock, Briefcase, MessageSquare, Sparkles, TrendingUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { EmployeeDetailsModal } from './EmployeeDetailsModal';
+import { WorkedLeaveDetailsModal } from './WorkedLeaveDetailsModal';
 import { getCurrentCompanyId } from '@/lib/company';
 import * as XLSX from 'xlsx';
 
@@ -18,6 +19,8 @@ interface WorkedLeave {
   observations: string | null;
   amount: number | null;
   work_shift: string | null;
+  start_time: string | null;
+  end_time: string | null;
   created_at: string;
   employee_id: string;
   employees: {
@@ -62,7 +65,7 @@ const WorkedLeaveCard = memo(({
   onViewDetails 
 }: { 
   item: WorkedLeave; 
-  onViewDetails: (id: string) => void;
+  onViewDetails: (item: WorkedLeave) => void;
 }) => (
   <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-card via-card to-emerald-500/5 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
     {/* Gradient overlay on hover */}
@@ -143,10 +146,10 @@ const WorkedLeaveCard = memo(({
         size="sm"
         variant="outline"
         className="w-full bg-background/50 backdrop-blur-sm hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all duration-300"
-        onClick={() => onViewDetails(item.employees.id)}
+        onClick={() => onViewDetails(item)}
       >
         <Eye className="h-4 w-4 mr-1.5" />
-        Ver Detalhes
+        Ver Detalhes da FT
       </Button>
     </CardContent>
   </Card>
@@ -163,6 +166,8 @@ export const WorkedLeavesTab = memo(() => {
   const [condominiums, setCondominiums] = useState<{id: string, name: string}[]>([]);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   const [showEmployeeModal, setShowEmployeeModal] = useState(false);
+  const [selectedWorkedLeave, setSelectedWorkedLeave] = useState<WorkedLeave | null>(null);
+  const [showWorkedLeaveModal, setShowWorkedLeaveModal] = useState(false);
   const { toast } = useToast();
   const mountedRef = useRef(true);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
@@ -285,9 +290,14 @@ export const WorkedLeavesTab = memo(() => {
   );
 
   // Callbacks
-  const handleViewDetails = useCallback((employeeId: string) => {
-    setSelectedEmployeeId(employeeId);
-    setShowEmployeeModal(true);
+  const handleViewDetails = useCallback((workedLeave: WorkedLeave) => {
+    setSelectedWorkedLeave(workedLeave);
+    setShowWorkedLeaveModal(true);
+  }, []);
+
+  const handleCloseWorkedLeaveModal = useCallback(() => {
+    setShowWorkedLeaveModal(false);
+    setSelectedWorkedLeave(null);
   }, []);
 
   const handleCloseModal = useCallback(() => {
@@ -522,6 +532,12 @@ export const WorkedLeavesTab = memo(() => {
           )}
         </CardContent>
       </Card>
+
+      <WorkedLeaveDetailsModal
+        isOpen={showWorkedLeaveModal}
+        onClose={handleCloseWorkedLeaveModal}
+        workedLeave={selectedWorkedLeave}
+      />
 
       <EmployeeDetailsModal
         employeeId={selectedEmployeeId}
