@@ -7,10 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Edit, Trash2, Search, Users, Phone, MapPin, Clock, Sparkles } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Users, Phone, MapPin, Clock, Sparkles, Eye } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { getCurrentCompanyId } from '@/lib/company';
 import { useEmployees, Employee } from '@/hooks/useEmployees';
+import { EmployeeDetailsModal } from './EmployeeDetailsModal';
 
 // Memoized helper functions
 const getShiftLabel = (shift: string) => {
@@ -33,11 +34,13 @@ const getShiftColor = (shift: string) => {
 const EmployeeCard = memo(({ 
   employee, 
   onEdit, 
-  onDelete 
+  onDelete,
+  onView
 }: { 
   employee: Employee; 
   onEdit: (employee: Employee) => void;
   onDelete: (id: string) => void;
+  onView: (id: string) => void;
 }) => (
   <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-card via-card to-muted/30 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
     {/* Gradient overlay on hover */}
@@ -56,15 +59,20 @@ const EmployeeCard = memo(({
             </span>
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="font-bold text-foreground truncate text-lg group-hover:text-primary transition-colors">
-              {employee.first_name} {employee.last_name}
-            </h3>
             <p className="text-sm text-muted-foreground font-medium">{employee.positions?.title}</p>
           </div>
         </div>
         <Badge className={`${getShiftColor(employee.shift)} shrink-0 px-3 py-1 text-xs font-semibold border-0`}>
           {getShiftLabel(employee.shift)}
         </Badge>
+      </div>
+
+      {/* Full Name */}
+      <div className="mb-4 p-3 rounded-xl bg-gradient-to-r from-primary/10 to-transparent border border-primary/20">
+        <p className="text-xs text-muted-foreground mb-1">Nome Completo</p>
+        <h3 className="font-bold text-foreground text-lg group-hover:text-primary transition-colors">
+          {employee.first_name} {employee.last_name}
+        </h3>
       </div>
       
       {/* Info grid */}
@@ -88,6 +96,15 @@ const EmployeeCard = memo(({
 
       {/* Actions */}
       <div className="flex items-center gap-2 pt-3 border-t border-border/50">
+        <Button 
+          size="sm" 
+          variant="outline" 
+          onClick={() => onView(employee.id)} 
+          className="flex-1 bg-background/50 backdrop-blur-sm hover:bg-accent hover:text-accent-foreground transition-all duration-300"
+        >
+          <Eye className="h-4 w-4 mr-1.5" />
+          Ver
+        </Button>
         <Button 
           size="sm" 
           variant="outline" 
@@ -117,6 +134,8 @@ export const EmployeeManagement = memo(() => {
   const [condominiumFilter, setCondominiumFilter] = useState('all');
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
+  const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
@@ -418,12 +437,25 @@ export const EmployeeManagement = memo(() => {
               <EmployeeCard 
                 employee={employee} 
                 onEdit={handleEdit} 
-                onDelete={handleDelete} 
+                onDelete={handleDelete}
+                onView={(id) => {
+                  setSelectedEmployeeId(id);
+                  setShowEmployeeModal(true);
+                }}
               />
             </div>
           ))}
         </div>
       )}
+
+      <EmployeeDetailsModal
+        employeeId={selectedEmployeeId}
+        isOpen={showEmployeeModal}
+        onClose={() => {
+          setShowEmployeeModal(false);
+          setSelectedEmployeeId(null);
+        }}
+      />
     </div>
   );
 });
