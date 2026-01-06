@@ -301,39 +301,23 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
               userName={profile?.first_name}
             />
 
-            {/* Quick Actions - Separate Section */}
-            <div className="grid grid-cols-2 gap-4">
-              <Card 
-                className="relative overflow-hidden border-0 rounded-3xl bg-gradient-to-br from-primary to-primary/80 shadow-xl cursor-pointer hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group"
+            {/* Quick Actions - Compact Premium Buttons */}
+            <div className="grid grid-cols-2 gap-3">
+              <button 
                 onClick={handleNavigateFT}
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-gradient-to-r from-primary to-primary/80 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98]"
               >
-                <CardContent className="p-5 flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                    <Clock className="h-7 w-7 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-white text-lg">Registrar FT</h3>
-                    <p className="text-white/70 text-xs">Folga trabalhada</p>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-white/60 group-hover:translate-x-1 transition-transform" />
-                </CardContent>
-              </Card>
+                <Plus className="h-4 w-4" />
+                <span>Registrar FT</span>
+              </button>
 
-              <Card 
-                className="relative overflow-hidden border-0 rounded-3xl bg-gradient-to-br from-destructive to-destructive/80 shadow-xl cursor-pointer hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group"
+              <button 
                 onClick={handleNavigateAbsence}
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-gradient-to-r from-destructive to-destructive/80 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98]"
               >
-                <CardContent className="p-5 flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                    <Calendar className="h-7 w-7 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-white text-lg">Registrar Falta</h3>
-                    <p className="text-white/70 text-xs">Ausência do dia</p>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-white/60 group-hover:translate-x-1 transition-transform" />
-                </CardContent>
-              </Card>
+                <Plus className="h-4 w-4" />
+                <span>Registrar Falta</span>
+              </button>
             </div>
 
             {/* Stats Grid - Premium Rounded Cards */}
