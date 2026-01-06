@@ -5,11 +5,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Calendar, User, MapPin, Eye, DollarSign, Download, Clock, Briefcase, MessageSquare, Sparkles, TrendingUp } from 'lucide-react';
+import { Search, Calendar, User, MapPin, Eye, DollarSign, Download, Clock, Briefcase, MessageSquare, Sparkles, TrendingUp, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { EmployeeDetailsModal } from './EmployeeDetailsModal';
 import { WorkedLeaveDetailsModal } from './WorkedLeaveDetailsModal';
+import { WorkedLeaveForm } from './WorkedLeaveForm';
 import { getCurrentCompanyId } from '@/lib/company';
 import * as XLSX from 'xlsx';
 
@@ -168,6 +170,7 @@ export const WorkedLeavesTab = memo(() => {
   const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const [selectedWorkedLeave, setSelectedWorkedLeave] = useState<WorkedLeave | null>(null);
   const [showWorkedLeaveModal, setShowWorkedLeaveModal] = useState(false);
+  const [showNewFTDialog, setShowNewFTDialog] = useState(false);
   const { toast } = useToast();
   const mountedRef = useRef(true);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
@@ -400,6 +403,13 @@ export const WorkedLeavesTab = memo(() => {
             </div>
           </div>
 
+          <Button 
+            onClick={() => setShowNewFTDialog(true)}
+            className="bg-white text-emerald-700 hover:bg-white/90 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 font-semibold px-6"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Nova FT
+          </Button>
         </div>
 
         {/* Stats row inside header */}
@@ -535,6 +545,18 @@ export const WorkedLeavesTab = memo(() => {
         isOpen={showEmployeeModal}
         onClose={handleCloseModal}
       />
+
+      <Dialog open={showNewFTDialog} onOpenChange={setShowNewFTDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <WorkedLeaveForm 
+            onClose={() => setShowNewFTDialog(false)} 
+            onSuccess={() => {
+              setShowNewFTDialog(false);
+              loadData();
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 });
