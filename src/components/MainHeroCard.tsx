@@ -61,37 +61,65 @@ export const MainHeroCard = memo(({ companyName, userName }: MainHeroCardProps) 
         />
       </div>
 
-      <CardContent className="relative p-5 lg:p-6">
-        <div className="flex items-center gap-5">
-          {/* Greeting icon */}
-          <div className={`w-14 h-14 lg:w-16 lg:h-16 rounded-full bg-gradient-to-br ${greeting.color} flex items-center justify-center shadow-xl ring-2 ring-white/20 flex-shrink-0`}>
-            <GreetingIcon className="h-7 w-7 lg:h-8 lg:w-8 text-white drop-shadow-lg" />
+      <CardContent className="relative p-4 sm:p-5 lg:p-6">
+        {/* Mobile: Stack layout / Desktop: Row layout */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5">
+          {/* Top row on mobile: Icon + Time */}
+          <div className="flex items-center justify-between sm:contents">
+            {/* Greeting icon */}
+            <div className={`w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full bg-gradient-to-br ${greeting.color} flex items-center justify-center shadow-xl ring-2 ring-white/20 flex-shrink-0`}>
+              <GreetingIcon className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white drop-shadow-lg" />
+            </div>
+
+            {/* Time Display - visible on mobile in top row */}
+            <div className="flex flex-col items-end sm:hidden">
+              <div className="flex items-baseline">
+                <span className="text-2xl font-bold text-white font-mono tabular-nums">
+                  {formattedTime.slice(0, 5)}
+                </span>
+                <span className="text-sm font-medium text-white/40 font-mono tabular-nums">
+                  {formattedTime.slice(5)}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400"></span>
+                </span>
+                <span className="text-white/40 text-[10px]">Online</span>
+              </div>
+            </div>
           </div>
 
-          {/* Content */}
+          {/* Content - User info and date */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <p className="text-white/60 text-xs font-medium uppercase tracking-wider">{greeting.text}</p>
+            <div className="flex items-center gap-2 mb-0.5">
+              <p className="text-white/60 text-[11px] sm:text-xs font-medium uppercase tracking-wider">{greeting.text}</p>
               {companyName && (
                 <>
-                  <span className="w-1 h-1 bg-white/30 rounded-full" />
-                  <span className="text-white/50 text-xs truncate">{companyName}</span>
+                  <span className="w-1 h-1 bg-white/30 rounded-full hidden sm:block" />
+                  <span className="text-white/50 text-[11px] sm:text-xs truncate hidden sm:block max-w-[120px]">{companyName}</span>
                 </>
               )}
             </div>
-            <h2 className="text-white text-lg lg:text-xl font-bold tracking-tight truncate">
+            <h2 className="text-white text-base sm:text-lg lg:text-xl font-bold tracking-tight">
               {userName || 'Usuário'} 👋
             </h2>
             
-            {/* Date */}
-            <div className="flex items-center gap-2 mt-1.5 text-white/60 text-sm">
-              <Calendar className="h-3.5 w-3.5" />
-              <span>{capitalizedDate}, {formattedYear}</span>
+            {/* Date + Company on mobile */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-1">
+              <div className="flex items-center gap-1.5 text-white/60 text-xs sm:text-sm">
+                <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0" />
+                <span className="truncate">{capitalizedDate}, {formattedYear}</span>
+              </div>
+              {companyName && (
+                <span className="text-white/50 text-[11px] truncate sm:hidden">{companyName}</span>
+              )}
             </div>
           </div>
 
-          {/* Time Display */}
-          <div className="flex flex-col items-end flex-shrink-0">
+          {/* Time Display - Desktop only */}
+          <div className="hidden sm:flex flex-col items-end flex-shrink-0">
             <div className="flex items-baseline">
               <span className="text-3xl lg:text-4xl font-bold text-white font-mono tabular-nums">
                 {formattedTime.slice(0, 5)}
