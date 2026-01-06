@@ -213,29 +213,19 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
         <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-white/10 rounded-full blur-2xl" />
         
         <div className="relative px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-                <Clock className="h-7 w-7 text-white" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-2xl font-bold text-white">Registrar FT</h2>
-                  <Sparkles className="h-5 w-5 text-yellow-300" />
-                </div>
-                <p className="text-white/80 text-sm mt-0.5">
-                  Adicione uma folga trabalhada ao sistema
-                </p>
-              </div>
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
+              <Clock className="h-7 w-7 text-white" />
             </div>
-            <Button 
-              onClick={onClose} 
-              variant="ghost" 
-              size="icon"
-              className="text-white hover:bg-white/20 rounded-xl h-10 w-10"
-            >
-              <X className="h-5 w-5" />
-            </Button>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-2xl font-bold text-white">Registrar FT</h2>
+                <Sparkles className="h-5 w-5 text-yellow-300" />
+              </div>
+              <p className="text-white/80 text-sm mt-0.5">
+                Adicione uma folga trabalhada ao sistema
+              </p>
+            </div>
           </div>
         </div>
       </div>
