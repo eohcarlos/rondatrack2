@@ -294,178 +294,152 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
 
       <div className={`container mx-auto px-4 lg:px-8 pt-20 lg:pt-24 pb-24 sm:pb-8 space-y-8 overflow-x-hidden max-w-[1600px] transition-all duration-300`}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsContent value="dashboard" className="space-y-8 mt-0">
-            <MainHeroCard companyName={companyName} userName={profile?.first_name} />
-
-            {/* Stats do Mês Atual */}
-            <div className="space-y-5">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
-                  <TrendingUp className="h-5 w-5 text-white" />
+          <TabsContent value="dashboard" className="space-y-6 mt-0">
+            {/* Welcome + Quick Actions - Hero Section */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary to-primary/80 p-6 lg:p-8 text-primary-foreground shadow-2xl">
+              <div className="absolute inset-0 bg-white/5 opacity-50" />
+              <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
+              <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
+              <div className="relative z-10">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                  <div>
+                    <p className="text-primary-foreground/80 text-sm font-medium mb-1">
+                      Bem-vindo de volta
+                    </p>
+                    <h1 className="text-2xl lg:text-3xl font-bold mb-2">
+                      {profile?.first_name || 'Usuário'}! 👋
+                    </h1>
+                    <p className="text-primary-foreground/70 text-sm">
+                      {companyName || 'Gerencie sua equipe com eficiência'}
+                    </p>
+                  </div>
+                  
+                  {/* Quick Actions - Prominent */}
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button 
+                      onClick={handleNavigateFT}
+                      className="bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-sm h-12 px-6 rounded-xl font-semibold transition-all hover:scale-105 shadow-lg"
+                    >
+                      <Clock className="h-5 w-5 mr-2" />
+                      Registrar FT
+                    </Button>
+                    <Button 
+                      onClick={handleNavigateAbsence}
+                      className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm h-12 px-6 rounded-xl font-semibold transition-all hover:scale-105"
+                    >
+                      <Calendar className="h-5 w-5 mr-2" />
+                      Registrar Falta
+                    </Button>
+                  </div>
                 </div>
-                <h2 className="text-xl font-bold text-foreground">Estatísticas do Mês</h2>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                <StatCard
-                  title="FTs do Mês"
-                  value={stats.monthlyWorkedLeaves}
-                  description="Folgas trabalhadas registradas"
-                  icon={Clock}
-                  gradient="bg-gradient-to-br from-card via-card to-primary/10 border border-primary/20 shadow-lg"
-                  iconBg="bg-gradient-to-br from-primary to-primary/70"
-                />
-
-                <StatCard
-                  title="Faltas do Mês"
-                  value={stats.monthlyAbsences}
-                  description="Faltas registradas no período"
-                  icon={Calendar}
-                  gradient="bg-gradient-to-br from-card via-card to-destructive/10 border border-destructive/20 shadow-lg"
-                  iconBg="bg-gradient-to-br from-destructive to-destructive/70"
-                />
-
-                <StatCard
-                  title="Faturamento FT Mês"
-                  value={monthlyRevenue}
-                  description="Total em folgas trabalhadas"
-                  icon={DollarSign}
-                  gradient="bg-gradient-to-br from-card via-card to-emerald-500/10 border border-emerald-500/20 shadow-lg"
-                  iconBg="bg-gradient-to-br from-emerald-500 to-emerald-600"
-                />
               </div>
             </div>
 
-            {/* Stats do Mês Anterior */}
-            <div className="space-y-5">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-muted-foreground/50 to-muted-foreground/30 flex items-center justify-center">
-                  <Activity className="h-5 w-5 text-white" />
-                </div>
-                <h2 className="text-xl font-bold text-foreground">Mês Anterior</h2>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <StatCard
-                  title="FTs do Mês Anterior"
-                  value={stats.previousMonthWorkedLeaves}
-                  description="Folgas trabalhadas no mês passado"
-                  icon={Clock}
-                  gradient="bg-gradient-to-br from-card via-card to-muted/50 border border-border/50 shadow-md"
-                  iconBg="bg-gradient-to-br from-primary/70 to-primary/50"
-                />
+            {/* Stats Grid - Compact Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* FTs do Mês */}
+              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-card to-primary/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-md">
+                      <Clock className="h-5 w-5 text-white" />
+                    </div>
+                    <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">Este mês</span>
+                  </div>
+                  <p className="text-2xl lg:text-3xl font-bold text-foreground">{stats.monthlyWorkedLeaves}</p>
+                  <p className="text-xs text-muted-foreground mt-1">FTs registradas</p>
+                </CardContent>
+              </Card>
 
-                <StatCard
-                  title="Faltas do Mês Anterior"
-                  value={stats.previousMonthAbsences}
-                  description="Faltas registradas no mês passado"
-                  icon={Calendar}
-                  gradient="bg-gradient-to-br from-card via-card to-muted/50 border border-border/50 shadow-md"
-                  iconBg="bg-gradient-to-br from-destructive/70 to-destructive/50"
-                />
-              </div>
+              {/* Faltas do Mês */}
+              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-card to-destructive/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-destructive to-destructive/70 flex items-center justify-center shadow-md">
+                      <Calendar className="h-5 w-5 text-white" />
+                    </div>
+                    <span className="text-xs font-medium text-destructive bg-destructive/10 px-2 py-1 rounded-full">Este mês</span>
+                  </div>
+                  <p className="text-2xl lg:text-3xl font-bold text-foreground">{stats.monthlyAbsences}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Faltas registradas</p>
+                </CardContent>
+              </Card>
+
+              {/* Faturamento do Mês */}
+              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-card to-emerald-500/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-md">
+                      <DollarSign className="h-5 w-5 text-white" />
+                    </div>
+                    <span className="text-xs font-medium text-emerald-600 bg-emerald-500/10 px-2 py-1 rounded-full">Este mês</span>
+                  </div>
+                  <p className="text-xl lg:text-2xl font-bold text-foreground">{monthlyRevenue}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Faturamento FT</p>
+                </CardContent>
+              </Card>
+
+              {/* Funcionários */}
+              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-card to-accent/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center shadow-md">
+                      <Users className="h-5 w-5 text-white" />
+                    </div>
+                    <span className="text-xs font-medium text-accent bg-accent/10 px-2 py-1 rounded-full">Total</span>
+                  </div>
+                  <p className="text-2xl lg:text-3xl font-bold text-foreground">{stats.totalEmployees}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Funcionários ativos</p>
+                </CardContent>
+              </Card>
             </div>
 
-            {/* Stats Gerais */}
-            <div className="space-y-5">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center shadow-lg">
-                  <BarChart3 className="h-5 w-5 text-white" />
-                </div>
-                <h2 className="text-xl font-bold text-foreground">Estatísticas Gerais</h2>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                <StatCard
-                  title="Funcionários"
-                  value={stats.totalEmployees}
-                  description="Total ativos"
-                  icon={Users}
-                  gradient="bg-gradient-to-br from-card via-card to-accent/10 border border-accent/20 shadow-lg"
-                  iconBg="bg-gradient-to-br from-accent to-accent/70"
-                />
-
-                <StatCard
-                  title="Condomínios"
-                  value={stats.totalCondominiums}
-                  description="Locais cadastrados"
-                  icon={Building2}
-                  gradient="bg-gradient-to-br from-card via-card to-warning/10 border border-warning/20 shadow-lg"
-                  iconBg="bg-gradient-to-br from-warning to-warning/70"
-                />
-
-                <StatCard
-                  title="Faturamento Total FT"
-                  value={totalRevenue}
-                  description="Total acumulado de FTs"
-                  icon={DollarSign}
-                  gradient="bg-gradient-to-br from-card via-card to-emerald-500/10 border border-emerald-500/20 shadow-lg"
-                  iconBg="bg-gradient-to-br from-emerald-500 to-emerald-600"
-                />
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="space-y-5">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
-                  <Plus className="h-5 w-5 text-white" />
-                </div>
-                <h2 className="text-xl font-bold text-foreground">Ações Rápidas</h2>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                <Button 
-                  className="group relative overflow-hidden bg-gradient-to-r from-primary via-primary to-primary/90 text-primary-foreground shadow-xl hover:shadow-2xl transition-all duration-500 h-auto p-5 rounded-2xl border-0" 
-                  onClick={handleNavigateFT}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                  <div className="flex items-center space-x-4 w-full relative z-10">
-                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                      <Clock className="h-6 w-6" />
+            {/* Secondary Stats + Actions Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* Left: More Stats */}
+              <Card className="lg:col-span-2 border-0 bg-card/50 backdrop-blur-sm shadow-lg">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base font-semibold flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-muted-foreground" />
+                    Resumo Geral
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div className="text-center p-3 rounded-xl bg-muted/30">
+                      <p className="text-xl font-bold text-foreground">{stats.previousMonthWorkedLeaves}</p>
+                      <p className="text-xs text-muted-foreground">FTs mês anterior</p>
                     </div>
-                    <div className="text-left flex-1">
-                      <div className="text-lg font-bold">Registrar FT</div>
-                      <div className="text-sm opacity-90">Adicionar folga trabalhada</div>
+                    <div className="text-center p-3 rounded-xl bg-muted/30">
+                      <p className="text-xl font-bold text-foreground">{stats.previousMonthAbsences}</p>
+                      <p className="text-xs text-muted-foreground">Faltas mês anterior</p>
                     </div>
-                    <ChevronRight className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                    <div className="text-center p-3 rounded-xl bg-muted/30">
+                      <p className="text-xl font-bold text-foreground">{stats.totalCondominiums}</p>
+                      <p className="text-xs text-muted-foreground">Condomínios</p>
+                    </div>
+                    <div className="text-center p-3 rounded-xl bg-muted/30">
+                      <p className="text-lg font-bold text-foreground">{totalRevenue}</p>
+                      <p className="text-xs text-muted-foreground">Fat. Total FT</p>
+                    </div>
                   </div>
-                </Button>
+                </CardContent>
+              </Card>
 
-                <Button 
-                  className="group relative overflow-hidden bg-gradient-to-r from-destructive via-destructive to-destructive/90 text-destructive-foreground shadow-xl hover:shadow-2xl transition-all duration-500 h-auto p-5 rounded-2xl border-0" 
-                  onClick={handleNavigateAbsence}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                  <div className="flex items-center space-x-4 w-full relative z-10">
-                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                      <Calendar className="h-6 w-6" />
-                    </div>
-                    <div className="text-left flex-1">
-                      <div className="text-lg font-bold">Registrar Falta</div>
-                      <div className="text-sm opacity-90">Adicionar falta de funcionário</div>
-                    </div>
-                    <ChevronRight className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+              {/* Right: Quick Link */}
+              <Card 
+                className="border-0 bg-gradient-to-br from-accent/10 to-accent/5 shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
+                onClick={handleNavigateReports}
+              >
+                <CardContent className="p-6 flex flex-col items-center justify-center h-full text-center">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center shadow-lg mb-4 group-hover:scale-110 transition-transform">
+                    <Download className="h-7 w-7 text-white" />
                   </div>
-                </Button>
-
-                <Button 
-                  className="group relative overflow-hidden bg-gradient-to-r from-accent via-accent to-accent/90 text-accent-foreground shadow-xl hover:shadow-2xl transition-all duration-500 h-auto p-5 rounded-2xl border-0" 
-                  onClick={handleNavigateReports}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                  <div className="flex items-center space-x-4 w-full relative z-10">
-                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                      <Download className="h-6 w-6" />
-                    </div>
-                    <div className="text-left flex-1">
-                      <div className="text-lg font-bold">Relatórios</div>
-                      <div className="text-sm opacity-90">Gerar relatórios do sistema</div>
-                    </div>
-                    <ChevronRight className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                  </div>
-                </Button>
-              </div>
+                  <h3 className="font-bold text-foreground mb-1">Relatórios</h3>
+                  <p className="text-xs text-muted-foreground">Gerar e exportar dados</p>
+                  <ChevronRight className="h-5 w-5 text-accent mt-3 group-hover:translate-x-1 transition-transform" />
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 
