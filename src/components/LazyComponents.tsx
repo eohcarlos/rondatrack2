@@ -29,9 +29,10 @@ export const LazyCondominiumManagement = lazy(() =>
   import('./CondominiumManagement').then(m => ({ default: m.CondominiumManagement }))
 );
 
-export const LazyPositionManagement = lazy(() => 
-  import('./PositionManagement').then(m => ({ default: m.PositionManagement }))
-);
+export const LazyPositionManagement = lazy(async () => {
+  const module = await import('./PositionManagement');
+  return { default: module.PositionManagement };
+});
 
 export const LazyWorkedLeavesTab = lazy(() => 
   import('./WorkedLeavesTab').then(m => ({ default: m.WorkedLeavesTab }))
