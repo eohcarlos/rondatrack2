@@ -328,26 +328,23 @@ export const CondominiumManagement = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header Premium */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 p-6">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-2xl" />
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-primary/15 to-transparent rounded-full blur-xl" />
+      {/* Premium Header Card */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 p-6 sm:p-8 shadow-2xl shadow-blue-500/20">
+        {/* Decorative elements */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iNCIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
+        <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-white/10 rounded-full blur-2xl" />
         
-        <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-5">
           <div className="flex items-center gap-4">
-            <div className="relative">
-              <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/25">
-                <Building2 className="h-7 w-7 text-primary-foreground" />
-              </div>
-              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-emerald-500 ring-2 ring-background flex items-center justify-center">
-                <span className="text-[8px] text-white font-bold">{condominiums.length}</span>
-              </span>
+            <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-xl ring-4 ring-white/20">
+              <Building2 className="h-8 w-8 text-white" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-foreground">
-                Gestão de Condomínios
+              <h2 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-2">
+                Condomínios
               </h2>
-              <p className="text-muted-foreground text-sm">Gerencie os condomínios do sistema</p>
+              <p className="text-white/70 text-sm sm:text-base">Gerencie os condomínios do sistema</p>
             </div>
           </div>
 
@@ -358,13 +355,13 @@ export const CondominiumManagement = () => {
                   resetForm();
                   setEditingCondominium(null);
                 }}
-                className="rounded-xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-200"
+                className="bg-white text-blue-600 hover:bg-white/90 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 font-semibold px-6"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Novo Condomínio
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md rounded-2xl">
+            <DialogContent className="max-w-md rounded-2xl border-0 shadow-2xl bg-card">
               <DialogHeader>
                 <DialogTitle className="text-xl">
                   {editingCondominium ? 'Editar Condomínio' : 'Novo Condomínio'}
@@ -382,7 +379,7 @@ export const CondominiumManagement = () => {
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                     placeholder="Ex: Condomínio Jardim das Flores"
-                    className="rounded-xl"
+                    className="rounded-xl h-11"
                     required
                   />
                 </div>
@@ -400,7 +397,7 @@ export const CondominiumManagement = () => {
                 </div>
 
                 <div className="flex gap-2 pt-4">
-                  <Button type="submit" disabled={submitting} className="flex-1 rounded-xl">
+                  <Button type="submit" disabled={submitting} className="flex-1 rounded-xl h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
                     {submitting ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -410,7 +407,7 @@ export const CondominiumManagement = () => {
                       editingCondominium ? 'Atualizar' : 'Cadastrar'
                     )}
                   </Button>
-                  <Button type="button" variant="outline" onClick={() => setShowAddForm(false)} className="rounded-xl">
+                  <Button type="button" variant="outline" onClick={() => setShowAddForm(false)} className="rounded-xl h-11">
                     Cancelar
                   </Button>
                 </div>
@@ -418,18 +415,30 @@ export const CondominiumManagement = () => {
             </DialogContent>
           </Dialog>
         </div>
+
+        {/* Stats row inside header */}
+        <div className="relative grid grid-cols-2 gap-3 mt-6 pt-6 border-t border-white/20">
+          <div className="text-center">
+            <p className="text-3xl font-bold text-white">{condominiums.length}</p>
+            <p className="text-white/60 text-xs mt-1">Total</p>
+          </div>
+          <div className="text-center border-l border-white/20">
+            <p className="text-3xl font-bold text-white">
+              {condominiums.reduce((sum, c) => sum + (c.employee_count || 0), 0)}
+            </p>
+            <p className="text-white/60 text-xs mt-1">Funcionários</p>
+          </div>
+        </div>
       </div>
 
       {/* Search Bar Premium */}
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <Search className="h-4 w-4 text-muted-foreground" />
-        </div>
+      <div className="relative max-w-md">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input
           placeholder="Buscar condomínios..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10 max-w-md rounded-xl border-border/50 bg-card/50 backdrop-blur-sm focus:bg-card transition-colors"
+          className="pl-12 h-12 bg-card border-0 shadow-lg rounded-2xl text-base"
         />
       </div>
 
