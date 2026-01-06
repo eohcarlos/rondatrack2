@@ -400,25 +400,6 @@ export const WorkedLeavesTab = memo(() => {
             </div>
           </div>
 
-          {/* Export Button */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="bg-white text-emerald-700 hover:bg-white/90 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 font-semibold px-6">
-                <Download className="h-4 w-4 mr-2" />
-                Exportar
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={exportToExcel} className="cursor-pointer">
-                <Download className="h-4 w-4 mr-2" />
-                Exportar Excel
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={exportToCSV} className="cursor-pointer">
-                <Download className="h-4 w-4 mr-2" />
-                Exportar CSV
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
 
         {/* Stats row inside header */}
