@@ -539,26 +539,35 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
   };
 
   return (
-    <Card className="border-0 shadow-2xl">
-      <CardHeader className="bg-gradient-to-r from-primary to-primary/80 text-white">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Download className="h-6 w-6" />
+    <div className="space-y-6">
+      {/* Premium Header Card */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 p-6 sm:p-8 shadow-2xl shadow-purple-500/20">
+        {/* Decorative elements */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iNCIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
+        <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-white/10 rounded-full blur-2xl" />
+        
+        <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-5">
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-xl ring-4 ring-white/20">
+              <Download className="h-8 w-8 text-white" />
+            </div>
             <div>
-              <CardTitle className="text-xl">Exportar Relatórios</CardTitle>
-              <CardDescription className="text-primary-foreground/90">
-                Gere relatórios detalhados com filtros personalizados
-              </CardDescription>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">
+                Exportar Relatórios
+              </h2>
+              <p className="text-white/70 text-sm sm:text-base">Gere relatórios detalhados com filtros</p>
             </div>
           </div>
-          <Button onClick={onClose} variant="ghost" size="sm" className="text-white hover:bg-white/20">
-            <X className="h-4 w-4" />
+          <Button onClick={onClose} variant="ghost" size="sm" className="text-white hover:bg-white/20 rounded-xl">
+            <X className="h-5 w-5" />
           </Button>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="p-6">
-        <div className="space-y-6">
+      <Card className="border-0 shadow-xl rounded-3xl bg-card">
+        <CardContent className="p-6">
+          <div className="space-y-6">
           {/* Tipo de Relatório */}
           <div className="space-y-4">
             <Label className="text-base font-medium">Tipo de Relatório</Label>
@@ -803,8 +812,9 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
               {isLoading ? "Exportando..." : exportAllEmployees ? "Exportar Todos" : "Exportar Relatório"}
             </Button>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
