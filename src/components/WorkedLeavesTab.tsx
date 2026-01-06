@@ -547,7 +547,7 @@ export const WorkedLeavesTab = memo(() => {
       />
 
       <Dialog open={showNewFTDialog} onOpenChange={setShowNewFTDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 [&>button]:hidden">
           <WorkedLeaveForm 
             onClose={() => setShowNewFTDialog(false)} 
             onSuccess={() => {
