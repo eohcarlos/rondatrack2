@@ -5,9 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { X, Clock } from 'lucide-react';
+import { X, Clock, User, Calendar, DollarSign, Sun, Moon, FileText, Users, Sparkles } from 'lucide-react';
 import { getCurrentCompanyId } from '@/lib/company';
 
 interface WorkedLeaveFormProps {
@@ -141,10 +140,8 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
 
       if (!profile) throw new Error('Perfil não encontrado');
 
-      // Usar string local YYYY-MM-DD para evitar fuso horário
       const ymdDate = date;
 
-      // Verificar se já existe um registro para este funcionário na mesma data
       const { data: existing } = await supabase
         .from('worked_leaves')
         .select('id')
@@ -197,48 +194,73 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
   };
 
   const getShiftLabel = (shift: string) => {
-    const shifts = {
+    const shifts: Record<string, string> = {
       manha: 'Manhã',
       noite: 'Noite'
     };
-    return shifts[shift as keyof typeof shifts] || shift;
+    return shifts[shift] || shift;
   };
 
   return (
-    <Card className="border-0 shadow-2xl rounded-xl">
-      <CardHeader className="bg-gradient-to-r from-accent to-accent/80 text-white rounded-t-xl">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Clock className="h-6 w-6" />
-            <div>
-              <CardTitle className="text-xl">Registrar Folga Trabalhada (FT)</CardTitle>
-              <CardDescription className="text-accent-foreground/90">
-                Adicione uma folga trabalhada ao sistema
-              </CardDescription>
+    <div className="relative overflow-hidden rounded-2xl bg-card border border-border/50 shadow-2xl">
+      {/* Premium Header */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 via-teal-500 to-cyan-500" />
+        <div className="absolute inset-0 opacity-40" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+        }} />
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-white/10 rounded-full blur-2xl" />
+        
+        <div className="relative px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
+                <Clock className="h-7 w-7 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-2xl font-bold text-white">Registrar FT</h2>
+                  <Sparkles className="h-5 w-5 text-yellow-300" />
+                </div>
+                <p className="text-white/80 text-sm mt-0.5">
+                  Adicione uma folga trabalhada ao sistema
+                </p>
+              </div>
             </div>
+            <Button 
+              onClick={onClose} 
+              variant="ghost" 
+              size="icon"
+              className="text-white hover:bg-white/20 rounded-xl h-10 w-10"
+            >
+              <X className="h-5 w-5" />
+            </Button>
           </div>
-          <Button onClick={onClose} variant="ghost" size="sm" className="text-white hover:bg-white/20">
-            <X className="h-4 w-4" />
-          </Button>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="p-6">
+      {/* Form Content */}
+      <div className="p-6 bg-gradient-to-b from-background to-muted/30">
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Employee & Date Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="space-y-2">
-              <Label htmlFor="employee">Funcionário *</Label>
+              <Label htmlFor="employee" className="flex items-center gap-2 text-sm font-medium">
+                <User className="h-4 w-4 text-emerald-500" />
+                Funcionário *
+              </Label>
               <Select value={selectedEmployee} onValueChange={setSelectedEmployee} required>
-                  <SelectTrigger className="rounded-lg text-foreground">
+                <SelectTrigger className="h-12 rounded-xl border-border/50 bg-background/80 backdrop-blur-sm hover:border-emerald-500/50 transition-colors">
                   <SelectValue placeholder="Selecione o funcionário" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="rounded-xl">
                   {employees.map((employee) => (
-                    <SelectItem key={employee.id} value={employee.id}>
-                      <div className="flex flex-col">
+                    <SelectItem key={employee.id} value={employee.id} className="rounded-lg">
+                      <div className="flex flex-col py-1">
                         <span className="font-medium">{employee.name}</span>
                         <span className="text-xs text-muted-foreground">
-                          {employee.positions?.title} - {employee.condominiums?.name} - {getShiftLabel(employee.shift)}
+                          {employee.positions?.title} • {employee.condominiums?.name} • {getShiftLabel(employee.shift)}
                         </span>
                       </div>
                     </SelectItem>
@@ -248,27 +270,36 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="date">Data *</Label>
+              <Label htmlFor="date" className="flex items-center gap-2 text-sm font-medium">
+                <Calendar className="h-4 w-4 text-emerald-500" />
+                Data *
+              </Label>
               <Input
                 id="date"
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 required
-                className="rounded-lg"
+                className="h-12 rounded-xl border-border/50 bg-background/80 backdrop-blur-sm hover:border-emerald-500/50 transition-colors"
               />
             </div>
+          </div>
 
+          {/* Supervisor & Amount Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="space-y-2">
-              <Label htmlFor="supervisor">Supervisor do Dia *</Label>
+              <Label htmlFor="supervisor" className="flex items-center gap-2 text-sm font-medium">
+                <Users className="h-4 w-4 text-emerald-500" />
+                Supervisor do Dia *
+              </Label>
               <Select value={supervisorId} onValueChange={setSupervisorId} required>
-                <SelectTrigger className="rounded-lg text-foreground">
+                <SelectTrigger className="h-12 rounded-xl border-border/50 bg-background/80 backdrop-blur-sm hover:border-emerald-500/50 transition-colors">
                   <SelectValue placeholder="Selecione o supervisor" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="rounded-xl">
                   {supervisors.map((supervisor) => (
-                    <SelectItem key={supervisor.id} value={supervisor.id}>
-                      <div className="flex flex-col">
+                    <SelectItem key={supervisor.id} value={supervisor.id} className="rounded-lg">
+                      <div className="flex flex-col py-1">
                         <span className="font-medium">{supervisor.name}</span>
                         <span className="text-xs text-muted-foreground">
                           {supervisor.role === 'gerente' ? 'Gerente' : supervisor.role === 'gestor' ? 'Gestor' : 'Supervisor'}
@@ -281,7 +312,10 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="amount">Valor (R$)</Label>
+              <Label htmlFor="amount" className="flex items-center gap-2 text-sm font-medium">
+                <DollarSign className="h-4 w-4 text-emerald-500" />
+                Valor (R$)
+              </Label>
               <Input
                 id="amount"
                 type="number"
@@ -289,81 +323,133 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0,00"
-                className="rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="workShift">Turno de Trabalho *</Label>
-              <Select 
-                value={workShift} 
-                onValueChange={(value) => {
-                  setWorkShift(value);
-                  if (value === 'diurno') {
-                    setStartTime('06:00');
-                    setEndTime('18:00');
-                  } else if (value === 'noturno') {
-                    setStartTime('18:00');
-                    setEndTime('06:00');
-                  }
-                }} 
-                required
-              >
-                <SelectTrigger className="rounded-lg text-foreground">
-                  <SelectValue placeholder="Selecione o turno" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="diurno">Diurno (06:00 - 18:00)</SelectItem>
-                  <SelectItem value="noturno">Noturno (18:00 - 06:00)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="startTime">Horário de Início</Label>
-              <Input
-                id="startTime"
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                className="rounded-lg"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="endTime">Horário Final</Label>
-              <Input
-                id="endTime"
-                type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                className="rounded-lg"
+                className="h-12 rounded-xl border-border/50 bg-background/80 backdrop-blur-sm hover:border-emerald-500/50 transition-colors"
               />
             </div>
           </div>
 
+          {/* Shift Section */}
+          <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 border border-emerald-500/20">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="space-y-2">
+                <Label htmlFor="workShift" className="flex items-center gap-2 text-sm font-medium">
+                  {workShift === 'noturno' ? (
+                    <Moon className="h-4 w-4 text-indigo-500" />
+                  ) : (
+                    <Sun className="h-4 w-4 text-amber-500" />
+                  )}
+                  Turno de Trabalho *
+                </Label>
+                <Select 
+                  value={workShift} 
+                  onValueChange={(value) => {
+                    setWorkShift(value);
+                    if (value === 'diurno') {
+                      setStartTime('06:00');
+                      setEndTime('18:00');
+                    } else if (value === 'noturno') {
+                      setStartTime('18:00');
+                      setEndTime('06:00');
+                    }
+                  }} 
+                  required
+                >
+                  <SelectTrigger className="h-12 rounded-xl border-border/50 bg-background hover:border-emerald-500/50 transition-colors">
+                    <SelectValue placeholder="Selecione o turno" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl">
+                    <SelectItem value="diurno" className="rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Sun className="h-4 w-4 text-amber-500" />
+                        <span>Diurno (06:00 - 18:00)</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="noturno" className="rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Moon className="h-4 w-4 text-indigo-500" />
+                        <span>Noturno (18:00 - 06:00)</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="startTime" className="flex items-center gap-2 text-sm font-medium">
+                  <Clock className="h-4 w-4 text-emerald-500" />
+                  Horário de Início
+                </Label>
+                <Input
+                  id="startTime"
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  className="h-12 rounded-xl border-border/50 bg-background hover:border-emerald-500/50 transition-colors"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="endTime" className="flex items-center gap-2 text-sm font-medium">
+                  <Clock className="h-4 w-4 text-emerald-500" />
+                  Horário Final
+                </Label>
+                <Input
+                  id="endTime"
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  className="h-12 rounded-xl border-border/50 bg-background hover:border-emerald-500/50 transition-colors"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Observations */}
           <div className="space-y-2">
-            <Label htmlFor="observations">Observações</Label>
+            <Label htmlFor="observations" className="flex items-center gap-2 text-sm font-medium">
+              <FileText className="h-4 w-4 text-emerald-500" />
+              Observações
+            </Label>
             <Textarea
               id="observations"
               value={observations}
               onChange={(e) => setObservations(e.target.value)}
               placeholder="Observações adicionais (opcional)"
               rows={3}
-              className="rounded-lg"
+              className="rounded-xl border-border/50 bg-background/80 backdrop-blur-sm hover:border-emerald-500/50 transition-colors resize-none"
             />
           </div>
 
-          <div className="flex justify-end space-x-4">
-            <Button type="button" onClick={onClose} variant="outline" className="rounded-lg">
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-3 pt-2">
+            <Button 
+              type="button" 
+              onClick={onClose} 
+              variant="outline" 
+              className="h-12 px-6 rounded-xl border-border/50 hover:bg-muted/50"
+            >
               Cancelar
             </Button>
-            <Button type="submit" className="bg-accent hover:bg-accent/90 text-white rounded-lg" disabled={isLoading}>
-              {isLoading ? "Salvando..." : "Registrar FT"}
+            <Button 
+              type="submit" 
+              className="h-12 px-8 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/30"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Salvando...
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  Registrar FT
+                </span>
+              )}
             </Button>
           </div>
         </form>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
