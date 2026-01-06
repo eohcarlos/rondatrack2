@@ -295,207 +295,149 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
       <div className={`container mx-auto px-4 lg:px-8 pt-20 lg:pt-24 pb-24 sm:pb-8 space-y-8 overflow-x-hidden max-w-[1600px] transition-all duration-300`}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsContent value="dashboard" className="space-y-6 mt-0">
-            {/* Hero Card - Premium Welcome */}
-            <div className="relative overflow-hidden rounded-3xl p-6 lg:p-8 shadow-2xl">
-              {/* Animated gradient background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700" />
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-pink-500/30 via-transparent to-transparent" />
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-cyan-500/20 via-transparent to-transparent" />
-              
-              {/* Decorative elements */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-pink-500/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-              <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-cyan-400/10 rounded-full blur-2xl" />
-              
-              {/* Content */}
-              <div className="relative z-10 text-white">
+            {/* Welcome + Quick Actions - Hero Section */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary to-primary/80 p-6 lg:p-8 text-primary-foreground shadow-2xl">
+              <div className="absolute inset-0 bg-white/5 opacity-50" />
+              <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
+              <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
+              <div className="relative z-10">
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                   <div>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm text-white/90 text-xs font-medium mb-3">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                      Sistema Ativo
-                    </div>
-                    <h1 className="text-3xl lg:text-4xl font-bold mb-2">
-                      Olá, {profile?.first_name || 'Usuário'}! 👋
+                    <p className="text-primary-foreground/80 text-sm font-medium mb-1">
+                      Bem-vindo de volta
+                    </p>
+                    <h1 className="text-2xl lg:text-3xl font-bold mb-2">
+                      {profile?.first_name || 'Usuário'}! 👋
                     </h1>
-                    <p className="text-white/70 text-base lg:text-lg max-w-md">
-                      {companyName ? `Gerencie ${companyName} com eficiência` : 'Gerencie sua equipe com eficiência e praticidade'}
+                    <p className="text-primary-foreground/70 text-sm">
+                      {companyName || 'Gerencie sua equipe com eficiência'}
                     </p>
                   </div>
                   
-                  {/* Date & Stats preview */}
-                  <div className="flex flex-col items-start lg:items-end gap-2">
-                    <p className="text-white/60 text-sm">
-                      {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
-                    </p>
-                    <div className="flex items-center gap-3 mt-2">
-                      <div className="text-center px-4 py-2 rounded-xl bg-white/10 backdrop-blur-sm">
-                        <p className="text-2xl font-bold">{stats.monthlyWorkedLeaves}</p>
-                        <p className="text-xs text-white/70">FTs este mês</p>
-                      </div>
-                      <div className="text-center px-4 py-2 rounded-xl bg-white/10 backdrop-blur-sm">
-                        <p className="text-2xl font-bold">{stats.monthlyAbsences}</p>
-                        <p className="text-xs text-white/70">Faltas</p>
-                      </div>
-                    </div>
+                  {/* Quick Actions - Prominent */}
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button 
+                      onClick={handleNavigateFT}
+                      className="bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-sm h-12 px-6 rounded-xl font-semibold transition-all hover:scale-105 shadow-lg"
+                    >
+                      <Clock className="h-5 w-5 mr-2" />
+                      Registrar FT
+                    </Button>
+                    <Button 
+                      onClick={handleNavigateAbsence}
+                      className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm h-12 px-6 rounded-xl font-semibold transition-all hover:scale-105"
+                    >
+                      <Calendar className="h-5 w-5 mr-2" />
+                      Registrar Falta
+                    </Button>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Quick Actions - Colorful Buttons */}
+            {/* Stats Grid - Compact Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <Button 
-                onClick={handleNavigateFT}
-                className="h-auto py-4 px-4 bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white border-0 rounded-2xl shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-1 flex flex-col items-center gap-2"
-              >
-                <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-                  <Clock className="h-6 w-6" />
-                </div>
-                <span className="font-semibold">Registrar FT</span>
-              </Button>
-              
-              <Button 
-                onClick={handleNavigateAbsence}
-                className="h-auto py-4 px-4 bg-gradient-to-br from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white border-0 rounded-2xl shadow-lg shadow-rose-500/25 hover:shadow-xl hover:shadow-rose-500/30 transition-all duration-300 hover:-translate-y-1 flex flex-col items-center gap-2"
-              >
-                <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-                  <Calendar className="h-6 w-6" />
-                </div>
-                <span className="font-semibold">Registrar Falta</span>
-              </Button>
+              {/* FTs do Mês */}
+              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-card to-primary/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-md">
+                      <Clock className="h-5 w-5 text-white" />
+                    </div>
+                    <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">Este mês</span>
+                  </div>
+                  <p className="text-2xl lg:text-3xl font-bold text-foreground">{stats.monthlyWorkedLeaves}</p>
+                  <p className="text-xs text-muted-foreground mt-1">FTs registradas</p>
+                </CardContent>
+              </Card>
 
-              <Button 
+              {/* Faltas do Mês */}
+              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-card to-destructive/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-destructive to-destructive/70 flex items-center justify-center shadow-md">
+                      <Calendar className="h-5 w-5 text-white" />
+                    </div>
+                    <span className="text-xs font-medium text-destructive bg-destructive/10 px-2 py-1 rounded-full">Este mês</span>
+                  </div>
+                  <p className="text-2xl lg:text-3xl font-bold text-foreground">{stats.monthlyAbsences}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Faltas registradas</p>
+                </CardContent>
+              </Card>
+
+              {/* Faturamento do Mês */}
+              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-card to-emerald-500/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-md">
+                      <DollarSign className="h-5 w-5 text-white" />
+                    </div>
+                    <span className="text-xs font-medium text-emerald-600 bg-emerald-500/10 px-2 py-1 rounded-full">Este mês</span>
+                  </div>
+                  <p className="text-xl lg:text-2xl font-bold text-foreground">{monthlyRevenue}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Faturamento FT</p>
+                </CardContent>
+              </Card>
+
+              {/* Funcionários */}
+              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-card to-accent/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center shadow-md">
+                      <Users className="h-5 w-5 text-white" />
+                    </div>
+                    <span className="text-xs font-medium text-accent bg-accent/10 px-2 py-1 rounded-full">Total</span>
+                  </div>
+                  <p className="text-2xl lg:text-3xl font-bold text-foreground">{stats.totalEmployees}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Funcionários ativos</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Secondary Stats + Actions Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* Left: More Stats */}
+              <Card className="lg:col-span-2 border-0 bg-card/50 backdrop-blur-sm shadow-lg">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base font-semibold flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-muted-foreground" />
+                    Resumo Geral
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div className="text-center p-3 rounded-xl bg-muted/30">
+                      <p className="text-xl font-bold text-foreground">{stats.previousMonthWorkedLeaves}</p>
+                      <p className="text-xs text-muted-foreground">FTs mês anterior</p>
+                    </div>
+                    <div className="text-center p-3 rounded-xl bg-muted/30">
+                      <p className="text-xl font-bold text-foreground">{stats.previousMonthAbsences}</p>
+                      <p className="text-xs text-muted-foreground">Faltas mês anterior</p>
+                    </div>
+                    <div className="text-center p-3 rounded-xl bg-muted/30">
+                      <p className="text-xl font-bold text-foreground">{stats.totalCondominiums}</p>
+                      <p className="text-xs text-muted-foreground">Condomínios</p>
+                    </div>
+                    <div className="text-center p-3 rounded-xl bg-muted/30">
+                      <p className="text-lg font-bold text-foreground">{totalRevenue}</p>
+                      <p className="text-xs text-muted-foreground">Fat. Total FT</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Right: Quick Link */}
+              <Card 
+                className="border-0 bg-gradient-to-br from-accent/10 to-accent/5 shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
                 onClick={handleNavigateReports}
-                className="h-auto py-4 px-4 bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white border-0 rounded-2xl shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/30 transition-all duration-300 hover:-translate-y-1 flex flex-col items-center gap-2"
               >
-                <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-                  <Download className="h-6 w-6" />
-                </div>
-                <span className="font-semibold">Relatórios</span>
-              </Button>
-
-              <Button 
-                onClick={() => setActiveTab('employees')}
-                className="h-auto py-4 px-4 bg-gradient-to-br from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-0 rounded-2xl shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 hover:-translate-y-1 flex flex-col items-center gap-2"
-              >
-                <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-                  <Users className="h-6 w-6" />
-                </div>
-                <span className="font-semibold">Funcionários</span>
-              </Button>
-            </div>
-
-            {/* Stats Grid - Colorful Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* FTs do Mês - Emerald */}
-              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/20 hover:shadow-xl hover:shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-1">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-                <CardContent className="p-5 relative">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center">
-                      <Clock className="h-5 w-5" />
-                    </div>
-                    <span className="text-xs font-medium bg-white/20 px-2 py-1 rounded-full">Este mês</span>
+                <CardContent className="p-6 flex flex-col items-center justify-center h-full text-center">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center shadow-lg mb-4 group-hover:scale-110 transition-transform">
+                    <Download className="h-7 w-7 text-white" />
                   </div>
-                  <p className="text-3xl lg:text-4xl font-bold">{stats.monthlyWorkedLeaves}</p>
-                  <p className="text-sm text-white/80 mt-1">FTs registradas</p>
-                </CardContent>
-              </Card>
-
-              {/* Faltas do Mês - Rose */}
-              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-lg shadow-rose-500/20 hover:shadow-xl hover:shadow-rose-500/30 transition-all duration-300 hover:-translate-y-1">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-                <CardContent className="p-5 relative">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center">
-                      <Calendar className="h-5 w-5" />
-                    </div>
-                    <span className="text-xs font-medium bg-white/20 px-2 py-1 rounded-full">Este mês</span>
-                  </div>
-                  <p className="text-3xl lg:text-4xl font-bold">{stats.monthlyAbsences}</p>
-                  <p className="text-sm text-white/80 mt-1">Faltas registradas</p>
-                </CardContent>
-              </Card>
-
-              {/* Faturamento - Amber */}
-              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/20 hover:shadow-xl hover:shadow-amber-500/30 transition-all duration-300 hover:-translate-y-1">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-                <CardContent className="p-5 relative">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center">
-                      <DollarSign className="h-5 w-5" />
-                    </div>
-                    <span className="text-xs font-medium bg-white/20 px-2 py-1 rounded-full">Este mês</span>
-                  </div>
-                  <p className="text-2xl lg:text-3xl font-bold">{monthlyRevenue}</p>
-                  <p className="text-sm text-white/80 mt-1">Faturamento FT</p>
-                </CardContent>
-              </Card>
-
-              {/* Funcionários - Blue */}
-              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 hover:-translate-y-1">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-                <CardContent className="p-5 relative">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center">
-                      <Users className="h-5 w-5" />
-                    </div>
-                    <span className="text-xs font-medium bg-white/20 px-2 py-1 rounded-full">Total</span>
-                  </div>
-                  <p className="text-3xl lg:text-4xl font-bold">{stats.totalEmployees}</p>
-                  <p className="text-sm text-white/80 mt-1">Funcionários ativos</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Secondary Stats Row */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* FTs mês anterior - Cyan */}
-              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-cyan-500 to-sky-600 text-white shadow-lg shadow-cyan-500/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <CardContent className="p-4 relative">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Clock className="h-4 w-4 text-white/70" />
-                    <span className="text-xs text-white/70">Mês anterior</span>
-                  </div>
-                  <p className="text-2xl font-bold">{stats.previousMonthWorkedLeaves}</p>
-                  <p className="text-xs text-white/70">FTs registradas</p>
-                </CardContent>
-              </Card>
-
-              {/* Faltas mês anterior - Fuchsia */}
-              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-fuchsia-500 to-purple-600 text-white shadow-lg shadow-fuchsia-500/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <CardContent className="p-4 relative">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Calendar className="h-4 w-4 text-white/70" />
-                    <span className="text-xs text-white/70">Mês anterior</span>
-                  </div>
-                  <p className="text-2xl font-bold">{stats.previousMonthAbsences}</p>
-                  <p className="text-xs text-white/70">Faltas registradas</p>
-                </CardContent>
-              </Card>
-
-              {/* Condomínios - Violet */}
-              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <CardContent className="p-4 relative">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Building2 className="h-4 w-4 text-white/70" />
-                    <span className="text-xs text-white/70">Total</span>
-                  </div>
-                  <p className="text-2xl font-bold">{stats.totalCondominiums}</p>
-                  <p className="text-xs text-white/70">Condomínios</p>
-                </CardContent>
-              </Card>
-
-              {/* Fat. Total - Lime */}
-              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-lime-500 to-green-600 text-white shadow-lg shadow-lime-500/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <CardContent className="p-4 relative">
-                  <div className="flex items-center gap-2 mb-2">
-                    <DollarSign className="h-4 w-4 text-white/70" />
-                    <span className="text-xs text-white/70">Acumulado</span>
-                  </div>
-                  <p className="text-xl font-bold">{totalRevenue}</p>
-                  <p className="text-xs text-white/70">Fat. Total FT</p>
+                  <h3 className="font-bold text-foreground mb-1">Relatórios</h3>
+                  <p className="text-xs text-muted-foreground">Gerar e exportar dados</p>
+                  <ChevronRight className="h-5 w-5 text-accent mt-3 group-hover:translate-x-1 transition-transform" />
                 </CardContent>
               </Card>
             </div>
