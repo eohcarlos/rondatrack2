@@ -39,82 +39,91 @@ export const MainHeroCard = memo(({ companyName, userName }: MainHeroCardProps) 
   const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 
   return (
-    <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-primary via-primary/90 to-accent shadow-2xl">
-      {/* Animated background patterns */}
+    <Card className="relative overflow-hidden border-0 rounded-[2rem] bg-gradient-to-br from-primary via-primary/95 to-accent shadow-2xl ring-1 ring-white/10">
+      {/* Premium animated background patterns */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-24 -right-24 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-16 -left-16 w-56 h-56 bg-white/5 rounded-full blur-2xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-radial from-white/5 to-transparent rounded-full" />
+        {/* Main glow orbs */}
+        <div className="absolute -top-32 -right-32 w-80 h-80 bg-gradient-to-br from-white/20 to-white/5 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-gradient-to-tr from-accent/30 to-transparent rounded-full blur-3xl" />
+        <div className="absolute top-1/3 right-1/4 w-40 h-40 bg-white/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }} />
         
-        {/* Grid pattern overlay */}
-        <div className="absolute inset-0 opacity-[0.03]" 
+        {/* Floating particles effect */}
+        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
+        <div className="absolute top-2/3 right-1/3 w-1.5 h-1.5 bg-white/20 rounded-full animate-pulse" style={{ animationDelay: '1.5s' }} />
+        <div className="absolute bottom-1/4 left-1/2 w-1 h-1 bg-white/25 rounded-full animate-pulse" style={{ animationDelay: '2s' }} />
+        
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 opacity-[0.02]" 
           style={{
-            backgroundImage: 'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)',
-            backgroundSize: '40px 40px'
+            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.3) 1px, transparent 0)',
+            backgroundSize: '32px 32px'
           }} 
         />
       </div>
 
-      <CardContent className="relative p-6 lg:p-8">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          {/* Left section - Greeting and Time */}
-          <div className="space-y-4">
-            {/* Greeting */}
-            <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 lg:w-14 lg:h-14 rounded-2xl bg-gradient-to-br ${greeting.color} flex items-center justify-center shadow-lg`}>
-                <GreetingIcon className="h-6 w-6 lg:h-7 lg:w-7 text-white" />
-              </div>
-              <div>
-                <p className="text-white/80 text-sm font-medium">{greeting.text}</p>
-                <h2 className="text-white text-xl lg:text-2xl font-bold tracking-tight">
-                  {userName || 'Usuário'}
-                </h2>
-              </div>
+      <CardContent className="relative p-8 lg:p-10">
+        <div className="flex flex-col items-center text-center gap-6">
+          {/* Greeting with premium icon */}
+          <div className="flex flex-col items-center gap-4">
+            <div className={`w-20 h-20 lg:w-24 lg:h-24 rounded-full bg-gradient-to-br ${greeting.color} flex items-center justify-center shadow-2xl ring-4 ring-white/20 backdrop-blur-sm`}>
+              <GreetingIcon className="h-10 w-10 lg:h-12 lg:w-12 text-white drop-shadow-lg" />
             </div>
-
-            {/* Company */}
-            {companyName && (
-              <div className="flex items-center gap-2 text-white/70">
-                <MapPin className="h-4 w-4" />
-                <span className="text-sm font-medium">{companyName}</span>
-              </div>
-            )}
+            <div className="space-y-1">
+              <p className="text-white/70 text-sm font-medium uppercase tracking-widest">{greeting.text}</p>
+              <h2 className="text-white text-2xl lg:text-3xl font-bold tracking-tight">
+                {userName || 'Usuário'} 👋
+              </h2>
+            </div>
           </div>
 
-          {/* Center/Right section - Time Display */}
-          <div className="flex flex-col items-start lg:items-end gap-2">
-            {/* Digital Clock */}
-            <div className="flex items-center gap-3">
-              <div className="flex items-baseline gap-1">
-                <span className="text-5xl lg:text-6xl font-bold text-white tracking-tight font-mono tabular-nums">
+          {/* Premium Time Display - Central Focus */}
+          <div className="relative py-6">
+            {/* Glow behind time */}
+            <div className="absolute inset-0 bg-white/5 rounded-3xl blur-xl" />
+            <div className="relative flex flex-col items-center gap-3">
+              {/* Large Clock Display */}
+              <div className="flex items-baseline">
+                <span className="text-6xl lg:text-8xl font-extrabold text-white tracking-tighter font-mono tabular-nums drop-shadow-lg">
                   {formattedTime.slice(0, 5)}
                 </span>
-                <span className="text-2xl lg:text-3xl font-semibold text-white/60 font-mono tabular-nums">
+                <span className="text-3xl lg:text-4xl font-bold text-white/50 font-mono tabular-nums ml-1">
                   {formattedTime.slice(5)}
                 </span>
               </div>
-            </div>
-
-            {/* Date */}
-            <div className="flex items-center gap-2 text-white/80">
-              <Calendar className="h-4 w-4" />
-              <span className="text-sm lg:text-base font-medium">{capitalizedDate}</span>
-              <span className="text-white/50">&bull;</span>
-              <span className="text-sm lg:text-base font-semibold text-white">{formattedYear}</span>
+              
+              {/* Date Badge */}
+              <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm px-5 py-2.5 rounded-full border border-white/10">
+                <Calendar className="h-4 w-4 text-white/70" />
+                <span className="text-sm lg:text-base font-medium text-white/90">{capitalizedDate}</span>
+                <span className="w-1.5 h-1.5 bg-white/40 rounded-full" />
+                <span className="text-sm lg:text-base font-bold text-white">{formattedYear}</span>
+              </div>
             </div>
           </div>
+
+          {/* Company badge */}
+          {companyName && (
+            <div className="flex items-center gap-2 text-white/60 bg-white/5 px-4 py-2 rounded-full border border-white/5">
+              <MapPin className="h-3.5 w-3.5" />
+              <span className="text-sm font-medium">{companyName}</span>
+            </div>
+          )}
         </div>
 
-        {/* Bottom decorative bar */}
-        <div className="mt-6 pt-4 border-t border-white/10">
-          <div className="flex items-center justify-between text-white/60 text-xs">
+        {/* Bottom status bar */}
+        <div className="mt-8 pt-5 border-t border-white/10">
+          <div className="flex items-center justify-center gap-6 text-white/50 text-xs">
             <div className="flex items-center gap-2">
               <Clock className="h-3.5 w-3.5" />
-              <span>Última atualização em tempo real</span>
+              <span>Atualização em tempo real</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-              <span>Online</span>
+            <div className="w-px h-4 bg-white/20" />
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
+              </span>
+              <span>Sistema Online</span>
             </div>
           </div>
         </div>
