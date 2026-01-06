@@ -295,101 +295,102 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
       <div className={`container mx-auto px-4 lg:px-8 pt-20 lg:pt-24 pb-24 sm:pb-8 space-y-8 overflow-x-hidden max-w-[1600px] transition-all duration-300`}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsContent value="dashboard" className="space-y-6 mt-0">
-            {/* Welcome + Quick Actions - Hero Section */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary to-primary/80 p-6 lg:p-8 text-primary-foreground shadow-2xl">
-              <div className="absolute inset-0 bg-white/5 opacity-50" />
-              <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
-              <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
-              <div className="relative z-10">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                  <div>
-                    <p className="text-primary-foreground/80 text-sm font-medium mb-1">
-                      Bem-vindo de volta
-                    </p>
-                    <h1 className="text-2xl lg:text-3xl font-bold mb-2">
-                      {profile?.first_name || 'Usuário'}! 👋
-                    </h1>
-                    <p className="text-primary-foreground/70 text-sm">
-                      {companyName || 'Gerencie sua equipe com eficiência'}
-                    </p>
+            {/* Premium Hero Card */}
+            <MainHeroCard 
+              companyName={companyName} 
+              userName={profile?.first_name}
+            />
+
+            {/* Quick Actions - Separate Section */}
+            <div className="grid grid-cols-2 gap-4">
+              <Card 
+                className="relative overflow-hidden border-0 rounded-3xl bg-gradient-to-br from-primary to-primary/80 shadow-xl cursor-pointer hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group"
+                onClick={handleNavigateFT}
+              >
+                <CardContent className="p-5 flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                    <Clock className="h-7 w-7 text-white" />
                   </div>
-                  
-                  {/* Quick Actions - Prominent */}
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Button 
-                      onClick={handleNavigateFT}
-                      className="bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-sm h-12 px-6 rounded-xl font-semibold transition-all hover:scale-105 shadow-lg"
-                    >
-                      <Clock className="h-5 w-5 mr-2" />
-                      Registrar FT
-                    </Button>
-                    <Button 
-                      onClick={handleNavigateAbsence}
-                      className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm h-12 px-6 rounded-xl font-semibold transition-all hover:scale-105"
-                    >
-                      <Calendar className="h-5 w-5 mr-2" />
-                      Registrar Falta
-                    </Button>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-white text-lg">Registrar FT</h3>
+                    <p className="text-white/70 text-xs">Folga trabalhada</p>
                   </div>
-                </div>
-              </div>
+                  <ChevronRight className="h-5 w-5 text-white/60 group-hover:translate-x-1 transition-transform" />
+                </CardContent>
+              </Card>
+
+              <Card 
+                className="relative overflow-hidden border-0 rounded-3xl bg-gradient-to-br from-destructive to-destructive/80 shadow-xl cursor-pointer hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group"
+                onClick={handleNavigateAbsence}
+              >
+                <CardContent className="p-5 flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                    <Calendar className="h-7 w-7 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-white text-lg">Registrar Falta</h3>
+                    <p className="text-white/70 text-xs">Ausência do dia</p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-white/60 group-hover:translate-x-1 transition-transform" />
+                </CardContent>
+              </Card>
             </div>
 
-            {/* Stats Grid - Compact Cards */}
+            {/* Stats Grid - Premium Rounded Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {/* FTs do Mês */}
-              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-card to-primary/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-md">
-                      <Clock className="h-5 w-5 text-white" />
+              <Card className="relative overflow-hidden border-0 rounded-3xl bg-gradient-to-br from-card to-primary/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <CardContent className="p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
+                      <Clock className="h-6 w-6 text-white" />
                     </div>
-                    <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">Este mês</span>
+                    <span className="text-xs font-semibold text-primary bg-primary/10 px-3 py-1.5 rounded-full">Este mês</span>
                   </div>
-                  <p className="text-2xl lg:text-3xl font-bold text-foreground">{stats.monthlyWorkedLeaves}</p>
-                  <p className="text-xs text-muted-foreground mt-1">FTs registradas</p>
+                  <p className="text-3xl lg:text-4xl font-bold text-foreground">{stats.monthlyWorkedLeaves}</p>
+                  <p className="text-sm text-muted-foreground mt-1.5">FTs registradas</p>
                 </CardContent>
               </Card>
 
               {/* Faltas do Mês */}
-              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-card to-destructive/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-destructive to-destructive/70 flex items-center justify-center shadow-md">
-                      <Calendar className="h-5 w-5 text-white" />
+              <Card className="relative overflow-hidden border-0 rounded-3xl bg-gradient-to-br from-card to-destructive/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <CardContent className="p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-destructive to-destructive/70 flex items-center justify-center shadow-lg">
+                      <Calendar className="h-6 w-6 text-white" />
                     </div>
-                    <span className="text-xs font-medium text-destructive bg-destructive/10 px-2 py-1 rounded-full">Este mês</span>
+                    <span className="text-xs font-semibold text-destructive bg-destructive/10 px-3 py-1.5 rounded-full">Este mês</span>
                   </div>
-                  <p className="text-2xl lg:text-3xl font-bold text-foreground">{stats.monthlyAbsences}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Faltas registradas</p>
+                  <p className="text-3xl lg:text-4xl font-bold text-foreground">{stats.monthlyAbsences}</p>
+                  <p className="text-sm text-muted-foreground mt-1.5">Faltas registradas</p>
                 </CardContent>
               </Card>
 
               {/* Faturamento do Mês */}
-              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-card to-emerald-500/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-md">
-                      <DollarSign className="h-5 w-5 text-white" />
+              <Card className="relative overflow-hidden border-0 rounded-3xl bg-gradient-to-br from-card to-emerald-500/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <CardContent className="p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg">
+                      <DollarSign className="h-6 w-6 text-white" />
                     </div>
-                    <span className="text-xs font-medium text-emerald-600 bg-emerald-500/10 px-2 py-1 rounded-full">Este mês</span>
+                    <span className="text-xs font-semibold text-emerald-600 bg-emerald-500/10 px-3 py-1.5 rounded-full">Este mês</span>
                   </div>
-                  <p className="text-xl lg:text-2xl font-bold text-foreground">{monthlyRevenue}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Faturamento FT</p>
+                  <p className="text-2xl lg:text-3xl font-bold text-foreground">{monthlyRevenue}</p>
+                  <p className="text-sm text-muted-foreground mt-1.5">Faturamento FT</p>
                 </CardContent>
               </Card>
 
               {/* Funcionários */}
-              <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-card to-accent/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center shadow-md">
-                      <Users className="h-5 w-5 text-white" />
+              <Card className="relative overflow-hidden border-0 rounded-3xl bg-gradient-to-br from-card to-accent/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <CardContent className="p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center shadow-lg">
+                      <Users className="h-6 w-6 text-white" />
                     </div>
-                    <span className="text-xs font-medium text-accent bg-accent/10 px-2 py-1 rounded-full">Total</span>
+                    <span className="text-xs font-semibold text-accent bg-accent/10 px-3 py-1.5 rounded-full">Total</span>
                   </div>
-                  <p className="text-2xl lg:text-3xl font-bold text-foreground">{stats.totalEmployees}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Funcionários ativos</p>
+                  <p className="text-3xl lg:text-4xl font-bold text-foreground">{stats.totalEmployees}</p>
+                  <p className="text-sm text-muted-foreground mt-1.5">Funcionários ativos</p>
                 </CardContent>
               </Card>
             </div>
@@ -397,7 +398,7 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
             {/* Secondary Stats + Actions Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {/* Left: More Stats */}
-              <Card className="lg:col-span-2 border-0 bg-card/50 backdrop-blur-sm shadow-lg">
+              <Card className="lg:col-span-2 border-0 rounded-3xl bg-card/50 backdrop-blur-sm shadow-lg">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base font-semibold flex items-center gap-2">
                     <Activity className="h-4 w-4 text-muted-foreground" />
@@ -406,21 +407,21 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div className="text-center p-3 rounded-xl bg-muted/30">
-                      <p className="text-xl font-bold text-foreground">{stats.previousMonthWorkedLeaves}</p>
-                      <p className="text-xs text-muted-foreground">FTs mês anterior</p>
+                    <div className="text-center p-4 rounded-2xl bg-muted/30">
+                      <p className="text-2xl font-bold text-foreground">{stats.previousMonthWorkedLeaves}</p>
+                      <p className="text-xs text-muted-foreground mt-1">FTs mês anterior</p>
                     </div>
-                    <div className="text-center p-3 rounded-xl bg-muted/30">
-                      <p className="text-xl font-bold text-foreground">{stats.previousMonthAbsences}</p>
-                      <p className="text-xs text-muted-foreground">Faltas mês anterior</p>
+                    <div className="text-center p-4 rounded-2xl bg-muted/30">
+                      <p className="text-2xl font-bold text-foreground">{stats.previousMonthAbsences}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Faltas mês anterior</p>
                     </div>
-                    <div className="text-center p-3 rounded-xl bg-muted/30">
-                      <p className="text-xl font-bold text-foreground">{stats.totalCondominiums}</p>
-                      <p className="text-xs text-muted-foreground">Condomínios</p>
+                    <div className="text-center p-4 rounded-2xl bg-muted/30">
+                      <p className="text-2xl font-bold text-foreground">{stats.totalCondominiums}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Condomínios</p>
                     </div>
-                    <div className="text-center p-3 rounded-xl bg-muted/30">
-                      <p className="text-lg font-bold text-foreground">{totalRevenue}</p>
-                      <p className="text-xs text-muted-foreground">Fat. Total FT</p>
+                    <div className="text-center p-4 rounded-2xl bg-muted/30">
+                      <p className="text-xl font-bold text-foreground">{totalRevenue}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Fat. Total FT</p>
                     </div>
                   </div>
                 </CardContent>
@@ -428,15 +429,15 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
 
               {/* Right: Quick Link */}
               <Card 
-                className="border-0 bg-gradient-to-br from-accent/10 to-accent/5 shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
+                className="border-0 rounded-3xl bg-gradient-to-br from-accent/10 to-accent/5 shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group"
                 onClick={handleNavigateReports}
               >
                 <CardContent className="p-6 flex flex-col items-center justify-center h-full text-center">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center shadow-lg mb-4 group-hover:scale-110 transition-transform">
-                    <Download className="h-7 w-7 text-white" />
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center shadow-xl mb-4 group-hover:scale-110 transition-transform ring-4 ring-accent/20">
+                    <Download className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="font-bold text-foreground mb-1">Relatórios</h3>
-                  <p className="text-xs text-muted-foreground">Gerar e exportar dados</p>
+                  <h3 className="font-bold text-foreground text-lg mb-1">Relatórios</h3>
+                  <p className="text-sm text-muted-foreground">Gerar e exportar dados</p>
                   <ChevronRight className="h-5 w-5 text-accent mt-3 group-hover:translate-x-1 transition-transform" />
                 </CardContent>
               </Card>
