@@ -251,33 +251,38 @@ export const EmployeeManagement = memo(() => {
 
   return (
     <div className="space-y-6">
-      {/* Header Section */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-card to-accent/10 p-6 border border-border/50">
-        <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-primary/20 to-transparent rounded-full blur-2xl" />
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-accent/20 to-transparent rounded-full blur-2xl" />
+      {/* Premium Header Card */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 p-6 sm:p-8 shadow-2xl shadow-purple-500/20">
+        {/* Decorative elements */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iNCIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
+        <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-white/10 rounded-full blur-2xl" />
         
-        <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-5">
           <div className="flex items-center gap-4">
-            <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-xl shadow-primary/25">
-              <Users className="h-7 w-7 text-primary-foreground" />
+            <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-xl ring-4 ring-white/20">
+              <Users className="h-8 w-8 text-white" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
-                Gestão de Funcionários
-                <Sparkles className="h-5 w-5 text-primary" />
+              <h2 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-2">
+                Funcionários
+                <Sparkles className="h-5 w-5 text-yellow-300" />
               </h2>
-              <p className="text-muted-foreground">Gerencie os funcionários dos condomínios</p>
+              <p className="text-white/70 text-sm sm:text-base">Gerencie sua equipe de trabalho</p>
             </div>
           </div>
 
           <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
             <DialogTrigger asChild>
-              <Button onClick={handleOpenDialog} className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 transition-all duration-300 hover:scale-105">
+              <Button 
+                onClick={handleOpenDialog} 
+                className="bg-white text-purple-700 hover:bg-white/90 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 font-semibold px-6"
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Novo Funcionário
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md border-0 shadow-2xl">
+            <DialogContent className="max-w-md border-0 shadow-2xl bg-card">
               <DialogHeader>
                 <DialogTitle className="text-xl">{editingEmployee ? 'Editar Funcionário' : 'Novo Funcionário'}</DialogTitle>
                 <DialogDescription>Preencha os dados do funcionário</DialogDescription>
@@ -372,9 +377,8 @@ export const EmployeeManagement = memo(() => {
                   </div>
                 </div>
 
-
                 <div className="flex gap-2 pt-4">
-                  <Button type="submit" disabled={loading} className="flex-1 h-11 bg-gradient-to-r from-primary to-primary/80">
+                  <Button type="submit" disabled={loading} className="flex-1 h-11 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700">
                     {loading ? 'Salvando...' : editingEmployee ? 'Atualizar' : 'Adicionar'}
                   </Button>
                   <Button type="button" variant="outline" onClick={() => setShowAddForm(false)} className="h-11">
@@ -385,21 +389,38 @@ export const EmployeeManagement = memo(() => {
             </DialogContent>
           </Dialog>
         </div>
+
+        {/* Stats row inside header */}
+        <div className="relative grid grid-cols-3 gap-3 mt-6 pt-6 border-t border-white/20">
+          <div className="text-center">
+            <p className="text-3xl font-bold text-white">{filteredEmployees.length}</p>
+            <p className="text-white/60 text-xs mt-1">Total Ativos</p>
+          </div>
+          <div className="text-center border-x border-white/20">
+            <p className="text-3xl font-bold text-white">{condominiums.length}</p>
+            <p className="text-white/60 text-xs mt-1">Condomínios</p>
+          </div>
+          <div className="text-center">
+            <p className="text-3xl font-bold text-white">{positions.length}</p>
+            <p className="text-white/60 text-xs mt-1">Cargos</p>
+          </div>
+        </div>
       </div>
 
-      {/* Search and Filters */}
+      {/* Search and Filters - Premium Style */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
-            placeholder="Buscar funcionário..."
+            placeholder="Buscar por nome..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 h-11 bg-card border-border/50"
+            className="pl-12 h-12 bg-card border-0 shadow-lg rounded-2xl text-base"
           />
         </div>
         <Select value={condominiumFilter} onValueChange={setCondominiumFilter}>
-          <SelectTrigger className="h-11 bg-card border-border/50">
+          <SelectTrigger className="h-12 bg-card border-0 shadow-lg rounded-2xl">
+            <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
             <SelectValue placeholder="Filtrar por condomínio" />
           </SelectTrigger>
           <SelectContent>
@@ -411,23 +432,15 @@ export const EmployeeManagement = memo(() => {
         </Select>
       </div>
 
-      {/* Results Header */}
-      <div className="flex items-center gap-3">
-        <h3 className="text-lg font-semibold">Funcionários</h3>
-        <div className="h-8 min-w-8 px-3 rounded-full bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-sm font-bold flex items-center justify-center shadow-lg shadow-primary/25">
-          {filteredEmployees.length}
-        </div>
-      </div>
-      
       {/* Grid */}
       {filteredEmployees.length === 0 ? (
-        <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-muted/30">
+        <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-muted/30 rounded-3xl">
           <CardContent className="py-16 text-center">
-            <div className="h-20 w-20 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
-              <Users className="h-10 w-10 text-muted-foreground" />
+            <div className="h-24 w-24 rounded-full bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center mx-auto mb-4">
+              <Users className="h-12 w-12 text-violet-500" />
             </div>
-            <p className="text-muted-foreground text-lg">Nenhum funcionário encontrado</p>
-            <p className="text-muted-foreground/70 text-sm mt-1">Adicione um novo funcionário para começar</p>
+            <p className="text-foreground text-xl font-semibold">Nenhum funcionário encontrado</p>
+            <p className="text-muted-foreground text-sm mt-2">Adicione um novo funcionário para começar</p>
           </CardContent>
         </Card>
       ) : (
