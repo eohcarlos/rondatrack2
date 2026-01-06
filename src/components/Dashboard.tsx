@@ -391,20 +391,20 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div className="text-center p-4 rounded-2xl bg-muted/30">
-                      <p className="text-2xl font-bold text-foreground">{stats.previousMonthWorkedLeaves}</p>
+                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-violet-500/20 to-violet-600/10 border border-violet-500/20">
+                      <p className="text-2xl font-bold text-violet-600 dark:text-violet-400">{stats.previousMonthWorkedLeaves}</p>
                       <p className="text-xs text-muted-foreground mt-1">FTs mês anterior</p>
                     </div>
-                    <div className="text-center p-4 rounded-2xl bg-muted/30">
-                      <p className="text-2xl font-bold text-foreground">{stats.previousMonthAbsences}</p>
+                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-rose-500/20 to-rose-600/10 border border-rose-500/20">
+                      <p className="text-2xl font-bold text-rose-600 dark:text-rose-400">{stats.previousMonthAbsences}</p>
                       <p className="text-xs text-muted-foreground mt-1">Faltas mês anterior</p>
                     </div>
-                    <div className="text-center p-4 rounded-2xl bg-muted/30">
-                      <p className="text-2xl font-bold text-foreground">{stats.totalCondominiums}</p>
+                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border border-cyan-500/20">
+                      <p className="text-2xl font-bold text-cyan-600 dark:text-cyan-400">{stats.totalCondominiums}</p>
                       <p className="text-xs text-muted-foreground mt-1">Condomínios</p>
                     </div>
-                    <div className="text-center p-4 rounded-2xl bg-muted/30">
-                      <p className="text-xl font-bold text-foreground">{totalRevenue}</p>
+                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/20">
+                      <p className="text-xl font-bold text-amber-600 dark:text-amber-400">{totalRevenue}</p>
                       <p className="text-xs text-muted-foreground mt-1">Fat. Total FT</p>
                     </div>
                   </div>
