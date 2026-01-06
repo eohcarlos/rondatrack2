@@ -328,50 +328,60 @@ export const AbsencesTab = memo(() => {
 
   return (
     <div className="space-y-6">
-      {/* Header Section */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-destructive/10 via-card to-primary/10 p-6 border border-border/50">
-        <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-destructive/20 to-transparent rounded-full blur-2xl" />
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-primary/20 to-transparent rounded-full blur-2xl" />
+      {/* Premium Header Card */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-rose-600 via-red-600 to-orange-600 p-6 sm:p-8 shadow-2xl shadow-red-500/20">
+        {/* Decorative elements */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iNCIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
+        <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-white/10 rounded-full blur-2xl" />
         
-        <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-5">
           <div className="flex items-center gap-4">
-            <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-destructive to-destructive/70 flex items-center justify-center shadow-xl shadow-destructive/25">
-              <AlertTriangle className="h-7 w-7 text-destructive-foreground" />
+            <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-xl ring-4 ring-white/20">
+              <AlertTriangle className="h-8 w-8 text-white" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              <h2 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-2">
                 Faltas Registradas
-                <Sparkles className="h-5 w-5 text-destructive" />
+                <Sparkles className="h-5 w-5 text-yellow-300" />
               </h2>
-              <p className="text-muted-foreground">Acompanhe as faltas dos funcionários</p>
+              <p className="text-white/70 text-sm sm:text-base">Acompanhe as faltas dos funcionários</p>
             </div>
           </div>
+        </div>
 
-          {/* Stats mini card */}
-          <div className="hidden sm:flex items-center gap-3 px-4 py-2 rounded-xl bg-destructive/10 border border-destructive/20">
-            <AlertTriangle className="h-5 w-5 text-destructive" />
-            <div className="text-right">
-              <p className="text-xs text-muted-foreground">Este Mês</p>
-              <p className="text-lg font-bold text-destructive">{currentMonthAbsences.length}</p>
-            </div>
+        {/* Stats row inside header */}
+        <div className="relative grid grid-cols-3 gap-3 mt-6 pt-6 border-t border-white/20">
+          <div className="text-center">
+            <p className="text-3xl font-bold text-white">{currentMonthAbsences.length}</p>
+            <p className="text-white/60 text-xs mt-1">Este Mês</p>
+          </div>
+          <div className="text-center border-x border-white/20">
+            <p className="text-3xl font-bold text-white">{previousMonthAbsences.length}</p>
+            <p className="text-white/60 text-xs mt-1">Mês Anterior</p>
+          </div>
+          <div className="text-center">
+            <p className="text-3xl font-bold text-white">{filteredAbsences.length}</p>
+            <p className="text-white/60 text-xs mt-1">Total</p>
           </div>
         </div>
       </div>
 
-      {/* Search and Filters */}
+      {/* Search and Filters - Premium Style */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
-            placeholder="Buscar por funcionário, cargo ou motivo..."
+            placeholder="Buscar por nome ou motivo..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 h-11 bg-card border-border/50"
+            className="pl-12 h-12 bg-card border-0 shadow-lg rounded-2xl text-base"
           />
         </div>
         
         <Select value={selectedCondominium} onValueChange={setSelectedCondominium}>
-          <SelectTrigger className="h-11 bg-card border-border/50">
+          <SelectTrigger className="h-12 bg-card border-0 shadow-lg rounded-2xl">
+            <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
             <SelectValue placeholder="Filtrar por condomínio" />
           </SelectTrigger>
           <SelectContent>
@@ -383,7 +393,8 @@ export const AbsencesTab = memo(() => {
         </Select>
 
         <Select value={selectedEmployeeFilter} onValueChange={setSelectedEmployeeFilter}>
-          <SelectTrigger className="h-11 bg-card border-border/50">
+          <SelectTrigger className="h-12 bg-card border-0 shadow-lg rounded-2xl">
+            <User className="h-4 w-4 mr-2 text-muted-foreground" />
             <SelectValue placeholder="Filtrar por funcionário" />
           </SelectTrigger>
           <SelectContent>
