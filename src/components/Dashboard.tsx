@@ -13,6 +13,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { ThemeToggle } from './ThemeToggle';
 import { useStats } from '@/hooks/useStats';
 import { useProfile } from '@/hooks/useProfile';
+import { useCountAnimation, useCurrencyAnimation } from '@/hooks/useCountAnimation';
 import { supabase } from '@/integrations/supabase/client';
 import {
   LazyEmployeeManagement,
@@ -24,6 +25,20 @@ import {
   LazyAIReportsTab,
   WithSuspense
 } from './LazyComponents';
+
+// Animated number component
+const AnimatedNumber = memo(({ value, duration = 1000 }: { value: number; duration?: number }) => {
+  const animatedValue = useCountAnimation(value, duration);
+  return <>{animatedValue}</>;
+});
+AnimatedNumber.displayName = 'AnimatedNumber';
+
+// Animated currency component  
+const AnimatedCurrency = memo(({ value, duration = 1200 }: { value: number; duration?: number }) => {
+  const animatedValue = useCurrencyAnimation(value, duration);
+  return <>{animatedValue}</>;
+});
+AnimatedCurrency.displayName = 'AnimatedCurrency';
 
 interface DashboardProps {
   onLogout: () => void;
@@ -331,7 +346,9 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
                     </div>
                     <span className="text-xs font-semibold text-primary bg-primary/10 px-3 py-1.5 rounded-full">Este mês</span>
                   </div>
-                  <p className="text-3xl lg:text-4xl font-bold text-foreground">{stats.monthlyWorkedLeaves}</p>
+                  <p className="text-3xl lg:text-4xl font-bold text-foreground">
+                    <AnimatedNumber value={stats.monthlyWorkedLeaves} duration={800} />
+                  </p>
                   <p className="text-sm text-muted-foreground mt-1.5">FTs registradas</p>
                 </CardContent>
               </Card>
@@ -345,7 +362,9 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
                     </div>
                     <span className="text-xs font-semibold text-destructive bg-destructive/10 px-3 py-1.5 rounded-full">Este mês</span>
                   </div>
-                  <p className="text-3xl lg:text-4xl font-bold text-foreground">{stats.monthlyAbsences}</p>
+                  <p className="text-3xl lg:text-4xl font-bold text-foreground">
+                    <AnimatedNumber value={stats.monthlyAbsences} duration={900} />
+                  </p>
                   <p className="text-sm text-muted-foreground mt-1.5">Faltas registradas</p>
                 </CardContent>
               </Card>
@@ -359,7 +378,9 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
                     </div>
                     <span className="text-xs font-semibold text-emerald-600 bg-emerald-500/10 px-3 py-1.5 rounded-full">Este mês</span>
                   </div>
-                  <p className="text-2xl lg:text-3xl font-bold text-foreground">{monthlyRevenue}</p>
+                  <p className="text-2xl lg:text-3xl font-bold text-foreground">
+                    <AnimatedCurrency value={stats.monthlyWorkedLeavesRevenue} duration={1200} />
+                  </p>
                   <p className="text-sm text-muted-foreground mt-1.5">Faturamento FT</p>
                 </CardContent>
               </Card>
@@ -373,7 +394,9 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
                     </div>
                     <span className="text-xs font-semibold text-accent bg-accent/10 px-3 py-1.5 rounded-full">Total</span>
                   </div>
-                  <p className="text-3xl lg:text-4xl font-bold text-foreground">{stats.totalEmployees}</p>
+                  <p className="text-3xl lg:text-4xl font-bold text-foreground">
+                    <AnimatedNumber value={stats.totalEmployees} duration={1000} />
+                  </p>
                   <p className="text-sm text-muted-foreground mt-1.5">Funcionários ativos</p>
                 </CardContent>
               </Card>
@@ -392,19 +415,27 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
                 <CardContent>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-violet-500/20 to-violet-600/10 border border-violet-500/20">
-                      <p className="text-2xl font-bold text-violet-600 dark:text-violet-400">{stats.previousMonthWorkedLeaves}</p>
+                      <p className="text-2xl font-bold text-violet-600 dark:text-violet-400">
+                        <AnimatedNumber value={stats.previousMonthWorkedLeaves} duration={1100} />
+                      </p>
                       <p className="text-xs text-muted-foreground mt-1">FTs mês anterior</p>
                     </div>
                     <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-rose-500/20 to-rose-600/10 border border-rose-500/20">
-                      <p className="text-2xl font-bold text-rose-600 dark:text-rose-400">{stats.previousMonthAbsences}</p>
+                      <p className="text-2xl font-bold text-rose-600 dark:text-rose-400">
+                        <AnimatedNumber value={stats.previousMonthAbsences} duration={1000} />
+                      </p>
                       <p className="text-xs text-muted-foreground mt-1">Faltas mês anterior</p>
                     </div>
                     <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border border-cyan-500/20">
-                      <p className="text-2xl font-bold text-cyan-600 dark:text-cyan-400">{stats.totalCondominiums}</p>
+                      <p className="text-2xl font-bold text-cyan-600 dark:text-cyan-400">
+                        <AnimatedNumber value={stats.totalCondominiums} duration={900} />
+                      </p>
                       <p className="text-xs text-muted-foreground mt-1">Condomínios</p>
                     </div>
                     <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/20">
-                      <p className="text-xl font-bold text-amber-600 dark:text-amber-400">{totalRevenue}</p>
+                      <p className="text-xl font-bold text-amber-600 dark:text-amber-400">
+                        <AnimatedCurrency value={stats.totalWorkedLeavesRevenue} duration={1400} />
+                      </p>
                       <p className="text-xs text-muted-foreground mt-1">Fat. Total FT</p>
                     </div>
                   </div>
