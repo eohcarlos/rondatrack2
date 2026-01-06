@@ -413,16 +413,22 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
 
               {/* Right: Quick Link */}
               <Card 
-                className="border-0 rounded-3xl bg-gradient-to-br from-accent/10 to-accent/5 shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group"
+                className="border-0 rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 shadow-xl cursor-pointer hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] group overflow-hidden relative"
                 onClick={handleNavigateReports}
               >
-                <CardContent className="p-6 flex flex-col items-center justify-center h-full text-center">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center shadow-xl mb-4 group-hover:scale-110 transition-transform ring-4 ring-accent/20">
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iNCIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
+                <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
+                <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-white/10 rounded-full blur-xl" />
+                <CardContent className="p-6 flex flex-col items-center justify-center h-full text-center relative z-10">
+                  <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-xl mb-4 group-hover:scale-110 transition-transform ring-4 ring-white/30">
                     <Download className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="font-bold text-foreground text-lg mb-1">Relatórios</h3>
-                  <p className="text-sm text-muted-foreground">Gerar e exportar dados</p>
-                  <ChevronRight className="h-5 w-5 text-accent mt-3 group-hover:translate-x-1 transition-transform" />
+                  <h3 className="font-bold text-white text-lg mb-1">Relatórios</h3>
+                  <p className="text-sm text-white/80">Gerar e exportar dados</p>
+                  <div className="flex items-center gap-1 mt-3 text-white/90 group-hover:gap-2 transition-all">
+                    <span className="text-xs font-medium">Acessar</span>
+                    <ChevronRight className="h-4 w-4" />
+                  </div>
                 </CardContent>
               </Card>
             </div>
