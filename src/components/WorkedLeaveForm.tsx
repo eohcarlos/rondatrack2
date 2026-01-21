@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { X, Clock, User, Calendar, DollarSign, Sun, Moon, FileText, Users, Sparkles } from 'lucide-react';
+import { X, Clock, User, Calendar, DollarSign, Sun, Moon, FileText, Users, Sparkles, MapPin } from 'lucide-react';
 import { getCurrentCompanyId } from '@/lib/company';
 
 interface WorkedLeaveFormProps {
@@ -39,6 +39,7 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
   const [workShift, setWorkShift] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
+  const [location, setLocation] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -169,6 +170,7 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
           work_shift: workShift,
           start_time: startTime || null,
           end_time: endTime || null,
+          location: location || null,
           created_by: profile.id,
           company_id: companyId,
         });
@@ -323,6 +325,21 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0,00"
+                className="h-12 rounded-xl border-border/50 bg-background/80 backdrop-blur-sm hover:border-emerald-500/50 transition-colors"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="location" className="flex items-center gap-2 text-sm font-medium">
+                <MapPin className="h-4 w-4 text-emerald-500" />
+                Local da FT
+              </Label>
+              <Input
+                id="location"
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="Ex: Condomínio XYZ, Bloco A"
                 className="h-12 rounded-xl border-border/50 bg-background/80 backdrop-blur-sm hover:border-emerald-500/50 transition-colors"
               />
             </div>
