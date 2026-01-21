@@ -24,6 +24,7 @@ interface WorkedLeave {
   work_shift: string | null;
   start_time: string | null;
   end_time: string | null;
+  location: string | null;
   created_at: string;
   employee_id: string;
   employees: {
@@ -103,9 +104,23 @@ const WorkedLeaveCard = memo(({
 
       {/* Info grid */}
       <div className="space-y-2.5 mb-4">
+        {/* Location - where the FT was done */}
+        {item.location && (
+          <div className="flex items-center gap-3 p-2.5 rounded-xl bg-cyan-500/10 backdrop-blur-sm border border-cyan-500/20">
+            <div className="h-8 w-8 rounded-lg bg-cyan-500/20 flex items-center justify-center">
+              <MapPin className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs text-cyan-600 dark:text-cyan-400 font-medium">Local da FT</span>
+              <span className="text-sm font-medium text-foreground break-words">{item.location}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Original condominium */}
         <div className="flex items-center gap-3 p-2.5 rounded-xl bg-muted/50 backdrop-blur-sm">
           <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center">
-            <MapPin className="h-4 w-4 text-primary" />
+            <Briefcase className="h-4 w-4 text-primary" />
           </div>
           <span className="text-sm font-medium text-foreground break-words">{item.employees.condominiums?.name || 'N/A'}</span>
         </div>

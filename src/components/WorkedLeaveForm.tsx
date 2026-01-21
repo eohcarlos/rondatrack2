@@ -28,9 +28,15 @@ interface Profile {
   role: string;
 }
 
+interface Condominium {
+  id: string;
+  name: string;
+}
+
 export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [supervisors, setSupervisors] = useState<Profile[]>([]);
+  const [condominiums, setCondominiums] = useState<Condominium[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState('');
   const [date, setDate] = useState('');
   const [supervisorId, setSupervisorId] = useState('');
@@ -46,6 +52,7 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
   useEffect(() => {
     loadEmployees();
     loadSupervisors();
+    loadCondominiums();
     setCurrentUserAsSupervisor();
   }, []);
 
@@ -100,6 +107,31 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
     } catch (error: any) {
       toast({
         title: "Erro ao carregar supervisores",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const loadCondominiums = async () => {
+    try {
+      const companyId = getCurrentCompanyId();
+      if (!companyId) {
+        console.error('Company ID não encontrado');
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('condominiums')
+        .select('id, name')
+        .eq('company_id', companyId)
+        .order('name');
+
+      if (error) throw error;
+      setCondominiums(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Erro ao carregar condomínios",
         description: error.message,
         variant: "destructive",
       });
@@ -334,14 +366,18 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
                 <MapPin className="h-4 w-4 text-emerald-500" />
                 Local da FT
               </Label>
-              <Input
-                id="location"
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="Ex: Condomínio XYZ, Bloco A"
-                className="h-12 rounded-xl border-border/50 bg-background/80 backdrop-blur-sm hover:border-emerald-500/50 transition-colors"
-              />
+              <Select value={location} onValueChange={setLocation}>
+                <SelectTrigger className="h-12 rounded-xl border-border/50 bg-background/80 backdrop-blur-sm hover:border-emerald-500/50 transition-colors">
+                  <SelectValue placeholder="Selecione o local" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  {condominiums.map((condo) => (
+                    <SelectItem key={condo.id} value={condo.name} className="rounded-lg">
+                      {condo.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
