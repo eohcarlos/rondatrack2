@@ -6,9 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Calendar, User, MapPin, Eye, DollarSign, Download, Clock, Briefcase, MessageSquare, Sparkles, TrendingUp, Plus, ChevronDown } from 'lucide-react';
+import { Search, Calendar, User, MapPin, Eye, DollarSign, Download, Clock, Briefcase, MessageSquare, Sparkles, TrendingUp, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { EmployeeDetailsModal } from './EmployeeDetailsModal';
 import { WorkedLeaveDetailsModal } from './WorkedLeaveDetailsModal';
@@ -24,7 +23,6 @@ interface WorkedLeave {
   work_shift: string | null;
   start_time: string | null;
   end_time: string | null;
-  location: string | null;
   created_at: string;
   employee_id: string;
   employees: {
@@ -104,23 +102,9 @@ const WorkedLeaveCard = memo(({
 
       {/* Info grid */}
       <div className="space-y-2.5 mb-4">
-        {/* Location - where the FT was done */}
-        {item.location && (
-          <div className="flex items-center gap-3 p-2.5 rounded-xl bg-cyan-500/10 backdrop-blur-sm border border-cyan-500/20">
-            <div className="h-8 w-8 rounded-lg bg-cyan-500/20 flex items-center justify-center">
-              <MapPin className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xs text-cyan-600 dark:text-cyan-400 font-medium">Local da FT</span>
-              <span className="text-sm font-medium text-foreground break-words">{item.location}</span>
-            </div>
-          </div>
-        )}
-
-        {/* Original condominium */}
         <div className="flex items-center gap-3 p-2.5 rounded-xl bg-muted/50 backdrop-blur-sm">
           <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center">
-            <Briefcase className="h-4 w-4 text-primary" />
+            <MapPin className="h-4 w-4 text-primary" />
           </div>
           <span className="text-sm font-medium text-foreground break-words">{item.employees.condominiums?.name || 'N/A'}</span>
         </div>
@@ -301,33 +285,6 @@ export const WorkedLeavesTab = memo(() => {
       totalCurrentMonth: totalValue
     };
   }, [filteredWorkedLeaves]);
-
-  // Group worked leaves by employee
-  const groupByEmployee = useCallback((items: WorkedLeave[]) => {
-    const grouped: Record<string, { employee: WorkedLeave['employees']; items: WorkedLeave[]; totalAmount: number }> = {};
-    
-    items.forEach(item => {
-      const employeeKey = item.employee_id;
-      if (!grouped[employeeKey]) {
-        grouped[employeeKey] = {
-          employee: item.employees,
-          items: [],
-          totalAmount: 0
-        };
-      }
-      grouped[employeeKey].items.push(item);
-      grouped[employeeKey].totalAmount += item.amount || 0;
-    });
-
-    return Object.entries(grouped).sort((a, b) => 
-      `${a[1].employee.first_name} ${a[1].employee.last_name}`.localeCompare(
-        `${b[1].employee.first_name} ${b[1].employee.last_name}`
-      )
-    );
-  }, []);
-
-  const groupedCurrentMonth = useMemo(() => groupByEmployee(currentMonthWorkedLeaves), [currentMonthWorkedLeaves, groupByEmployee]);
-  const groupedPreviousMonth = useMemo(() => groupByEmployee(previousMonthWorkedLeaves), [previousMonthWorkedLeaves, groupByEmployee]);
 
   // Memoized employee names for filter
   const employeeNames = useMemo(() => 
@@ -534,59 +491,13 @@ export const WorkedLeavesTab = memo(() => {
               <p className="text-muted-foreground">Nenhuma folga encontrada no mês atual</p>
             </div>
           ) : (
-            <Accordion type="multiple" className="space-y-3" defaultValue={groupedCurrentMonth.map(([key]) => key)}>
-              {groupedCurrentMonth.map(([employeeId, { employee, items, totalAmount }], index) => (
-                <AccordionItem 
-                  key={employeeId} 
-                  value={employeeId}
-                  className="border-0 rounded-2xl bg-gradient-to-br from-muted/30 to-muted/10 overflow-hidden animate-fade-in"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted/30 transition-colors [&[data-state=open]>div>.chevron]:rotate-180">
-                    <div className="flex items-center justify-between w-full pr-2">
-                      <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
-                          <span className="text-lg font-bold text-white">
-                            {employee.first_name.charAt(0)}{employee.last_name?.charAt(0) || ''}
-                          </span>
-                        </div>
-                        <div className="text-left">
-                          <p className="font-bold text-foreground text-lg">
-                            {employee.first_name} {employee.last_name}
-                          </p>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Briefcase className="h-3 w-3" />
-                            <span>{employee.positions?.title || 'Sem cargo'}</span>
-                            <span className="text-muted-foreground/50">•</span>
-                            <MapPin className="h-3 w-3" />
-                            <span>{employee.condominiums?.name || 'N/A'}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Badge className={`${getShiftColor(employee.shift)} px-3 py-1 text-xs font-semibold border-0`}>
-                          {getShiftLabel(employee.shift)}
-                        </Badge>
-                        <div className="text-right">
-                          <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                            R$ {totalAmount.toFixed(0)}
-                          </p>
-                          <p className="text-xs text-muted-foreground">{items.length} FT{items.length > 1 ? 's' : ''}</p>
-                        </div>
-                        <ChevronDown className="chevron h-5 w-5 text-muted-foreground transition-transform duration-200" />
-                      </div>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-5 pb-5">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-                      {items.map((item) => (
-                        <WorkedLeaveCard key={item.id} item={item} onViewDetails={handleViewDetails} />
-                      ))}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {currentMonthWorkedLeaves.map((item, index) => (
+                <div key={item.id} className="animate-fade-in" style={{ animationDelay: `${index * 50}ms` }}>
+                  <WorkedLeaveCard item={item} onViewDetails={handleViewDetails} />
+                </div>
               ))}
-            </Accordion>
+            </div>
           )}
         </CardContent>
       </Card>
@@ -614,58 +525,11 @@ export const WorkedLeavesTab = memo(() => {
               <p className="text-muted-foreground">Nenhuma folga encontrada no mês anterior</p>
             </div>
           ) : (
-            <Accordion type="multiple" className="space-y-3" defaultValue={groupedPreviousMonth.map(([key]) => key)}>
-              {groupedPreviousMonth.map(([employeeId, { employee, items, totalAmount }]) => (
-                <AccordionItem 
-                  key={employeeId} 
-                  value={employeeId}
-                  className="border-0 rounded-2xl bg-gradient-to-br from-muted/30 to-muted/10 overflow-hidden"
-                >
-                  <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted/30 transition-colors [&[data-state=open]>div>.chevron]:rotate-180">
-                    <div className="flex items-center justify-between w-full pr-2">
-                      <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-2xl bg-muted flex items-center justify-center">
-                          <span className="text-lg font-bold text-muted-foreground">
-                            {employee.first_name.charAt(0)}{employee.last_name?.charAt(0) || ''}
-                          </span>
-                        </div>
-                        <div className="text-left">
-                          <p className="font-bold text-foreground text-lg">
-                            {employee.first_name} {employee.last_name}
-                          </p>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Briefcase className="h-3 w-3" />
-                            <span>{employee.positions?.title || 'Sem cargo'}</span>
-                            <span className="text-muted-foreground/50">•</span>
-                            <MapPin className="h-3 w-3" />
-                            <span>{employee.condominiums?.name || 'N/A'}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Badge className={`${getShiftColor(employee.shift)} px-3 py-1 text-xs font-semibold border-0`}>
-                          {getShiftLabel(employee.shift)}
-                        </Badge>
-                        <div className="text-right">
-                          <p className="text-sm font-bold text-muted-foreground">
-                            R$ {totalAmount.toFixed(0)}
-                          </p>
-                          <p className="text-xs text-muted-foreground">{items.length} FT{items.length > 1 ? 's' : ''}</p>
-                        </div>
-                        <ChevronDown className="chevron h-5 w-5 text-muted-foreground transition-transform duration-200" />
-                      </div>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-5 pb-5">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-                      {items.map((item) => (
-                        <WorkedLeaveCard key={item.id} item={item} onViewDetails={handleViewDetails} />
-                      ))}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {previousMonthWorkedLeaves.map((item) => (
+                <WorkedLeaveCard key={item.id} item={item} onViewDetails={handleViewDetails} />
               ))}
-            </Accordion>
+            </div>
           )}
         </CardContent>
       </Card>

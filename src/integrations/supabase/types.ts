@@ -453,7 +453,6 @@ export type Database = {
           employee_id: string
           end_time: string | null
           id: string
-          location: string | null
           observations: string | null
           start_time: string | null
           supervisor_id: string
@@ -469,7 +468,6 @@ export type Database = {
           employee_id: string
           end_time?: string | null
           id?: string
-          location?: string | null
           observations?: string | null
           start_time?: string | null
           supervisor_id: string
@@ -485,7 +483,6 @@ export type Database = {
           employee_id?: string
           end_time?: string | null
           id?: string
-          location?: string | null
           observations?: string | null
           start_time?: string | null
           supervisor_id?: string
