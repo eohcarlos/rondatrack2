@@ -295,7 +295,7 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
         companyName={companyName}
       />
 
-      <div className={`min-h-screen bg-gradient-to-br from-background via-background to-muted/20 transition-all duration-300 ${isSidebarOpen ? 'blur-sm pointer-events-none' : ''}`}>
+      <div className={`min-h-screen bg-gradient-to-br from-background via-background to-muted/20 transition-all duration-300 overflow-x-hidden touch-pan-y ${isSidebarOpen ? 'blur-sm' : ''}`}>
         <DashboardHeader
           companyName={companyName}
           profile={profile}

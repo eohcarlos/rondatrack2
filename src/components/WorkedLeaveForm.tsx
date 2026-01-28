@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { X, Clock, User, Calendar, DollarSign, Sun, Moon, FileText, Users, Sparkles } from 'lucide-react';
+import { X, Clock, User, Calendar, DollarSign, Sun, Moon, FileText, Users, Sparkles, MapPin } from 'lucide-react';
 import { getCurrentCompanyId } from '@/lib/company';
 
 interface WorkedLeaveFormProps {
@@ -28,9 +28,15 @@ interface Profile {
   role: string;
 }
 
+interface Condominium {
+  id: string;
+  name: string;
+}
+
 export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [supervisors, setSupervisors] = useState<Profile[]>([]);
+  const [condominiums, setCondominiums] = useState<Condominium[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState('');
   const [date, setDate] = useState('');
   const [supervisorId, setSupervisorId] = useState('');
@@ -39,12 +45,14 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
   const [workShift, setWorkShift] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
+  const [location, setLocation] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     loadEmployees();
     loadSupervisors();
+    loadCondominiums();
     setCurrentUserAsSupervisor();
   }, []);
 
@@ -99,6 +107,31 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
     } catch (error: any) {
       toast({
         title: "Erro ao carregar supervisores",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const loadCondominiums = async () => {
+    try {
+      const companyId = getCurrentCompanyId();
+      if (!companyId) {
+        console.error('Company ID não encontrado');
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('condominiums')
+        .select('id, name')
+        .eq('company_id', companyId)
+        .order('name');
+
+      if (error) throw error;
+      setCondominiums(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Erro ao carregar condomínios",
         description: error.message,
         variant: "destructive",
       });
@@ -169,6 +202,7 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
           work_shift: workShift,
           start_time: startTime || null,
           end_time: endTime || null,
+          location: location || null,
           created_by: profile.id,
           company_id: companyId,
         });
@@ -325,6 +359,25 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
                 placeholder="0,00"
                 className="h-12 rounded-xl border-border/50 bg-background/80 backdrop-blur-sm hover:border-emerald-500/50 transition-colors"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="location" className="flex items-center gap-2 text-sm font-medium">
+                <MapPin className="h-4 w-4 text-emerald-500" />
+                Local da FT
+              </Label>
+              <Select value={location} onValueChange={setLocation}>
+                <SelectTrigger className="h-12 rounded-xl border-border/50 bg-background/80 backdrop-blur-sm hover:border-emerald-500/50 transition-colors">
+                  <SelectValue placeholder="Selecione o local" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  {condominiums.map((condo) => (
+                    <SelectItem key={condo.id} value={condo.name} className="rounded-lg">
+                      {condo.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
