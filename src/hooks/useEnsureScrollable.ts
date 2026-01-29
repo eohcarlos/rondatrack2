@@ -4,7 +4,8 @@ import { useLocation } from "react-router-dom";
 function unlockDocumentScroll() {
   // Se existir modal aberto (Radix coloca aria-modal="true"), não forçamos unlock
   // para não quebrar o comportamento esperado de dialogs/sheets.
-  if (document.querySelector('[aria-modal="true"]')) return;
+  // IMPORTANT: só consideramos "aberto" se data-state="open".
+  if (document.querySelector('[aria-modal="true"][data-state="open"]')) return;
 
   const html = document.documentElement;
   const body = document.body;
@@ -45,6 +46,29 @@ export function useEnsureScrollable() {
       window.clearTimeout(t2);
     };
   }, [location.pathname, location.key]);
+
+  useEffect(() => {
+    // Alguns componentes podem re-aplicar scroll-lock depois do nosso unlock.
+    // Observamos mudanças em html/body e removemos locks quando NÃO houver modal aberto.
+    let scheduled = false;
+    const scheduleUnlock = () => {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(() => {
+        scheduled = false;
+        unlockDocumentScroll();
+      });
+    };
+
+    const html = document.documentElement;
+    const body = document.body;
+    const observer = new MutationObserver(() => scheduleUnlock());
+
+    observer.observe(html, { attributes: true, attributeFilter: ["class", "style"] });
+    observer.observe(body, { attributes: true, attributeFilter: ["class", "style"] });
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const onVisibility = () => {
