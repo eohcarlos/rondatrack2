@@ -68,7 +68,14 @@ export const SidebarMenu = memo(({
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={onClose}>
+    <Sheet
+      open={isOpen}
+      onOpenChange={(open) => {
+        // Só fecha quando o Radix informar que o sheet foi fechado.
+        // (Evita callbacks em transições que podem causar estado inconsistente.)
+        if (!open) onClose();
+      }}
+    >
       <SheetContent 
         side="left" 
         className="w-[280px] sm:w-[300px] p-0 bg-gradient-to-b from-card via-card to-muted/30 border-r border-border/50 overflow-hidden"

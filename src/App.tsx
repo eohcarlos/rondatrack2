@@ -11,8 +11,14 @@ import { ReportsPage } from "./pages/Reports";
 import { WorkedLeavesPage } from "./pages/WorkedLeaves";
 import { AbsencesPage } from "./pages/Absences";
 import { AdminPage } from "./pages/Admin";
+import { useEnsureScrollable } from "@/hooks/useEnsureScrollable";
 
 const queryClient = new QueryClient();
+
+function ScrollFixer() {
+  useEnsureScrollable();
+  return null;
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -20,6 +26,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ScrollFixer />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/dashboard" element={<Index />} />
