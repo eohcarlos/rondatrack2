@@ -295,7 +295,7 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
         companyName={companyName}
       />
 
-      <div className={`min-h-screen bg-gradient-to-br from-background via-background to-muted/20 transition-all duration-300 overflow-x-hidden touch-pan-y ${isSidebarOpen ? 'blur-sm' : ''}`}>
+      <div className={`min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-muted/20 transition-all duration-300 overflow-x-hidden ${isSidebarOpen ? 'blur-sm' : ''}`}>
         <DashboardHeader
           companyName={companyName}
           profile={profile}
@@ -307,7 +307,8 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
           onMenuOpen={handleOpenSidebar}
         />
 
-      <div className={`container mx-auto px-4 lg:px-8 pt-20 lg:pt-24 pb-24 sm:pb-8 space-y-8 overflow-x-hidden max-w-[1600px] transition-all duration-300`}>
+      <main className="flex-1 overflow-y-auto overflow-x-hidden">
+        <div className="container mx-auto px-4 lg:px-8 pt-20 lg:pt-24 pb-32 sm:pb-12 space-y-8 max-w-[1600px]">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsContent value="dashboard" className="space-y-6 mt-0">
             {/* Premium Hero Card */}
@@ -507,9 +508,10 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
             </WithSuspense>
           </TabsContent>
         </Tabs>
-      </div>
+        </div>
+      </main>
       
-        <PWAInstallPrompt />
+      <PWAInstallPrompt />
       </div>
     </>
   );
