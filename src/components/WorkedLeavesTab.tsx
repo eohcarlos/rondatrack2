@@ -278,16 +278,18 @@ export const WorkedLeavesTab = memo(() => {
     });
   }, [workedLeaves, searchTerm, selectedCondominium, selectedEmployeeFilter]);
 
-  // Memoized month filters
+  // Memoized month filters - using string parsing to avoid timezone issues
   const { currentMonthWorkedLeaves, previousMonthWorkedLeaves, totalCurrentMonth } = useMemo(() => {
     const now = new Date();
-    const currentMonth = now.getMonth();
+    const currentMonth = now.getMonth() + 1; // 1-12
     const currentYear = now.getFullYear();
-    const prevMonth = new Date(currentYear, currentMonth - 1);
+    const prevMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+    const prevYear = currentMonth === 1 ? currentYear - 1 : currentYear;
     
     const currentMonthData = filteredWorkedLeaves.filter(item => {
-      const date = new Date(item.date);
-      return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+      // Parse date string directly to avoid timezone conversion issues
+      const [year, month] = item.date.split('-').map(Number);
+      return month === currentMonth && year === currentYear;
     });
 
     const totalValue = currentMonthData.reduce((sum, item) => sum + (item.amount || 0), 0);
@@ -295,8 +297,8 @@ export const WorkedLeavesTab = memo(() => {
     return {
       currentMonthWorkedLeaves: currentMonthData,
       previousMonthWorkedLeaves: filteredWorkedLeaves.filter(item => {
-        const date = new Date(item.date);
-        return date.getMonth() === prevMonth.getMonth() && date.getFullYear() === prevMonth.getFullYear();
+        const [year, month] = item.date.split('-').map(Number);
+        return month === prevMonth && year === prevYear;
       }),
       totalCurrentMonth: totalValue
     };
