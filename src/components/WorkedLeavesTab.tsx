@@ -63,7 +63,7 @@ const formatDate = (dateString: string) => {
   return `${d}/${m}/${y}`;
 };
 
-// Premium card component
+// Premium card component - mobile optimized
 const WorkedLeaveCard = memo(({ 
   item, 
   onViewDetails 
@@ -78,84 +78,84 @@ const WorkedLeaveCard = memo(({
     {/* Decorative accent */}
     <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-emerald-500 to-emerald-600" />
     
-    <CardContent className="relative p-5 pl-6">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-2 mb-4">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25 shrink-0">
-            <span className="text-lg font-bold text-white">
+    <CardContent className="relative p-4 pl-5">
+      {/* Header - stack on mobile */}
+      <div className="flex flex-col gap-3 mb-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25 shrink-0">
+            <span className="text-sm font-bold text-white">
               {item.employees.first_name.charAt(0)}{item.employees.last_name?.charAt(0) || ''}
             </span>
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-bold text-foreground break-words text-lg group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+            <p className="font-bold text-foreground text-base leading-tight group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate">
               {item.employees.first_name} {item.employees.last_name}
             </p>
-            <p className="text-sm text-muted-foreground font-medium flex items-center gap-1">
+            <p className="text-xs text-muted-foreground font-medium flex items-center gap-1 truncate">
               <Briefcase className="h-3 w-3 shrink-0" />
-              <span className="break-words">{item.employees.positions?.title || 'Sem cargo'}</span>
+              <span className="truncate">{item.employees.positions?.title || 'Sem cargo'}</span>
             </p>
           </div>
+          <Badge className={`${getShiftColor(item.employees.shift)} shrink-0 px-2 py-0.5 text-[10px] font-semibold border-0`}>
+            {getShiftLabel(item.employees.shift)}
+          </Badge>
         </div>
-        <Badge className={`${getShiftColor(item.employees.shift)} shrink-0 px-3 py-1 text-xs font-semibold border-0`}>
-          {getShiftLabel(item.employees.shift)}
-        </Badge>
       </div>
 
-      {/* Info grid */}
-      <div className="space-y-2.5 mb-4">
+      {/* Info grid - optimized for mobile */}
+      <div className="space-y-2 mb-3">
         {/* Location - where the FT was done */}
         {item.location && (
-          <div className="flex items-center gap-3 p-2.5 rounded-xl bg-cyan-500/10 backdrop-blur-sm border border-cyan-500/20">
-            <div className="h-8 w-8 rounded-lg bg-cyan-500/20 flex items-center justify-center">
-              <MapPin className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+          <div className="flex items-center gap-2 p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
+            <div className="h-7 w-7 rounded-lg bg-cyan-500/20 flex items-center justify-center shrink-0">
+              <MapPin className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400" />
             </div>
-            <div className="flex flex-col">
-              <span className="text-xs text-cyan-600 dark:text-cyan-400 font-medium">Local da FT</span>
-              <span className="text-sm font-medium text-foreground break-words">{item.location}</span>
+            <div className="min-w-0 flex-1">
+              <span className="text-[10px] text-cyan-600 dark:text-cyan-400 font-medium block">Local da FT</span>
+              <span className="text-xs font-medium text-foreground truncate block">{item.location}</span>
             </div>
           </div>
         )}
 
         {/* Original condominium */}
-        <div className="flex items-center gap-3 p-2.5 rounded-xl bg-muted/50 backdrop-blur-sm">
-          <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center">
-            <Briefcase className="h-4 w-4 text-primary" />
+        <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
+          <div className="h-7 w-7 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
+            <Briefcase className="h-3.5 w-3.5 text-primary" />
           </div>
-          <span className="text-sm font-medium text-foreground break-words">{item.employees.condominiums?.name || 'N/A'}</span>
+          <span className="text-xs font-medium text-foreground truncate">{item.employees.condominiums?.name || 'N/A'}</span>
         </div>
         
-        <div className="grid grid-cols-2 gap-2.5">
-          <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-muted/50 backdrop-blur-sm">
-            <div className="h-8 w-8 rounded-lg bg-accent/20 flex items-center justify-center">
-              <Calendar className="h-4 w-4 text-accent" />
+        <div className="grid grid-cols-2 gap-2">
+          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
+            <div className="h-7 w-7 rounded-lg bg-accent/20 flex items-center justify-center shrink-0">
+              <Calendar className="h-3.5 w-3.5 text-accent" />
             </div>
-            <span className="text-sm font-medium">{formatDate(item.date)}</span>
+            <span className="text-xs font-medium truncate">{formatDate(item.date)}</span>
           </div>
           
-          <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-emerald-500/10 backdrop-blur-sm">
-            <div className="h-8 w-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-              <DollarSign className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+          <div className="flex items-center gap-2 p-2 rounded-lg bg-emerald-500/10">
+            <div className="h-7 w-7 rounded-lg bg-emerald-500/20 flex items-center justify-center shrink-0">
+              <DollarSign className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400">
+            <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 truncate">
               {item.amount ? `R$ ${Number(item.amount).toFixed(0)}` : '-'}
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 p-2.5 rounded-xl bg-muted/50 backdrop-blur-sm">
-          <div className="h-8 w-8 rounded-lg bg-secondary/50 flex items-center justify-center">
-            <User className="h-4 w-4 text-muted-foreground" />
+        <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
+          <div className="h-7 w-7 rounded-lg bg-secondary/50 flex items-center justify-center shrink-0">
+            <User className="h-3.5 w-3.5 text-muted-foreground" />
           </div>
-          <span className="text-sm text-muted-foreground break-words">{item.supervisor?.name || 'N/A'}</span>
+          <span className="text-xs text-muted-foreground truncate">{item.supervisor?.name || 'N/A'}</span>
         </div>
       </div>
 
       {/* Observations */}
       {item.observations && (
-        <div className="flex items-start gap-2.5 text-sm text-muted-foreground bg-muted/30 p-3 rounded-xl mb-4 border border-border/50">
-          <MessageSquare className="h-4 w-4 mt-0.5 shrink-0 text-primary/60" />
-          <span className="break-words line-clamp-2">{item.observations}</span>
+        <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/30 p-2.5 rounded-lg mb-3 border border-border/50">
+          <MessageSquare className="h-3.5 w-3.5 mt-0.5 shrink-0 text-primary/60" />
+          <span className="line-clamp-2">{item.observations}</span>
         </div>
       )}
 
@@ -163,11 +163,11 @@ const WorkedLeaveCard = memo(({
       <Button
         size="sm"
         variant="outline"
-        className="w-full bg-background/50 backdrop-blur-sm hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all duration-300"
+        className="w-full h-9 text-xs bg-background/50 backdrop-blur-sm hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all duration-300"
         onClick={() => onViewDetails(item)}
       >
-        <Eye className="h-4 w-4 mr-1.5" />
-        Ver Detalhes da FT
+        <Eye className="h-3.5 w-3.5 mr-1.5" />
+        Ver Detalhes
       </Button>
     </CardContent>
   </Card>
@@ -458,18 +458,18 @@ export const WorkedLeavesTab = memo(() => {
         </div>
 
         {/* Stats row inside header */}
-        <div className="relative grid grid-cols-3 gap-3 mt-6 pt-6 border-t border-white/20">
+        <div className="relative grid grid-cols-3 gap-2 sm:gap-3 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-white/20">
           <div className="text-center">
-            <p className="text-3xl font-bold text-white">{currentMonthWorkedLeaves.length}</p>
-            <p className="text-white/60 text-xs mt-1">Este Mês</p>
+            <p className="text-xl sm:text-3xl font-bold text-white">{currentMonthWorkedLeaves.length}</p>
+            <p className="text-white/60 text-[10px] sm:text-xs mt-0.5 sm:mt-1">Este Mês</p>
           </div>
           <div className="text-center border-x border-white/20">
-            <p className="text-3xl font-bold text-white">R$ {totalCurrentMonth.toFixed(0)}</p>
-            <p className="text-white/60 text-xs mt-1">Faturamento</p>
+            <p className="text-lg sm:text-3xl font-bold text-white">R$ {totalCurrentMonth.toFixed(0)}</p>
+            <p className="text-white/60 text-[10px] sm:text-xs mt-0.5 sm:mt-1">Faturamento</p>
           </div>
           <div className="text-center">
-            <p className="text-3xl font-bold text-white">{previousMonthWorkedLeaves.length}</p>
-            <p className="text-white/60 text-xs mt-1">Mês Anterior</p>
+            <p className="text-xl sm:text-3xl font-bold text-white">{previousMonthWorkedLeaves.length}</p>
+            <p className="text-white/60 text-[10px] sm:text-xs mt-0.5 sm:mt-1">Mês Anterior</p>
           </div>
         </div>
       </div>
@@ -544,43 +544,40 @@ export const WorkedLeavesTab = memo(() => {
                   className="border-0 rounded-2xl bg-gradient-to-br from-muted/30 to-muted/10 overflow-hidden animate-fade-in"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted/30 transition-colors [&[data-state=open]>div>.chevron]:rotate-180">
-                    <div className="flex items-center justify-between w-full pr-2">
-                      <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
-                          <span className="text-lg font-bold text-white">
+                  <AccordionTrigger className="px-3 sm:px-5 py-3 sm:py-4 hover:no-underline hover:bg-muted/30 transition-colors [&[data-state=open]>div>.chevron]:rotate-180">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-2 sm:gap-4 pr-2">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25 shrink-0">
+                          <span className="text-sm sm:text-lg font-bold text-white">
                             {employee.first_name.charAt(0)}{employee.last_name?.charAt(0) || ''}
                           </span>
                         </div>
-                        <div className="text-left">
-                          <p className="font-bold text-foreground text-lg">
+                        <div className="text-left min-w-0 flex-1">
+                          <p className="font-bold text-foreground text-sm sm:text-lg truncate">
                             {employee.first_name} {employee.last_name}
                           </p>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Briefcase className="h-3 w-3" />
-                            <span>{employee.positions?.title || 'Sem cargo'}</span>
-                            <span className="text-muted-foreground/50">•</span>
-                            <MapPin className="h-3 w-3" />
-                            <span>{employee.condominiums?.name || 'N/A'}</span>
+                          <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
+                            <Briefcase className="h-3 w-3 shrink-0" />
+                            <span className="truncate">{employee.positions?.title || 'Sem cargo'}</span>
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <Badge className={`${getShiftColor(employee.shift)} px-3 py-1 text-xs font-semibold border-0`}>
+                      <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 ml-13 sm:ml-0">
+                        <Badge className={`${getShiftColor(employee.shift)} px-2 py-0.5 text-[10px] sm:text-xs font-semibold border-0`}>
                           {getShiftLabel(employee.shift)}
                         </Badge>
                         <div className="text-right">
-                          <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                          <p className="text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400">
                             R$ {totalAmount.toFixed(0)}
                           </p>
-                          <p className="text-xs text-muted-foreground">{items.length} FT{items.length > 1 ? 's' : ''}</p>
+                          <p className="text-[10px] sm:text-xs text-muted-foreground">{items.length} FT{items.length > 1 ? 's' : ''}</p>
                         </div>
-                        <ChevronDown className="chevron h-5 w-5 text-muted-foreground transition-transform duration-200" />
+                        <ChevronDown className="chevron h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground transition-transform duration-200 shrink-0" />
                       </div>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="px-5 pb-5">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+                  <AccordionContent className="px-3 sm:px-5 pb-4 sm:pb-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pt-2">
                       {items.map((item) => (
                         <WorkedLeaveCard key={item.id} item={item} onViewDetails={handleViewDetails} />
                       ))}
@@ -623,43 +620,40 @@ export const WorkedLeavesTab = memo(() => {
                   value={employeeId}
                   className="border-0 rounded-2xl bg-gradient-to-br from-muted/30 to-muted/10 overflow-hidden"
                 >
-                  <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted/30 transition-colors [&[data-state=open]>div>.chevron]:rotate-180">
-                    <div className="flex items-center justify-between w-full pr-2">
-                      <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-2xl bg-muted flex items-center justify-center">
-                          <span className="text-lg font-bold text-muted-foreground">
+                  <AccordionTrigger className="px-3 sm:px-5 py-3 sm:py-4 hover:no-underline hover:bg-muted/30 transition-colors [&[data-state=open]>div>.chevron]:rotate-180">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-2 sm:gap-4 pr-2">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-muted flex items-center justify-center shrink-0">
+                          <span className="text-sm sm:text-lg font-bold text-muted-foreground">
                             {employee.first_name.charAt(0)}{employee.last_name?.charAt(0) || ''}
                           </span>
                         </div>
-                        <div className="text-left">
-                          <p className="font-bold text-foreground text-lg">
+                        <div className="text-left min-w-0 flex-1">
+                          <p className="font-bold text-foreground text-sm sm:text-lg truncate">
                             {employee.first_name} {employee.last_name}
                           </p>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Briefcase className="h-3 w-3" />
-                            <span>{employee.positions?.title || 'Sem cargo'}</span>
-                            <span className="text-muted-foreground/50">•</span>
-                            <MapPin className="h-3 w-3" />
-                            <span>{employee.condominiums?.name || 'N/A'}</span>
+                          <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
+                            <Briefcase className="h-3 w-3 shrink-0" />
+                            <span className="truncate">{employee.positions?.title || 'Sem cargo'}</span>
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <Badge className={`${getShiftColor(employee.shift)} px-3 py-1 text-xs font-semibold border-0`}>
+                      <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 ml-13 sm:ml-0">
+                        <Badge className={`${getShiftColor(employee.shift)} px-2 py-0.5 text-[10px] sm:text-xs font-semibold border-0`}>
                           {getShiftLabel(employee.shift)}
                         </Badge>
                         <div className="text-right">
-                          <p className="text-sm font-bold text-muted-foreground">
+                          <p className="text-xs sm:text-sm font-bold text-muted-foreground">
                             R$ {totalAmount.toFixed(0)}
                           </p>
-                          <p className="text-xs text-muted-foreground">{items.length} FT{items.length > 1 ? 's' : ''}</p>
+                          <p className="text-[10px] sm:text-xs text-muted-foreground">{items.length} FT{items.length > 1 ? 's' : ''}</p>
                         </div>
-                        <ChevronDown className="chevron h-5 w-5 text-muted-foreground transition-transform duration-200" />
+                        <ChevronDown className="chevron h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground transition-transform duration-200 shrink-0" />
                       </div>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="px-5 pb-5">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+                  <AccordionContent className="px-3 sm:px-5 pb-4 sm:pb-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pt-2">
                       {items.map((item) => (
                         <WorkedLeaveCard key={item.id} item={item} onViewDetails={handleViewDetails} />
                       ))}
