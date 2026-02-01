@@ -536,7 +536,7 @@ export const WorkedLeavesTab = memo(() => {
               <p className="text-muted-foreground">Nenhuma folga encontrada no mês atual</p>
             </div>
           ) : (
-            <Accordion type="multiple" className="space-y-3" defaultValue={groupedCurrentMonth.map(([key]) => key)}>
+            <Accordion type="multiple" className="space-y-3">
               {groupedCurrentMonth.map(([employeeId, { employee, items, totalAmount }], index) => (
                 <AccordionItem 
                   key={employeeId} 
@@ -613,7 +613,7 @@ export const WorkedLeavesTab = memo(() => {
               <p className="text-muted-foreground">Nenhuma folga encontrada no mês anterior</p>
             </div>
           ) : (
-            <Accordion type="multiple" className="space-y-3" defaultValue={groupedPreviousMonth.map(([key]) => key)}>
+            <Accordion type="multiple" className="space-y-3">
               {groupedPreviousMonth.map(([employeeId, { employee, items, totalAmount }]) => (
                 <AccordionItem 
                   key={employeeId} 
