@@ -8,11 +8,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Calendar, User, MapPin, Eye, DollarSign, Download, Clock, Briefcase, MessageSquare, Sparkles, TrendingUp, Plus, ChevronDown } from 'lucide-react';
+import { Search, Calendar, User, MapPin, Eye, DollarSign, Download, Clock, Briefcase, MessageSquare, Sparkles, TrendingUp, Plus, ChevronDown, Pencil } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { EmployeeDetailsModal } from './EmployeeDetailsModal';
 import { WorkedLeaveDetailsModal } from './WorkedLeaveDetailsModal';
-import { WorkedLeaveForm } from './WorkedLeaveForm';
+import { WorkedLeaveForm, WorkedLeaveEditData } from './WorkedLeaveForm';
 import { getCurrentCompanyId } from '@/lib/company';
 import * as XLSX from 'xlsx';
 
@@ -27,6 +27,7 @@ interface WorkedLeave {
   location: string | null;
   created_at: string;
   employee_id: string;
+  supervisor_id: string;
   employees: {
     id: string;
     first_name: string;
@@ -66,10 +67,12 @@ const formatDate = (dateString: string) => {
 // Premium card component - mobile optimized
 const WorkedLeaveCard = memo(({ 
   item, 
-  onViewDetails 
+  onViewDetails,
+  onEdit,
 }: { 
   item: WorkedLeave; 
   onViewDetails: (item: WorkedLeave) => void;
+  onEdit: (item: WorkedLeave) => void;
 }) => (
   <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-card via-card to-emerald-500/5 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
     {/* Gradient overlay on hover */}
@@ -159,16 +162,26 @@ const WorkedLeaveCard = memo(({
         </div>
       )}
 
-      {/* Action */}
-      <Button
-        size="sm"
-        variant="outline"
-        className="w-full h-9 text-xs bg-background/50 backdrop-blur-sm hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all duration-300"
-        onClick={() => onViewDetails(item)}
-      >
-        <Eye className="h-3.5 w-3.5 mr-1.5" />
-        Ver Detalhes
-      </Button>
+      {/* Actions */}
+      <div className="flex gap-2">
+        <Button
+          size="sm"
+          variant="outline"
+          className="flex-1 h-9 text-xs bg-background/50 backdrop-blur-sm hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all duration-300"
+          onClick={() => onViewDetails(item)}
+        >
+          <Eye className="h-3.5 w-3.5 mr-1.5" />
+          Detalhes
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-9 px-3 text-xs bg-background/50 backdrop-blur-sm hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300"
+          onClick={() => onEdit(item)}
+        >
+          <Pencil className="h-3.5 w-3.5" />
+        </Button>
+      </div>
     </CardContent>
   </Card>
 ));
@@ -187,6 +200,7 @@ export const WorkedLeavesTab = memo(() => {
   const [selectedWorkedLeave, setSelectedWorkedLeave] = useState<WorkedLeave | null>(null);
   const [showWorkedLeaveModal, setShowWorkedLeaveModal] = useState(false);
   const [showNewFTDialog, setShowNewFTDialog] = useState(false);
+  const [editingFT, setEditingFT] = useState<WorkedLeaveEditData | null>(null);
   const { toast } = useToast();
   const mountedRef = useRef(true);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
@@ -341,6 +355,21 @@ export const WorkedLeavesTab = memo(() => {
   const handleViewDetails = useCallback((workedLeave: WorkedLeave) => {
     setSelectedWorkedLeave(workedLeave);
     setShowWorkedLeaveModal(true);
+  }, []);
+
+  const handleEdit = useCallback((item: WorkedLeave) => {
+    setEditingFT({
+      id: item.id,
+      employee_id: item.employee_id,
+      date: item.date,
+      supervisor_id: item.supervisor_id,
+      observations: item.observations,
+      amount: item.amount,
+      work_shift: item.work_shift,
+      start_time: item.start_time,
+      end_time: item.end_time,
+      location: item.location,
+    });
   }, []);
 
   const handleCloseWorkedLeaveModal = useCallback(() => {
@@ -579,7 +608,7 @@ export const WorkedLeavesTab = memo(() => {
                   <AccordionContent className="px-3 sm:px-5 pb-4 sm:pb-5">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pt-2">
                       {items.map((item) => (
-                        <WorkedLeaveCard key={item.id} item={item} onViewDetails={handleViewDetails} />
+                        <WorkedLeaveCard key={item.id} item={item} onViewDetails={handleViewDetails} onEdit={handleEdit} />
                       ))}
                     </div>
                   </AccordionContent>
@@ -655,7 +684,7 @@ export const WorkedLeavesTab = memo(() => {
                   <AccordionContent className="px-3 sm:px-5 pb-4 sm:pb-5">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pt-2">
                       {items.map((item) => (
-                        <WorkedLeaveCard key={item.id} item={item} onViewDetails={handleViewDetails} />
+                        <WorkedLeaveCard key={item.id} item={item} onViewDetails={handleViewDetails} onEdit={handleEdit} />
                       ))}
                     </div>
                   </AccordionContent>
@@ -687,6 +716,21 @@ export const WorkedLeavesTab = memo(() => {
               loadData();
             }}
           />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!editingFT} onOpenChange={(open) => { if (!open) setEditingFT(null); }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 [&>button]:hidden">
+          {editingFT && (
+            <WorkedLeaveForm 
+              editData={editingFT}
+              onClose={() => setEditingFT(null)} 
+              onSuccess={() => {
+                setEditingFT(null);
+                loadData();
+              }}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>
