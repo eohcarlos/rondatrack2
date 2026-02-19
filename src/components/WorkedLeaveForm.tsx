@@ -9,9 +9,23 @@ import { useToast } from '@/hooks/use-toast';
 import { X, Clock, User, Calendar, DollarSign, Sun, Moon, FileText, Users, Sparkles, MapPin } from 'lucide-react';
 import { getCurrentCompanyId } from '@/lib/company';
 
+export interface WorkedLeaveEditData {
+  id: string;
+  employee_id: string;
+  date: string;
+  supervisor_id: string;
+  observations: string | null;
+  amount: number | null;
+  work_shift: string | null;
+  start_time: string | null;
+  end_time: string | null;
+  location: string | null;
+}
+
 interface WorkedLeaveFormProps {
   onClose: () => void;
   onSuccess: () => void;
+  editData?: WorkedLeaveEditData;
 }
 
 interface Employee {
@@ -33,19 +47,20 @@ interface Condominium {
   name: string;
 }
 
-export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) => {
+export const WorkedLeaveForm = ({ onClose, onSuccess, editData }: WorkedLeaveFormProps) => {
+  const isEditing = !!editData;
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [supervisors, setSupervisors] = useState<Profile[]>([]);
   const [condominiums, setCondominiums] = useState<Condominium[]>([]);
-  const [selectedEmployee, setSelectedEmployee] = useState('');
-  const [date, setDate] = useState('');
-  const [supervisorId, setSupervisorId] = useState('');
-  const [observations, setObservations] = useState('');
-  const [amount, setAmount] = useState('150');
-  const [workShift, setWorkShift] = useState('');
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
-  const [location, setLocation] = useState('');
+  const [selectedEmployee, setSelectedEmployee] = useState(editData?.employee_id || '');
+  const [date, setDate] = useState(editData?.date || '');
+  const [supervisorId, setSupervisorId] = useState(editData?.supervisor_id || '');
+  const [observations, setObservations] = useState(editData?.observations || '');
+  const [amount, setAmount] = useState(editData?.amount != null ? String(editData.amount) : '150');
+  const [workShift, setWorkShift] = useState(editData?.work_shift || '');
+  const [startTime, setStartTime] = useState(editData?.start_time || '');
+  const [endTime, setEndTime] = useState(editData?.end_time || '');
+  const [location, setLocation] = useState(editData?.location || '');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -53,7 +68,7 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
     loadEmployees();
     loadSupervisors();
     loadCondominiums();
-    setCurrentUserAsSupervisor();
+    if (!isEditing) setCurrentUserAsSupervisor();
   }, []);
 
   const loadEmployees = async () => {
@@ -173,52 +188,73 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
 
       if (!profile) throw new Error('Perfil não encontrado');
 
-      const ymdDate = date;
-
-      const { data: existing } = await supabase
-        .from('worked_leaves')
-        .select('id')
-        .eq('employee_id', selectedEmployee)
-        .eq('date', ymdDate)
-        .maybeSingle();
-
-      if (existing) {
-        throw new Error('Já existe uma FT registrada para este funcionário nesta data');
-      }
-
       const companyId = getCurrentCompanyId();
-      if (!companyId) {
-        throw new Error('Company ID não encontrado');
-      }
+      if (!companyId) throw new Error('Company ID não encontrado');
 
-      const { error } = await supabase
-        .from('worked_leaves')
-        .insert({
-          employee_id: selectedEmployee,
-          date: ymdDate,
-          supervisor_id: supervisorId,
-          observations,
-          amount: amount ? parseFloat(amount) : null,
-          work_shift: workShift,
-          start_time: startTime || null,
-          end_time: endTime || null,
-          location: location || null,
-          created_by: profile.id,
-          company_id: companyId,
+      if (isEditing && editData) {
+        // UPDATE mode
+        const { error } = await supabase
+          .from('worked_leaves')
+          .update({
+            employee_id: selectedEmployee,
+            date,
+            supervisor_id: supervisorId,
+            observations,
+            amount: amount ? parseFloat(amount) : null,
+            work_shift: workShift,
+            start_time: startTime || null,
+            end_time: endTime || null,
+            location: location || null,
+          })
+          .eq('id', editData.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "FT atualizada com sucesso!",
+          description: "As alterações foram salvas.",
         });
+      } else {
+        // INSERT mode
+        const { data: existing } = await supabase
+          .from('worked_leaves')
+          .select('id')
+          .eq('employee_id', selectedEmployee)
+          .eq('date', date)
+          .maybeSingle();
 
-      if (error) throw error;
+        if (existing) {
+          throw new Error('Já existe uma FT registrada para este funcionário nesta data');
+        }
 
-      toast({
-        title: "FT registrada com sucesso!",
-        description: "A folga trabalhada foi adicionada ao sistema.",
-        variant: "default",
-      });
+        const { error } = await supabase
+          .from('worked_leaves')
+          .insert({
+            employee_id: selectedEmployee,
+            date,
+            supervisor_id: supervisorId,
+            observations,
+            amount: amount ? parseFloat(amount) : null,
+            work_shift: workShift,
+            start_time: startTime || null,
+            end_time: endTime || null,
+            location: location || null,
+            created_by: profile.id,
+            company_id: companyId,
+          });
+
+        if (error) throw error;
+
+        toast({
+          title: "FT registrada com sucesso!",
+          description: "A folga trabalhada foi adicionada ao sistema.",
+        });
+      }
 
       onSuccess();
     } catch (error: any) {
       toast({
-        title: "Erro ao registrar FT",
+        title: isEditing ? "Erro ao atualizar FT" : "Erro ao registrar FT",
         description: error.message,
         variant: "destructive",
       });
@@ -254,11 +290,11 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-2xl font-bold text-white">Registrar FT</h2>
+                  <h2 className="text-2xl font-bold text-white">{isEditing ? 'Editar FT' : 'Registrar FT'}</h2>
                   <Sparkles className="h-5 w-5 text-yellow-300" />
                 </div>
                 <p className="text-white/80 text-sm mt-0.5">
-                  Adicione uma folga trabalhada ao sistema
+                  {isEditing ? 'Atualize os dados da folga trabalhada' : 'Adicione uma folga trabalhada ao sistema'}
                 </p>
               </div>
             </div>
@@ -496,7 +532,7 @@ export const WorkedLeaveForm = ({ onClose, onSuccess }: WorkedLeaveFormProps) =>
               ) : (
                 <span className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4" />
-                  Registrar FT
+                  {isEditing ? 'Salvar Alterações' : 'Registrar FT'}
                 </span>
               )}
             </Button>
