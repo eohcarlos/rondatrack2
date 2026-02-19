@@ -8,7 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Calendar, User, MapPin, Eye, DollarSign, Download, Clock, Briefcase, MessageSquare, Sparkles, TrendingUp, Plus, ChevronDown, Pencil } from 'lucide-react';
+import { Search, Calendar, User, MapPin, Eye, DollarSign, Download, Clock, Briefcase, MessageSquare, Sparkles, TrendingUp, Plus, Pencil } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { EmployeeDetailsModal } from './EmployeeDetailsModal';
 import { WorkedLeaveDetailsModal } from './WorkedLeaveDetailsModal';
@@ -573,7 +573,7 @@ export const WorkedLeavesTab = memo(() => {
                   className="border-0 rounded-2xl bg-gradient-to-br from-muted/30 to-muted/10 overflow-hidden animate-fade-in"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <AccordionTrigger className="px-3 sm:px-5 py-3 sm:py-4 hover:no-underline hover:bg-muted/30 transition-colors [&[data-state=open]>div>.chevron]:rotate-180">
+                  <AccordionTrigger className="px-3 sm:px-5 py-3 sm:py-4 hover:no-underline hover:bg-muted/30 transition-colors">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-2 sm:gap-4 pr-2">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25 shrink-0">
@@ -601,7 +601,6 @@ export const WorkedLeavesTab = memo(() => {
                           </p>
                           <p className="text-[10px] sm:text-xs text-muted-foreground">{items.length} FT{items.length > 1 ? 's' : ''}</p>
                         </div>
-                        <ChevronDown className="chevron h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground transition-transform duration-200 shrink-0" />
                       </div>
                     </div>
                   </AccordionTrigger>
@@ -649,7 +648,7 @@ export const WorkedLeavesTab = memo(() => {
                   value={employeeId}
                   className="border-0 rounded-2xl bg-gradient-to-br from-muted/30 to-muted/10 overflow-hidden"
                 >
-                  <AccordionTrigger className="px-3 sm:px-5 py-3 sm:py-4 hover:no-underline hover:bg-muted/30 transition-colors [&[data-state=open]>div>.chevron]:rotate-180">
+                  <AccordionTrigger className="px-3 sm:px-5 py-3 sm:py-4 hover:no-underline hover:bg-muted/30 transition-colors">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-2 sm:gap-4 pr-2">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-muted flex items-center justify-center shrink-0">
@@ -677,7 +676,6 @@ export const WorkedLeavesTab = memo(() => {
                           </p>
                           <p className="text-[10px] sm:text-xs text-muted-foreground">{items.length} FT{items.length > 1 ? 's' : ''}</p>
                         </div>
-                        <ChevronDown className="chevron h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground transition-transform duration-200 shrink-0" />
                       </div>
                     </div>
                   </AccordionTrigger>
