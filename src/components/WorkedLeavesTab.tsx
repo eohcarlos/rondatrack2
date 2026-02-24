@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Calendar, User, MapPin, Eye, DollarSign, Download, Clock, Briefcase, MessageSquare, Sparkles, TrendingUp, Plus, Pencil } from 'lucide-react';
+import { Search, Calendar, User, MapPin, Eye, DollarSign, Download, Clock, Briefcase, MessageSquare, Sparkles, TrendingUp, Plus, Pencil, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { EmployeeDetailsModal } from './EmployeeDetailsModal';
 import { WorkedLeaveDetailsModal } from './WorkedLeaveDetailsModal';
@@ -69,10 +70,12 @@ const WorkedLeaveCard = memo(({
   item, 
   onViewDetails,
   onEdit,
+  onDelete,
 }: { 
   item: WorkedLeave; 
   onViewDetails: (item: WorkedLeave) => void;
   onEdit: (item: WorkedLeave) => void;
+  onDelete: (item: WorkedLeave) => void;
 }) => (
   <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-card via-card to-emerald-500/5 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
     {/* Gradient overlay on hover */}
@@ -181,6 +184,14 @@ const WorkedLeaveCard = memo(({
         >
           <Pencil className="h-3.5 w-3.5" />
         </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-9 px-3 text-xs bg-background/50 backdrop-blur-sm hover:bg-destructive hover:text-destructive-foreground hover:border-destructive transition-all duration-300"
+          onClick={() => onDelete(item)}
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </Button>
       </div>
     </CardContent>
   </Card>
@@ -201,6 +212,7 @@ export const WorkedLeavesTab = memo(() => {
   const [showWorkedLeaveModal, setShowWorkedLeaveModal] = useState(false);
   const [showNewFTDialog, setShowNewFTDialog] = useState(false);
   const [editingFT, setEditingFT] = useState<WorkedLeaveEditData | null>(null);
+  const [deletingFT, setDeletingFT] = useState<WorkedLeave | null>(null);
   const { toast } = useToast();
   const mountedRef = useRef(true);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
@@ -371,6 +383,24 @@ export const WorkedLeavesTab = memo(() => {
       location: item.location,
     });
   }, []);
+
+  const handleDelete = useCallback((item: WorkedLeave) => {
+    setDeletingFT(item);
+  }, []);
+
+  const confirmDelete = useCallback(async () => {
+    if (!deletingFT) return;
+    try {
+      const { error } = await supabase.from('worked_leaves').delete().eq('id', deletingFT.id);
+      if (error) throw error;
+      toast({ title: "FT excluída", description: "Folga trabalhada excluída com sucesso." });
+      loadData();
+    } catch (error: any) {
+      toast({ title: "Erro ao excluir", description: error.message, variant: "destructive" });
+    } finally {
+      setDeletingFT(null);
+    }
+  }, [deletingFT, loadData, toast]);
 
   const handleCloseWorkedLeaveModal = useCallback(() => {
     setShowWorkedLeaveModal(false);
@@ -607,7 +637,7 @@ export const WorkedLeavesTab = memo(() => {
                   <AccordionContent className="px-3 sm:px-5 pb-4 sm:pb-5">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pt-2">
                       {items.map((item) => (
-                        <WorkedLeaveCard key={item.id} item={item} onViewDetails={handleViewDetails} onEdit={handleEdit} />
+                        <WorkedLeaveCard key={item.id} item={item} onViewDetails={handleViewDetails} onEdit={handleEdit} onDelete={handleDelete} />
                       ))}
                     </div>
                   </AccordionContent>
@@ -682,7 +712,7 @@ export const WorkedLeavesTab = memo(() => {
                   <AccordionContent className="px-3 sm:px-5 pb-4 sm:pb-5">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pt-2">
                       {items.map((item) => (
-                        <WorkedLeaveCard key={item.id} item={item} onViewDetails={handleViewDetails} onEdit={handleEdit} />
+                        <WorkedLeaveCard key={item.id} item={item} onViewDetails={handleViewDetails} onEdit={handleEdit} onDelete={handleDelete} />
                       ))}
                     </div>
                   </AccordionContent>
@@ -731,6 +761,25 @@ export const WorkedLeavesTab = memo(() => {
           )}
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!deletingFT} onOpenChange={(open) => { if (!open) setDeletingFT(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Folga Trabalhada</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir esta FT de{' '}
+              <strong>{deletingFT?.employees.first_name} {deletingFT?.employees.last_name}</strong>
+              {deletingFT?.date ? ` do dia ${formatDate(deletingFT.date)}` : ''}? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 });
