@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Edit, Trash2, Search, Building2, MapPin, Users, Calendar, Loader2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Building2, MapPin, Users, Calendar, Loader2, Eye, Briefcase } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { getCurrentCompanyId } from '@/lib/company';
 
@@ -19,15 +19,24 @@ interface Condominium {
   employee_count?: number;
 }
 
+interface CondEmployee {
+  id: string;
+  first_name: string;
+  last_name: string | null;
+  shift: string;
+  positions: { title: string } | null;
+}
+
 interface CondominiumCardProps {
   condominium: Condominium;
   index: number;
   onEdit: (condominium: Condominium) => void;
   onDelete: (id: string, hasEmployees: boolean) => void;
+  onViewEmployees: (condominium: Condominium) => void;
   formatDate: (date: string) => string;
 }
 
-const CondominiumCard = memo(({ condominium, index, onEdit, onDelete, formatDate }: CondominiumCardProps) => {
+const CondominiumCard = memo(({ condominium, index, onEdit, onDelete, onViewEmployees, formatDate }: CondominiumCardProps) => {
   const initials = condominium.name.substring(0, 2).toUpperCase();
   const hasEmployees = (condominium.employee_count || 0) > 0;
   
@@ -93,19 +102,26 @@ const CondominiumCard = memo(({ condominium, index, onEdit, onDelete, formatDate
             size="sm"
             variant="outline"
             className="flex-1 h-9 rounded-xl hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all duration-200"
-            onClick={() => onEdit(condominium)}
+            onClick={() => onViewEmployees(condominium)}
           >
-            <Edit className="h-3.5 w-3.5 mr-1.5" />
-            Editar
+            <Eye className="h-3.5 w-3.5 mr-1.5" />
+            Funcionários
           </Button>
           <Button
             size="sm"
             variant="outline"
-            className="flex-1 h-9 rounded-xl hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-all duration-200"
+            className="h-9 px-3 rounded-xl hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all duration-200"
+            onClick={() => onEdit(condominium)}
+          >
+            <Edit className="h-3.5 w-3.5" />
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-9 px-3 rounded-xl hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-all duration-200"
             onClick={() => onDelete(condominium.id, hasEmployees)}
           >
-            <Trash2 className="h-3.5 w-3.5 mr-1.5" />
-            Excluir
+            <Trash2 className="h-3.5 w-3.5" />
           </Button>
         </div>
       </div>
@@ -122,6 +138,9 @@ export const CondominiumManagement = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingCondominium, setEditingCondominium] = useState<Condominium | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [viewingEmployees, setViewingEmployees] = useState<Condominium | null>(null);
+  const [condEmployees, setCondEmployees] = useState<CondEmployee[]>([]);
+  const [loadingEmployees, setLoadingEmployees] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     address: ''
@@ -310,6 +329,27 @@ export const CondominiumManagement = () => {
     }
   };
 
+  const handleViewEmployees = async (condominium: Condominium) => {
+    setViewingEmployees(condominium);
+    setLoadingEmployees(true);
+    try {
+      const companyId = getCurrentCompanyId();
+      const { data, error } = await supabase
+        .from('employees')
+        .select('id, first_name, last_name, shift, positions(title)')
+        .eq('condominium_id', condominium.id)
+        .eq('active', true)
+        .eq('company_id', companyId!)
+        .order('first_name');
+      if (error) throw error;
+      setCondEmployees((data as any) || []);
+    } catch (error: any) {
+      toast({ title: "Erro", description: error.message, variant: "destructive" });
+    } finally {
+      setLoadingEmployees(false);
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       name: '',
@@ -485,6 +525,7 @@ export const CondominiumManagement = () => {
                   index={index}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
+                  onViewEmployees={handleViewEmployees}
                   formatDate={formatDate}
                 />
               ))}
@@ -492,6 +533,63 @@ export const CondominiumManagement = () => {
           )}
         </div>
       </div>
+      {/* Dialog de Funcionários do Condomínio */}
+      <Dialog open={!!viewingEmployees} onOpenChange={(open) => { if (!open) setViewingEmployees(null); }}>
+        <DialogContent className="max-w-lg rounded-2xl border-0 shadow-2xl bg-card">
+          <DialogHeader>
+            <DialogTitle className="text-xl flex items-center gap-2">
+              <Users className="h-5 w-5 text-primary" />
+              Funcionários
+            </DialogTitle>
+            <DialogDescription>
+              {viewingEmployees?.name}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {loadingEmployees ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="h-8 w-8 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+            </div>
+          ) : condEmployees.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="h-14 w-14 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-3">
+                <Users className="h-7 w-7 text-muted-foreground/50" />
+              </div>
+              <p className="text-muted-foreground">Nenhum funcionário ativo neste condomínio</p>
+            </div>
+          ) : (
+            <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
+              {condEmployees.map((emp) => (
+                <div key={emp.id} className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors">
+                  <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-sm shrink-0">
+                    <span className="text-sm font-bold text-primary-foreground">
+                      {emp.first_name.charAt(0)}{emp.last_name?.charAt(0) || ''}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-foreground text-sm truncate">
+                      {emp.first_name} {emp.last_name}
+                    </p>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Briefcase className="h-3 w-3" />
+                      {emp.positions?.title || 'Sem cargo'}
+                    </p>
+                  </div>
+                  <Badge className={`shrink-0 text-[10px] border-0 ${
+                    emp.shift === 'manha' 
+                      ? 'bg-gradient-to-r from-amber-400 to-orange-400 text-white' 
+                      : emp.shift === 'noite' 
+                        ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white' 
+                        : 'bg-muted text-muted-foreground'
+                  }`}>
+                    {emp.shift === 'manha' ? 'Manhã' : emp.shift === 'noite' ? 'Noite' : emp.shift}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
