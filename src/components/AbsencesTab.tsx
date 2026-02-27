@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { Search, AlertTriangle, User, MapPin, Eye, Calendar, Briefcase, MessageSquare, Sparkles, ShieldAlert } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { EmployeeDetailsModal } from './EmployeeDetailsModal';
 import { getCurrentCompanyId } from '@/lib/company';
@@ -406,71 +407,87 @@ export const AbsencesTab = memo(() => {
         </Select>
       </div>
 
-      {/* Current Month Section */}
-      <Card className="border-0 shadow-xl bg-gradient-to-br from-card via-card to-destructive/5 overflow-hidden">
-        <CardHeader className="border-b border-border/50 bg-gradient-to-r from-destructive/5 to-transparent">
-          <CardTitle className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-destructive to-destructive/70 flex items-center justify-center shadow-lg shadow-destructive/25">
-              <Calendar className="h-5 w-5 text-destructive-foreground" />
-            </div>
-            Mês Atual
-            <div className="h-8 min-w-8 px-3 rounded-full bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground text-sm font-bold flex items-center justify-center shadow-lg shadow-destructive/25">
-              {currentMonthAbsences.length}
-            </div>
-          </CardTitle>
-          <CardDescription>Faltas registradas no mês atual</CardDescription>
-        </CardHeader>
-        <CardContent className="p-6">
-          {currentMonthAbsences.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="h-16 w-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
-                <AlertTriangle className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <p className="text-muted-foreground">Nenhuma falta encontrada no mês atual</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {currentMonthAbsences.map((item, index) => (
-                <div key={item.id} className="animate-fade-in" style={{ animationDelay: `${index * 50}ms` }}>
-                  <AbsenceCard item={item} onViewDetails={handleViewDetails} />
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Month Tabs */}
+      <Tabs defaultValue="current" className="w-full">
+        <TabsList className="w-full grid grid-cols-2 h-12 rounded-2xl bg-muted/50 p-1 shadow-lg">
+          <TabsTrigger value="current" className="rounded-xl text-sm font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-destructive data-[state=active]:to-destructive/80 data-[state=active]:text-destructive-foreground data-[state=active]:shadow-lg">
+            <Calendar className="h-4 w-4 mr-2" />
+            Mês Atual ({currentMonthAbsences.length})
+          </TabsTrigger>
+          <TabsTrigger value="previous" className="rounded-xl text-sm font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-muted-foreground/80 data-[state=active]:to-muted-foreground data-[state=active]:text-white data-[state=active]:shadow-lg">
+            <Calendar className="h-4 w-4 mr-2" />
+            Mês Anterior ({previousMonthAbsences.length})
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Previous Month Section */}
-      <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-muted/30">
-        <CardHeader className="border-b border-border/50">
-          <CardTitle className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center">
-              <Calendar className="h-5 w-5 text-muted-foreground" />
-            </div>
-            Mês Anterior
-            <div className="h-8 min-w-8 px-3 rounded-full bg-muted text-muted-foreground text-sm font-bold flex items-center justify-center">
-              {previousMonthAbsences.length}
-            </div>
-          </CardTitle>
-          <CardDescription>Faltas registradas no mês anterior</CardDescription>
-        </CardHeader>
-        <CardContent className="p-6">
-          {previousMonthAbsences.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="h-16 w-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
-                <AlertTriangle className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <p className="text-muted-foreground">Nenhuma falta encontrada no mês anterior</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {previousMonthAbsences.map((item) => (
-                <AbsenceCard key={item.id} item={item} onViewDetails={handleViewDetails} />
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        <TabsContent value="current" className="mt-4">
+          <Card className="border-0 shadow-xl bg-gradient-to-br from-card via-card to-destructive/5 overflow-hidden">
+            <CardHeader className="border-b border-border/50 bg-gradient-to-r from-destructive/5 to-transparent">
+              <CardTitle className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-destructive to-destructive/70 flex items-center justify-center shadow-lg shadow-destructive/25">
+                  <Calendar className="h-5 w-5 text-destructive-foreground" />
+                </div>
+                Mês Atual
+                <div className="h-8 min-w-8 px-3 rounded-full bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground text-sm font-bold flex items-center justify-center shadow-lg shadow-destructive/25">
+                  {currentMonthAbsences.length}
+                </div>
+              </CardTitle>
+              <CardDescription>Faltas registradas no mês atual</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              {currentMonthAbsences.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="h-16 w-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                    <AlertTriangle className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <p className="text-muted-foreground">Nenhuma falta encontrada no mês atual</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {currentMonthAbsences.map((item, index) => (
+                    <div key={item.id} className="animate-fade-in" style={{ animationDelay: `${index * 50}ms` }}>
+                      <AbsenceCard item={item} onViewDetails={handleViewDetails} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="previous" className="mt-4">
+          <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-muted/30">
+            <CardHeader className="border-b border-border/50">
+              <CardTitle className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center">
+                  <Calendar className="h-5 w-5 text-muted-foreground" />
+                </div>
+                Mês Anterior
+                <div className="h-8 min-w-8 px-3 rounded-full bg-muted text-muted-foreground text-sm font-bold flex items-center justify-center">
+                  {previousMonthAbsences.length}
+                </div>
+              </CardTitle>
+              <CardDescription>Faltas registradas no mês anterior</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              {previousMonthAbsences.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="h-16 w-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                    <AlertTriangle className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <p className="text-muted-foreground">Nenhuma falta encontrada no mês anterior</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {previousMonthAbsences.map((item) => (
+                    <AbsenceCard key={item.id} item={item} onViewDetails={handleViewDetails} />
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       <EmployeeDetailsModal
         employeeId={selectedEmployeeId}
