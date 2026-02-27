@@ -8,6 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { Search, Calendar, User, MapPin, Eye, DollarSign, Download, Clock, Briefcase, MessageSquare, Sparkles, TrendingUp, Plus, Pencil, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -572,156 +573,172 @@ export const WorkedLeavesTab = memo(() => {
         </Select>
       </div>
 
-      {/* Current Month Section */}
-      <Card className="border-0 shadow-xl bg-gradient-to-br from-card via-card to-emerald-500/5 overflow-hidden">
-        <CardHeader className="border-b border-border/50 bg-gradient-to-r from-emerald-500/5 to-transparent">
-          <CardTitle className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
-              <Calendar className="h-5 w-5 text-white" />
-            </div>
-            Mês Atual
-            <div className="h-8 min-w-8 px-3 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold flex items-center justify-center shadow-lg shadow-emerald-500/25">
-              {currentMonthWorkedLeaves.length}
-            </div>
-          </CardTitle>
-          <CardDescription>Folgas trabalhadas registradas no mês atual</CardDescription>
-        </CardHeader>
-        <CardContent className="p-6">
-          {currentMonthWorkedLeaves.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="h-16 w-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
-                <Calendar className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <p className="text-muted-foreground">Nenhuma folga encontrada no mês atual</p>
-            </div>
-          ) : (
-            <Accordion type="multiple" className="space-y-3">
-              {groupedCurrentMonth.map(([employeeId, { employee, items, totalAmount }], index) => (
-                <AccordionItem 
-                  key={employeeId} 
-                  value={employeeId}
-                  className="border-0 rounded-2xl bg-gradient-to-br from-muted/30 to-muted/10 overflow-hidden animate-fade-in"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <AccordionTrigger className="px-3 sm:px-5 py-3 sm:py-4 hover:no-underline hover:bg-muted/30 transition-colors">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-2 sm:gap-4 pr-2">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25 shrink-0">
-                          <span className="text-sm sm:text-lg font-bold text-white">
-                            {employee.first_name.charAt(0)}{employee.last_name?.charAt(0) || ''}
-                          </span>
-                        </div>
-                        <div className="text-left min-w-0 flex-1">
-                          <p className="font-bold text-foreground text-sm sm:text-lg truncate">
-                            {employee.first_name} {employee.last_name}
-                          </p>
-                          <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
-                            <Briefcase className="h-3 w-3 shrink-0" />
-                            <span className="truncate">{employee.positions?.title || 'Sem cargo'}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 ml-13 sm:ml-0">
-                        <Badge className={`${getShiftColor(employee.shift)} px-2 py-0.5 text-[10px] sm:text-xs font-semibold border-0`}>
-                          {getShiftLabel(employee.shift)}
-                        </Badge>
-                        <div className="text-right">
-                          <p className="text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                            R$ {totalAmount.toFixed(0)}
-                          </p>
-                          <p className="text-[10px] sm:text-xs text-muted-foreground">{items.length} FT{items.length > 1 ? 's' : ''}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-3 sm:px-5 pb-4 sm:pb-5">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pt-2">
-                      {items.map((item) => (
-                        <WorkedLeaveCard key={item.id} item={item} onViewDetails={handleViewDetails} onEdit={handleEdit} onDelete={handleDelete} />
-                      ))}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          )}
-        </CardContent>
-      </Card>
+      {/* Month Tabs */}
+      <Tabs defaultValue="current" className="w-full">
+        <TabsList className="w-full grid grid-cols-2 h-12 rounded-2xl bg-muted/50 p-1 shadow-lg">
+          <TabsTrigger value="current" className="rounded-xl text-sm font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-lg">
+            <Calendar className="h-4 w-4 mr-2" />
+            Mês Atual ({currentMonthWorkedLeaves.length})
+          </TabsTrigger>
+          <TabsTrigger value="previous" className="rounded-xl text-sm font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-muted-foreground/80 data-[state=active]:to-muted-foreground data-[state=active]:text-white data-[state=active]:shadow-lg">
+            <Calendar className="h-4 w-4 mr-2" />
+            Mês Anterior ({previousMonthWorkedLeaves.length})
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Previous Month Section */}
-      <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-muted/30">
-        <CardHeader className="border-b border-border/50">
-          <CardTitle className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center">
-              <Calendar className="h-5 w-5 text-muted-foreground" />
-            </div>
-            Mês Anterior
-            <div className="h-8 min-w-8 px-3 rounded-full bg-muted text-muted-foreground text-sm font-bold flex items-center justify-center">
-              {previousMonthWorkedLeaves.length}
-            </div>
-          </CardTitle>
-          <CardDescription>Folgas trabalhadas registradas no mês anterior</CardDescription>
-        </CardHeader>
-        <CardContent className="p-6">
-          {previousMonthWorkedLeaves.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="h-16 w-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
-                <Calendar className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <p className="text-muted-foreground">Nenhuma folga encontrada no mês anterior</p>
-            </div>
-          ) : (
-            <Accordion type="multiple" className="space-y-3">
-              {groupedPreviousMonth.map(([employeeId, { employee, items, totalAmount }]) => (
-                <AccordionItem 
-                  key={employeeId} 
-                  value={employeeId}
-                  className="border-0 rounded-2xl bg-gradient-to-br from-muted/30 to-muted/10 overflow-hidden"
-                >
-                  <AccordionTrigger className="px-3 sm:px-5 py-3 sm:py-4 hover:no-underline hover:bg-muted/30 transition-colors">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-2 sm:gap-4 pr-2">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-muted flex items-center justify-center shrink-0">
-                          <span className="text-sm sm:text-lg font-bold text-muted-foreground">
-                            {employee.first_name.charAt(0)}{employee.last_name?.charAt(0) || ''}
-                          </span>
-                        </div>
-                        <div className="text-left min-w-0 flex-1">
-                          <p className="font-bold text-foreground text-sm sm:text-lg truncate">
-                            {employee.first_name} {employee.last_name}
-                          </p>
-                          <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
-                            <Briefcase className="h-3 w-3 shrink-0" />
-                            <span className="truncate">{employee.positions?.title || 'Sem cargo'}</span>
+        <TabsContent value="current" className="mt-4">
+          <Card className="border-0 shadow-xl bg-gradient-to-br from-card via-card to-emerald-500/5 overflow-hidden">
+            <CardHeader className="border-b border-border/50 bg-gradient-to-r from-emerald-500/5 to-transparent">
+              <CardTitle className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                  <Calendar className="h-5 w-5 text-white" />
+                </div>
+                Mês Atual
+                <div className="h-8 min-w-8 px-3 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-bold flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                  {currentMonthWorkedLeaves.length}
+                </div>
+              </CardTitle>
+              <CardDescription>Folgas trabalhadas registradas no mês atual</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              {currentMonthWorkedLeaves.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="h-16 w-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                    <Calendar className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <p className="text-muted-foreground">Nenhuma folga encontrada no mês atual</p>
+                </div>
+              ) : (
+                <Accordion type="multiple" className="space-y-3">
+                  {groupedCurrentMonth.map(([employeeId, { employee, items, totalAmount }], index) => (
+                    <AccordionItem 
+                      key={employeeId} 
+                      value={employeeId}
+                      className="border-0 rounded-2xl bg-gradient-to-br from-muted/30 to-muted/10 overflow-hidden animate-fade-in"
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
+                      <AccordionTrigger className="px-3 sm:px-5 py-3 sm:py-4 hover:no-underline hover:bg-muted/30 transition-colors">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-2 sm:gap-4 pr-2">
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25 shrink-0">
+                              <span className="text-sm sm:text-lg font-bold text-white">
+                                {employee.first_name.charAt(0)}{employee.last_name?.charAt(0) || ''}
+                              </span>
+                            </div>
+                            <div className="text-left min-w-0 flex-1">
+                              <p className="font-bold text-foreground text-sm sm:text-lg truncate">
+                                {employee.first_name} {employee.last_name}
+                              </p>
+                              <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
+                                <Briefcase className="h-3 w-3 shrink-0" />
+                                <span className="truncate">{employee.positions?.title || 'Sem cargo'}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 ml-13 sm:ml-0">
+                            <Badge className={`${getShiftColor(employee.shift)} px-2 py-0.5 text-[10px] sm:text-xs font-semibold border-0`}>
+                              {getShiftLabel(employee.shift)}
+                            </Badge>
+                            <div className="text-right">
+                              <p className="text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                R$ {totalAmount.toFixed(0)}
+                              </p>
+                              <p className="text-[10px] sm:text-xs text-muted-foreground">{items.length} FT{items.length > 1 ? 's' : ''}</p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 ml-13 sm:ml-0">
-                        <Badge className={`${getShiftColor(employee.shift)} px-2 py-0.5 text-[10px] sm:text-xs font-semibold border-0`}>
-                          {getShiftLabel(employee.shift)}
-                        </Badge>
-                        <div className="text-right">
-                          <p className="text-xs sm:text-sm font-bold text-muted-foreground">
-                            R$ {totalAmount.toFixed(0)}
-                          </p>
-                          <p className="text-[10px] sm:text-xs text-muted-foreground">{items.length} FT{items.length > 1 ? 's' : ''}</p>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-3 sm:px-5 pb-4 sm:pb-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pt-2">
+                          {items.map((item) => (
+                            <WorkedLeaveCard key={item.id} item={item} onViewDetails={handleViewDetails} onEdit={handleEdit} onDelete={handleDelete} />
+                          ))}
                         </div>
-                      </div>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-3 sm:px-5 pb-4 sm:pb-5">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pt-2">
-                      {items.map((item) => (
-                        <WorkedLeaveCard key={item.id} item={item} onViewDetails={handleViewDetails} onEdit={handleEdit} onDelete={handleDelete} />
-                      ))}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          )}
-        </CardContent>
-      </Card>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="previous" className="mt-4">
+          <Card className="border-0 shadow-xl bg-gradient-to-br from-card to-muted/30">
+            <CardHeader className="border-b border-border/50">
+              <CardTitle className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center">
+                  <Calendar className="h-5 w-5 text-muted-foreground" />
+                </div>
+                Mês Anterior
+                <div className="h-8 min-w-8 px-3 rounded-full bg-muted text-muted-foreground text-sm font-bold flex items-center justify-center">
+                  {previousMonthWorkedLeaves.length}
+                </div>
+              </CardTitle>
+              <CardDescription>Folgas trabalhadas registradas no mês anterior</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              {previousMonthWorkedLeaves.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="h-16 w-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                    <Calendar className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <p className="text-muted-foreground">Nenhuma folga encontrada no mês anterior</p>
+                </div>
+              ) : (
+                <Accordion type="multiple" className="space-y-3">
+                  {groupedPreviousMonth.map(([employeeId, { employee, items, totalAmount }]) => (
+                    <AccordionItem 
+                      key={employeeId} 
+                      value={employeeId}
+                      className="border-0 rounded-2xl bg-gradient-to-br from-muted/30 to-muted/10 overflow-hidden"
+                    >
+                      <AccordionTrigger className="px-3 sm:px-5 py-3 sm:py-4 hover:no-underline hover:bg-muted/30 transition-colors">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-2 sm:gap-4 pr-2">
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-muted flex items-center justify-center shrink-0">
+                              <span className="text-sm sm:text-lg font-bold text-muted-foreground">
+                                {employee.first_name.charAt(0)}{employee.last_name?.charAt(0) || ''}
+                              </span>
+                            </div>
+                            <div className="text-left min-w-0 flex-1">
+                              <p className="font-bold text-foreground text-sm sm:text-lg truncate">
+                                {employee.first_name} {employee.last_name}
+                              </p>
+                              <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
+                                <Briefcase className="h-3 w-3 shrink-0" />
+                                <span className="truncate">{employee.positions?.title || 'Sem cargo'}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 ml-13 sm:ml-0">
+                            <Badge className={`${getShiftColor(employee.shift)} px-2 py-0.5 text-[10px] sm:text-xs font-semibold border-0`}>
+                              {getShiftLabel(employee.shift)}
+                            </Badge>
+                            <div className="text-right">
+                              <p className="text-xs sm:text-sm font-bold text-muted-foreground">
+                                R$ {totalAmount.toFixed(0)}
+                              </p>
+                              <p className="text-[10px] sm:text-xs text-muted-foreground">{items.length} FT{items.length > 1 ? 's' : ''}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-3 sm:px-5 pb-4 sm:pb-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pt-2">
+                          {items.map((item) => (
+                            <WorkedLeaveCard key={item.id} item={item} onViewDetails={handleViewDetails} onEdit={handleEdit} onDelete={handleDelete} />
+                          ))}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       <WorkedLeaveDetailsModal
         isOpen={showWorkedLeaveModal}
