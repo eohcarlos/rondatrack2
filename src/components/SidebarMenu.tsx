@@ -11,6 +11,7 @@ import {
   Download, 
   Briefcase, 
   Sparkles,
+  CalendarDays,
   User,
   Shield,
   LogOut,
@@ -38,6 +39,7 @@ const menuItems = [
   { value: 'condominiums', label: 'Condomínios', icon: Building2, color: 'text-warning' },
   { value: 'worked-leaves', label: 'Folgas Trabalhadas', icon: Clock, color: 'text-primary' },
   { value: 'absences', label: 'Faltas', icon: Calendar, color: 'text-destructive' },
+  { value: 'schedule', label: 'Escala', icon: CalendarDays, color: 'text-primary' },
   { value: 'reports', label: 'Relatórios', icon: Download, color: 'text-accent' },
   { value: 'ai', label: 'IA Reports', icon: Sparkles, color: 'text-primary' },
 ];

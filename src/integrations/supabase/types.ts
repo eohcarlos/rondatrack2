@@ -422,6 +422,74 @@ export type Database = {
           },
         ]
       }
+      schedules: {
+        Row: {
+          company_id: string
+          condominium_id: string | null
+          created_at: string
+          created_by: string
+          date: string
+          employee_id: string
+          id: string
+          observations: string | null
+          shift: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          condominium_id?: string | null
+          created_at?: string
+          created_by: string
+          date: string
+          employee_id: string
+          id?: string
+          observations?: string | null
+          shift: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          condominium_id?: string | null
+          created_at?: string
+          created_by?: string
+          date?: string
+          employee_id?: string
+          id?: string
+          observations?: string | null
+          shift?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedules_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedules_condominium_id_fkey"
+            columns: ["condominium_id"]
+            isOneToOne: false
+            referencedRelation: "condominiums"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedules_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedules_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null
