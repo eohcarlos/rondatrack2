@@ -172,72 +172,135 @@ export const ScheduleTab = () => {
 
   const generatePDF = () => {
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
     const dayData = weekDays.find(d => d.dateStr === activeDay);
-    const dayLabel = dayData ? `${dayData.label} - ${dayData.shortLabel}` : activeDay;
+    const dayLabel = dayData ? format(new Date(dayData.dateStr + 'T12:00:00'), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR }) : activeDay;
 
-    // Header
-    doc.setFillColor(30, 58, 138);
-    doc.rect(0, 0, 210, 40, 'F');
+    // Header gradient bar
+    doc.setFillColor(15, 23, 42);
+    doc.rect(0, 0, pageWidth, 48, 'F');
+    // Accent line
+    doc.setFillColor(59, 130, 246);
+    doc.rect(0, 48, pageWidth, 3, 'F');
+
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(20);
+    doc.setFontSize(22);
     doc.setFont('helvetica', 'bold');
-    doc.text('Escala de Funcionários', 14, 18);
-    doc.setFontSize(12);
+    doc.text('ESCALA DE FUNCIONARIOS', 14, 20);
+
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
-    doc.text(dayLabel, 14, 28);
-    doc.text(`Gerado em: ${format(new Date(), 'dd/MM/yyyy HH:mm')}`, 14, 35);
+    doc.setTextColor(148, 163, 184);
+    doc.text(dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1), 14, 30);
 
-    let yPos = 50;
+    doc.setFontSize(9);
+    doc.text(`Gerado em ${format(new Date(), "dd/MM/yyyy 'as' HH:mm")}`, 14, 40);
 
-    const renderShiftTable = (title: string, entries: ScheduleEntry[], color: [number, number, number]) => {
+    // Summary box
+    const summaryY = 58;
+    doc.setFillColor(241, 245, 249);
+    doc.roundedRect(14, summaryY, pageWidth - 28, 20, 3, 3, 'F');
+    
+    doc.setTextColor(30, 41, 59);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    const colW = (pageWidth - 28) / 4;
+    doc.text(`TOTAL: ${schedulesForDay.length}`, 14 + 8, summaryY + 12);
+    doc.setTextColor(217, 119, 6);
+    doc.text(`DIURNO: ${diurnoSchedules.length}`, 14 + colW + 8, summaryY + 12);
+    doc.setTextColor(67, 56, 202);
+    doc.text(`NOTURNO: ${noturnoSchedules.length}`, 14 + colW * 2 + 8, summaryY + 12);
+    doc.setTextColor(190, 18, 60);
+    doc.text(`DOBRA: ${dobraSchedules.length}`, 14 + colW * 3 + 8, summaryY + 12);
+
+    let yPos = summaryY + 30;
+
+    const renderShiftTable = (title: string, entries: ScheduleEntry[], color: [number, number, number], accentColor: [number, number, number]) => {
       if (entries.length === 0) return;
 
+      // Check page break
+      if (yPos > pageHeight - 60) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      // Section accent bar
+      doc.setFillColor(...accentColor);
+      doc.rect(14, yPos - 1, 4, 8, 'F');
+      
       doc.setTextColor(...color);
-      doc.setFontSize(14);
+      doc.setFontSize(13);
       doc.setFont('helvetica', 'bold');
-      doc.text(`${title} (${entries.length})`, 14, yPos);
-      yPos += 4;
+      doc.text(`${title}`, 22, yPos + 5);
+      
+      doc.setTextColor(100, 116, 139);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`${entries.length} funcionario(s)`, pageWidth - 14, yPos + 5, { align: 'right' });
+      yPos += 10;
 
       autoTable(doc, {
         startY: yPos,
-        head: [['Funcionário', 'Cargo', 'Condomínio', 'Observações']],
-        body: entries.map(s => [
+        head: [['#', 'Funcionario', 'Cargo', 'Condominio', 'Observacoes']],
+        body: entries.map((s, i) => [
+          String(i + 1),
           `${s.employees?.first_name || ''} ${s.employees?.last_name || ''}`.trim(),
           s.employees?.positions?.title || '-',
           s.condominiums?.name || '-',
           s.observations || '-',
         ]),
-        theme: 'grid',
-        headStyles: { fillColor: color, textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 10 },
-        bodyStyles: { fontSize: 9 },
-        alternateRowStyles: { fillColor: [245, 247, 250] },
+        theme: 'plain',
+        headStyles: { 
+          fillColor: color, 
+          textColor: [255, 255, 255], 
+          fontStyle: 'bold', 
+          fontSize: 9,
+          cellPadding: 4,
+        },
+        bodyStyles: { 
+          fontSize: 9, 
+          cellPadding: 3.5,
+          textColor: [30, 41, 59],
+        },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        columnStyles: {
+          0: { cellWidth: 10, halign: 'center' },
+          1: { cellWidth: 45 },
+          2: { cellWidth: 35 },
+          3: { cellWidth: 40 },
+          4: { cellWidth: 'auto' },
+        },
         margin: { left: 14, right: 14 },
+        styles: {
+          lineColor: [226, 232, 240],
+          lineWidth: 0.3,
+        },
       });
 
-      yPos = (doc as any).lastAutoTable.finalY + 12;
+      yPos = (doc as any).lastAutoTable.finalY + 14;
     };
 
-    renderShiftTable('☀️ Turno Diurno', diurnoSchedules, [217, 119, 6]);
-    renderShiftTable('🌙 Turno Noturno', noturnoSchedules, [67, 56, 202]);
-    renderShiftTable('⏰ Dobra (24h)', dobraSchedules, [190, 18, 60]);
+    renderShiftTable('Turno Diurno', diurnoSchedules, [180, 83, 9], [251, 191, 36]);
+    renderShiftTable('Turno Noturno', noturnoSchedules, [55, 48, 163], [99, 102, 241]);
+    renderShiftTable('Dobra - 24 Horas', dobraSchedules, [159, 18, 57], [244, 63, 94]);
 
     if (schedulesForDay.length === 0) {
-      doc.setTextColor(100, 100, 100);
-      doc.setFontSize(14);
-      doc.text('Nenhum funcionário escalado para este dia.', 14, yPos);
+      doc.setTextColor(100, 116, 139);
+      doc.setFontSize(13);
+      doc.text('Nenhum funcionario escalado para este dia.', pageWidth / 2, yPos + 10, { align: 'center' });
     }
 
     // Footer
-    const pageHeight = doc.internal.pageSize.height;
-    doc.setFillColor(243, 244, 246);
-    doc.rect(0, pageHeight - 15, 210, 15, 'F');
-    doc.setTextColor(107, 114, 128);
-    doc.setFontSize(8);
-    doc.text('RondaTrack 2 - Sistema de Gestão', 14, pageHeight - 6);
-    doc.text(`Total: ${schedulesForDay.length} funcionário(s)`, 150, pageHeight - 6);
+    doc.setFillColor(15, 23, 42);
+    doc.rect(0, pageHeight - 14, pageWidth, 14, 'F');
+    doc.setTextColor(148, 163, 184);
+    doc.setFontSize(7);
+    doc.text('RondaTrack 2  |  Sistema de Gestao de Seguranca', 14, pageHeight - 5);
+    doc.text(`Total de ${schedulesForDay.length} funcionario(s) escalado(s)`, pageWidth - 14, pageHeight - 5, { align: 'right' });
 
     doc.save(`escala-${activeDay}.pdf`);
-    toast({ title: '📄 PDF gerado com sucesso!' });
+    toast({ title: 'PDF gerado com sucesso!' });
   };
 
   const renderScheduleCard = (entry: ScheduleEntry) => {
