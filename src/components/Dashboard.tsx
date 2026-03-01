@@ -5,6 +5,7 @@ import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useNavigate } from 'react-router-dom';
 import { Menu, LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, Activity, TrendingUp, BarChart3, DollarSign, ChevronRight } from 'lucide-react';
+import { DashboardCharts } from './DashboardCharts';
 import { PWAInstallPrompt } from './PWAInstallPrompt';
 import { MainHeroCard } from './MainHeroCard';
 
@@ -403,6 +404,9 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
                 </CardContent>
               </Card>
             </div>
+
+            {/* Premium Charts Section */}
+            <DashboardCharts />
 
             {/* Secondary Stats + Actions Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
