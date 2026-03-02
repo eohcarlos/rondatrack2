@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useNavigate } from 'react-router-dom';
-import { Menu, LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, Activity, TrendingUp, BarChart3, DollarSign, ChevronRight } from 'lucide-react';
+import { Menu, LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield, User, Activity, TrendingUp, TrendingDown, BarChart3, DollarSign, ChevronRight, ArrowUpRight, ArrowDownRight, Zap } from 'lucide-react';
 import { DashboardCharts } from './DashboardCharts';
 import { PWAInstallPrompt } from './PWAInstallPrompt';
 import { MainHeroCard } from './MainHeroCard';
@@ -48,41 +48,38 @@ interface DashboardProps {
   companyName?: string;
 }
 
-// Premium stat card component
-const StatCard = memo(({ 
-  title, 
-  value, 
-  description, 
-  icon: Icon, 
-  gradient,
-  iconBg
-}: { 
-  title: string; 
-  value: string | number; 
-  description: string; 
-  icon: React.ElementType;
-  gradient: string;
-  iconBg: string;
-}) => (
-  <Card 
-    className={`group relative overflow-hidden transition-all duration-300 border-0 ${gradient}`}
-  >
-    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 relative z-10">
-      <CardTitle className="text-sm font-semibold text-foreground/90">{title}</CardTitle>
-      <div className={`w-12 h-12 ${iconBg} rounded-2xl flex items-center justify-center shadow-lg`}>
-        <Icon className="h-6 w-6 text-white" />
-      </div>
-    </CardHeader>
-    <CardContent className="relative z-10">
-      <div className="text-3xl font-bold text-foreground mb-1 tracking-tight">{value}</div>
-      <p className="text-sm text-muted-foreground">{description}</p>
-    </CardContent>
-    <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-primary/5 to-transparent rounded-tl-full opacity-50" />
-  </Card>
-));
+// Trend badge component
+const TrendBadge = memo(({ current, previous, suffix = '' }: { current: number; previous: number; suffix?: string }) => {
+  if (previous === 0 && current === 0) return null;
+  const diff = previous > 0 ? Math.round(((current - previous) / previous) * 100) : (current > 0 ? 100 : 0);
+  const isUp = diff >= 0;
+  
+  return (
+    <div className={`flex items-center gap-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+      isUp 
+        ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' 
+        : 'bg-rose-500/15 text-rose-600 dark:text-rose-400'
+    }`}>
+      {isUp ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+      {Math.abs(diff)}%{suffix}
+    </div>
+  );
+});
+TrendBadge.displayName = 'TrendBadge';
 
-StatCard.displayName = 'StatCard';
+// Mini progress bar
+const MiniProgress = memo(({ value, max, color }: { value: number; max: number; color: string }) => {
+  const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0;
+  return (
+    <div className="w-full h-1.5 bg-muted/50 rounded-full overflow-hidden mt-2">
+      <div 
+        className={`h-full rounded-full transition-all duration-1000 ease-out ${color}`}
+        style={{ width: `${pct}%` }}
+      />
+    </div>
+  );
+});
+MiniProgress.displayName = 'MiniProgress';
 
 // Premium header component
 const DashboardHeader = memo(({ 
@@ -132,7 +129,6 @@ const DashboardHeader = memo(({
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           <div className="flex items-center gap-3 lg:gap-4">
-            {/* Menu Button - Always visible */}
             <Button 
               variant="ghost" 
               size="icon" 
@@ -159,7 +155,6 @@ const DashboardHeader = memo(({
           </div>
 
           <div className="flex items-center gap-2 lg:gap-3">
-            {/* Profile avatar - always visible */}
             {profile && (
               <button 
                 onClick={onNavigateProfile}
@@ -216,15 +211,12 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // Evita que o botão "Voltar" feche o PWA quando o usuário está em alguma aba interna.
-  // Regra: se estiver em qualquer aba (activeTab != 'dashboard'), "Voltar" retorna para o dashboard.
   const activeTabRef = useRef(activeTab);
   useEffect(() => {
     activeTabRef.current = activeTab;
   }, [activeTab]);
 
   useEffect(() => {
-    // Marca a entrada base do /dashboard no histórico
     const current = window.history.state ?? {};
     if (current?.rt !== 'rt_dashboard_base') {
       window.history.replaceState({ ...current, rt: 'rt_dashboard_base' }, '', window.location.href);
@@ -242,21 +234,16 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
 
   useEffect(() => {
     if (activeTab === 'dashboard') return;
-
-    // Cria uma única entrada "fantasma" no histórico quando sai do dashboard.
-    // Assim, o back volta para o dashboard (em vez de sair do app).
     const current = window.history.state ?? {};
     if (current?.rt !== 'rt_dashboard_tab') {
       window.history.pushState({ ...current, rt: 'rt_dashboard_tab' }, '', window.location.href);
     }
   }, [activeTab]);
   
-  // Use optimized hooks
   const { stats } = useStats();
   const { profile } = useProfile();
   const { isAdmin, isLoading: isLoadingRole } = useUserRole();
 
-  // Memoized callbacks
   const handleLogout = useCallback(async () => {
     await supabase.auth.signOut();
     onLogout();
@@ -272,18 +259,12 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
   const handleCloseSidebar = useCallback(() => setIsSidebarOpen(false), []);
   
   const setTabDashboard = useCallback(() => setActiveTab('dashboard'), []);
-  const setTabEmployees = useCallback(() => setActiveTab('employees'), []);
-  const setTabWorkedLeaves = useCallback(() => setActiveTab('worked-leaves'), []);
-  const setTabAbsences = useCallback(() => setActiveTab('absences'), []);
-  const setTabCondominiums = useCallback(() => setActiveTab('condominiums'), []);
 
-  // Memoized formatted values
-  const monthlyRevenue = useMemo(() => formatCurrency(stats.monthlyWorkedLeavesRevenue), [stats.monthlyWorkedLeavesRevenue]);
-  const totalRevenue = useMemo(() => formatCurrency(stats.totalWorkedLeavesRevenue), [stats.totalWorkedLeavesRevenue]);
+  // Combined max for progress bars
+  const maxMonthly = useMemo(() => Math.max(stats.monthlyWorkedLeaves, stats.monthlyAbsences, stats.previousMonthWorkedLeaves, stats.previousMonthAbsences, 1), [stats]);
 
   return (
     <>
-      {/* Sidebar Menu - rendered outside main container */}
       <SidebarMenu
         isOpen={isSidebarOpen}
         onClose={handleCloseSidebar}
@@ -319,88 +300,103 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
               userName={profile?.first_name}
             />
 
-            {/* Quick Actions - Compact Premium Buttons */}
+            {/* Quick Actions */}
             <div className="grid grid-cols-2 gap-3">
               <button 
                 onClick={handleNavigateFT}
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-gradient-to-r from-primary to-primary/80 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98]"
+                className="group flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98]"
               >
-                <Plus className="h-4 w-4" />
-                <span>Registrar FT</span>
+                <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Plus className="h-4 w-4" />
+                </div>
+                <span className="text-sm">Registrar FT</span>
               </button>
 
               <button 
                 onClick={handleNavigateAbsence}
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-gradient-to-r from-destructive to-destructive/80 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98]"
+                className="group flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground font-semibold shadow-lg shadow-destructive/25 hover:shadow-xl hover:shadow-destructive/30 hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98]"
               >
-                <Plus className="h-4 w-4" />
-                <span>Registrar Falta</span>
+                <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Plus className="h-4 w-4" />
+                </div>
+                <span className="text-sm">Registrar Falta</span>
               </button>
             </div>
 
-            {/* Stats Grid - Premium Rounded Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Primary Stats Grid - Premium Cards with Trends */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
               {/* FTs do Mês */}
-              <Card className="relative overflow-hidden border-0 rounded-3xl bg-gradient-to-br from-card to-primary/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
-                      <Clock className="h-6 w-6 text-white" />
+              <Card className="relative overflow-hidden border-0 rounded-3xl bg-card shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <CardContent className="p-4 lg:p-5 relative">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/25">
+                      <Clock className="h-5 w-5 text-primary-foreground" />
                     </div>
-                    <span className="text-xs font-semibold text-primary bg-primary/10 px-3 py-1.5 rounded-full">Este mês</span>
+                    <TrendBadge current={stats.monthlyWorkedLeaves} previous={stats.previousMonthWorkedLeaves} />
                   </div>
-                  <p className="text-3xl lg:text-4xl font-bold text-foreground">
+                  <p className="text-3xl lg:text-4xl font-extrabold text-foreground tracking-tight">
                     <AnimatedNumber value={stats.monthlyWorkedLeaves} duration={800} />
                   </p>
-                  <p className="text-sm text-muted-foreground mt-1.5">FTs registradas</p>
+                  <p className="text-xs text-muted-foreground mt-1 font-medium">FTs este mês</p>
+                  <MiniProgress value={stats.monthlyWorkedLeaves} max={maxMonthly} color="bg-gradient-to-r from-primary to-primary/70" />
                 </CardContent>
               </Card>
 
               {/* Faltas do Mês */}
-              <Card className="relative overflow-hidden border-0 rounded-3xl bg-gradient-to-br from-card to-destructive/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-destructive to-destructive/70 flex items-center justify-center shadow-lg">
-                      <Calendar className="h-6 w-6 text-white" />
+              <Card className="relative overflow-hidden border-0 rounded-3xl bg-card shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+                <div className="absolute inset-0 bg-gradient-to-br from-destructive/5 via-transparent to-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <CardContent className="p-4 lg:p-5 relative">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-destructive to-destructive/70 flex items-center justify-center shadow-lg shadow-destructive/25">
+                      <Calendar className="h-5 w-5 text-destructive-foreground" />
                     </div>
-                    <span className="text-xs font-semibold text-destructive bg-destructive/10 px-3 py-1.5 rounded-full">Este mês</span>
+                    <TrendBadge current={stats.monthlyAbsences} previous={stats.previousMonthAbsences} />
                   </div>
-                  <p className="text-3xl lg:text-4xl font-bold text-foreground">
+                  <p className="text-3xl lg:text-4xl font-extrabold text-foreground tracking-tight">
                     <AnimatedNumber value={stats.monthlyAbsences} duration={900} />
                   </p>
-                  <p className="text-sm text-muted-foreground mt-1.5">Faltas registradas</p>
+                  <p className="text-xs text-muted-foreground mt-1 font-medium">Faltas este mês</p>
+                  <MiniProgress value={stats.monthlyAbsences} max={maxMonthly} color="bg-gradient-to-r from-destructive to-destructive/70" />
                 </CardContent>
               </Card>
 
               {/* Faturamento do Mês */}
-              <Card className="relative overflow-hidden border-0 rounded-3xl bg-gradient-to-br from-card to-emerald-500/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg">
-                      <DollarSign className="h-6 w-6 text-white" />
+              <Card className="relative overflow-hidden border-0 rounded-3xl bg-card shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <CardContent className="p-4 lg:p-5 relative">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                      <DollarSign className="h-5 w-5 text-white" />
                     </div>
-                    <span className="text-xs font-semibold text-emerald-600 bg-emerald-500/10 px-3 py-1.5 rounded-full">Este mês</span>
+                    <div className="flex items-center gap-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                      <Zap className="h-3 w-3" />
+                      Mês
+                    </div>
                   </div>
-                  <p className="text-2xl lg:text-3xl font-bold text-foreground">
+                  <p className="text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight">
                     <AnimatedCurrency value={stats.monthlyWorkedLeavesRevenue} duration={1200} />
                   </p>
-                  <p className="text-sm text-muted-foreground mt-1.5">Faturamento FT</p>
+                  <p className="text-xs text-muted-foreground mt-1 font-medium">Faturamento FT</p>
+                  <MiniProgress value={stats.monthlyWorkedLeavesRevenue} max={Math.max(stats.totalWorkedLeavesRevenue, 1)} color="bg-gradient-to-r from-emerald-500 to-emerald-400" />
                 </CardContent>
               </Card>
 
               {/* Funcionários */}
-              <Card className="relative overflow-hidden border-0 rounded-3xl bg-gradient-to-br from-card to-accent/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center shadow-lg">
-                      <Users className="h-6 w-6 text-white" />
+              <Card className="relative overflow-hidden border-0 rounded-3xl bg-card shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <CardContent className="p-4 lg:p-5 relative">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center shadow-lg shadow-accent/25">
+                      <Users className="h-5 w-5 text-accent-foreground" />
                     </div>
-                    <span className="text-xs font-semibold text-accent bg-accent/10 px-3 py-1.5 rounded-full">Total</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent/15 text-accent">Ativos</span>
                   </div>
-                  <p className="text-3xl lg:text-4xl font-bold text-foreground">
+                  <p className="text-3xl lg:text-4xl font-extrabold text-foreground tracking-tight">
                     <AnimatedNumber value={stats.totalEmployees} duration={1000} />
                   </p>
-                  <p className="text-sm text-muted-foreground mt-1.5">Funcionários ativos</p>
+                  <p className="text-xs text-muted-foreground mt-1 font-medium">Funcionários</p>
+                  <MiniProgress value={stats.totalEmployees} max={Math.max(stats.totalEmployees, 1)} color="bg-gradient-to-r from-accent to-accent/70" />
                 </CardContent>
               </Card>
             </div>
@@ -414,35 +410,35 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
               <Card className="lg:col-span-2 border-0 rounded-3xl bg-card/50 backdrop-blur-sm shadow-lg">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base font-semibold flex items-center gap-2">
-                    <Activity className="h-4 w-4 text-muted-foreground" />
+                    <Activity className="h-4 w-4 text-primary" />
                     Resumo Geral
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-violet-500/20 to-violet-600/10 border border-violet-500/20">
-                      <p className="text-2xl font-bold text-violet-600 dark:text-violet-400">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-violet-500/10 to-violet-600/5 border border-violet-500/15 hover:border-violet-500/30 transition-colors">
+                      <p className="text-2xl font-extrabold text-violet-600 dark:text-violet-400">
                         <AnimatedNumber value={stats.previousMonthWorkedLeaves} duration={1100} />
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">FTs mês anterior</p>
+                      <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">FTs mês anterior</p>
                     </div>
-                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-rose-500/20 to-rose-600/10 border border-rose-500/20">
-                      <p className="text-2xl font-bold text-rose-600 dark:text-rose-400">
+                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-rose-500/10 to-rose-600/5 border border-rose-500/15 hover:border-rose-500/30 transition-colors">
+                      <p className="text-2xl font-extrabold text-rose-600 dark:text-rose-400">
                         <AnimatedNumber value={stats.previousMonthAbsences} duration={1000} />
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">Faltas mês anterior</p>
+                      <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">Faltas mês anterior</p>
                     </div>
-                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border border-cyan-500/20">
-                      <p className="text-2xl font-bold text-cyan-600 dark:text-cyan-400">
+                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-cyan-600/5 border border-cyan-500/15 hover:border-cyan-500/30 transition-colors">
+                      <p className="text-2xl font-extrabold text-cyan-600 dark:text-cyan-400">
                         <AnimatedNumber value={stats.totalCondominiums} duration={900} />
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">Condomínios</p>
+                      <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">Condomínios</p>
                     </div>
-                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/20">
-                      <p className="text-xl font-bold text-amber-600 dark:text-amber-400">
+                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/15 hover:border-amber-500/30 transition-colors">
+                      <p className="text-xl font-extrabold text-amber-600 dark:text-amber-400">
                         <AnimatedCurrency value={stats.totalWorkedLeavesRevenue} duration={1400} />
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">Fat. Total FT</p>
+                      <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">Fat. Total FT</p>
                     </div>
                   </div>
                 </CardContent>
