@@ -16,7 +16,8 @@ import {
   Shield,
   LogOut,
   ChevronRight,
-  PanelLeftClose
+  PanelLeftClose,
+  Palette
 } from 'lucide-react';
 
 interface SidebarMenuProps {
@@ -42,6 +43,7 @@ const menuItems = [
   { value: 'schedule', label: 'Escala', icon: CalendarDays, color: 'text-primary' },
   { value: 'reports', label: 'Relatórios', icon: Download, color: 'text-accent' },
   { value: 'ai', label: 'IA Reports', icon: Sparkles, color: 'text-primary' },
+  { value: 'themes', label: 'Temas', icon: Palette, color: 'text-accent' },
 ];
 
 const getRoleLabel = (role: string) => {

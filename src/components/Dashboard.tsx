@@ -25,6 +25,7 @@ import {
   LazyReportsPanel,
   LazyAIReportsTab,
   LazyScheduleTab,
+  LazyThemesTab,
   WithSuspense
 } from './LazyComponents';
 
@@ -512,6 +513,12 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
           <TabsContent value="ai">
             <WithSuspense>
               <LazyAIReportsTab />
+            </WithSuspense>
+          </TabsContent>
+
+          <TabsContent value="themes">
+            <WithSuspense>
+              <LazyThemesTab />
             </WithSuspense>
           </TabsContent>
         </Tabs>
