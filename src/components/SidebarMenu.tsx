@@ -33,7 +33,7 @@ interface SidebarMenuProps {
   companyName?: string;
 }
 
-const menuItems = [
+const menuItems: { value: string; label: string; icon: typeof BarChart3; color: string; isNew?: boolean }[] = [
   { value: 'dashboard', label: 'Dashboard', icon: BarChart3, color: 'text-primary' },
   { value: 'employees', label: 'Funcionários', icon: Users, color: 'text-accent' },
   { value: 'positions', label: 'Cargos', icon: Briefcase, color: 'text-warning' },
@@ -43,7 +43,7 @@ const menuItems = [
   { value: 'schedule', label: 'Escala', icon: CalendarDays, color: 'text-primary' },
   { value: 'reports', label: 'Relatórios', icon: Download, color: 'text-accent' },
   { value: 'ai', label: 'IA Reports', icon: Sparkles, color: 'text-primary' },
-  { value: 'themes', label: 'Temas', icon: Palette, color: 'text-accent' },
+  { value: 'themes', label: 'Temas', icon: Palette, color: 'text-accent', isNew: true },
 ];
 
 const getRoleLabel = (role: string) => {
@@ -164,6 +164,11 @@ export const SidebarMenu = memo(({
                     <Icon className={`h-4 w-4 ${isActive ? 'text-primary-foreground' : item.color}`} />
                   </div>
                   <span className="flex-1 text-left text-sm font-medium">{item.label}</span>
+                  {item.isNew && (
+                    <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full bg-emerald-500 text-white animate-pulse">
+                      Novo
+                    </span>
+                  )}
                   <ChevronRight className={`h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity ${
                     isActive ? 'opacity-100 text-primary-foreground' : 'text-muted-foreground'
                   }`} />
