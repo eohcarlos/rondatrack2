@@ -26,6 +26,27 @@ const themes: { id: ColorTheme; name: string; description: string; colors: strin
     colors: ['hsl(271 76% 53%)', 'hsl(280 68% 60%)', 'hsl(271 76% 64%)'],
     gradient: 'from-violet-500 via-purple-500 to-fuchsia-500',
   },
+  {
+    id: 'rose',
+    name: 'Rosa Sunset',
+    description: 'Vibrante e acolhedor',
+    colors: ['hsl(346 77% 50%)', 'hsl(330 65% 55%)', 'hsl(346 77% 60%)'],
+    gradient: 'from-rose-500 via-pink-500 to-fuchsia-400',
+  },
+  {
+    id: 'amber',
+    name: 'Dourado Premium',
+    description: 'Luxuoso e marcante',
+    colors: ['hsl(38 92% 50%)', 'hsl(25 95% 53%)', 'hsl(38 92% 60%)'],
+    gradient: 'from-amber-500 via-orange-500 to-yellow-500',
+  },
+  {
+    id: 'slate',
+    name: 'Cinza Executivo',
+    description: 'Minimalista e discreto',
+    colors: ['hsl(215 20% 40%)', 'hsl(215 14% 50%)', 'hsl(215 20% 50%)'],
+    gradient: 'from-slate-500 via-gray-500 to-zinc-400',
+  },
 ];
 
 export const ThemesTab = memo(() => {

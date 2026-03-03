@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-export type ColorTheme = 'blue' | 'emerald' | 'purple';
+export type ColorTheme = 'blue' | 'emerald' | 'purple' | 'rose' | 'amber' | 'slate';
 export type DarkMode = 'light' | 'dark';
 
 interface ThemeContextType {
@@ -73,6 +73,60 @@ const THEME_COLORS: Record<ColorTheme, Record<'light' | 'dark', Record<string, s
       '--accent': '280 68% 65%',
       '--accent-foreground': '0 0% 100%',
       '--ring': '271 76% 64%',
+    },
+  },
+  rose: {
+    light: {
+      '--primary': '346 77% 50%',
+      '--primary-foreground': '0 0% 100%',
+      '--primary-glow': '346 77% 60%',
+      '--accent': '330 65% 55%',
+      '--accent-foreground': '0 0% 100%',
+      '--ring': '346 77% 60%',
+    },
+    dark: {
+      '--primary': '346 77% 55%',
+      '--primary-foreground': '0 0% 100%',
+      '--primary-glow': '346 77% 65%',
+      '--accent': '330 65% 60%',
+      '--accent-foreground': '0 0% 100%',
+      '--ring': '346 77% 60%',
+    },
+  },
+  amber: {
+    light: {
+      '--primary': '38 92% 50%',
+      '--primary-foreground': '0 0% 100%',
+      '--primary-glow': '38 92% 60%',
+      '--accent': '25 95% 53%',
+      '--accent-foreground': '0 0% 100%',
+      '--ring': '38 92% 60%',
+    },
+    dark: {
+      '--primary': '38 92% 55%',
+      '--primary-foreground': '0 0% 100%',
+      '--primary-glow': '38 92% 65%',
+      '--accent': '25 95% 58%',
+      '--accent-foreground': '0 0% 100%',
+      '--ring': '38 92% 60%',
+    },
+  },
+  slate: {
+    light: {
+      '--primary': '215 20% 40%',
+      '--primary-foreground': '0 0% 100%',
+      '--primary-glow': '215 20% 50%',
+      '--accent': '215 14% 50%',
+      '--accent-foreground': '0 0% 100%',
+      '--ring': '215 20% 50%',
+    },
+    dark: {
+      '--primary': '215 20% 55%',
+      '--primary-foreground': '0 0% 100%',
+      '--primary-glow': '215 20% 65%',
+      '--accent': '215 14% 60%',
+      '--accent-foreground': '0 0% 100%',
+      '--ring': '215 20% 55%',
     },
   },
 };
