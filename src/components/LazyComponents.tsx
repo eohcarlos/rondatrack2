@@ -54,6 +54,10 @@ export const LazyScheduleTab = lazy(() =>
   import('./ScheduleTab').then(m => ({ default: m.ScheduleTab }))
 );
 
+export const LazyThemesTab = lazy(() => 
+  import('./ThemesTab').then(m => ({ default: m.ThemesTab }))
+);
+
 // Wrapper component with Suspense
 interface WithSuspenseProps {
   children: React.ReactNode;
