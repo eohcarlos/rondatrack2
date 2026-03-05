@@ -10,6 +10,7 @@ import { PWAInstallPrompt } from './PWAInstallPrompt';
 import { MainHeroCard } from './MainHeroCard';
 
 import { SidebarMenu } from './SidebarMenu';
+import { SubscriptionAlert } from './SubscriptionAlert';
 import { useUserRole } from '@/hooks/useUserRole';
 import { ThemeToggle } from './ThemeToggle';
 import { useStats } from '@/hooks/useStats';
@@ -266,6 +267,7 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
 
   return (
     <>
+      <SubscriptionAlert />
       <SidebarMenu
         isOpen={isSidebarOpen}
         onClose={handleCloseSidebar}
