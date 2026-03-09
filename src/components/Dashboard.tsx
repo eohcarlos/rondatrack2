@@ -267,7 +267,7 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
 
   return (
     <>
-      <SubscriptionAlert />
+      
       <SidebarMenu
         isOpen={isSidebarOpen}
         onClose={handleCloseSidebar}
