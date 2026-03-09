@@ -20,7 +20,7 @@ export const AccessCodeForm = ({ onSuccess }: AccessCodeFormProps) => {
     setIsLoading(true);
 
     try {
-      if (accessCode !== '10203040') {
+      if (!accessCode.trim()) {
         toast({
           title: "Código de acesso inválido",
           description: "Digite o código de acesso correto para acessar o sistema.",
