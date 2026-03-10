@@ -10,14 +10,14 @@ import {
   Calendar, 
   Download, 
   Briefcase, 
-  
   CalendarDays,
   User,
   Shield,
   LogOut,
   ChevronRight,
   PanelLeftClose,
-  Palette
+  Palette,
+  Fuel
 } from 'lucide-react';
 
 interface SidebarMenuProps {
