@@ -10,7 +10,7 @@ import {
   Calendar, 
   Download, 
   Briefcase, 
-  Sparkles,
+  
   CalendarDays,
   User,
   Shield,
