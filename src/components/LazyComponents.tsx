@@ -46,9 +46,6 @@ export const LazyReportsPanel = lazy(() =>
   import('./ReportsPanel').then(m => ({ default: m.ReportsPanel }))
 );
 
-export const LazyAIReportsTab = lazy(() => 
-  import('./AIReportsTab').then(m => ({ default: m.AIReportsTab }))
-);
 
 export const LazyScheduleTab = lazy(() => 
   import('./ScheduleTab').then(m => ({ default: m.ScheduleTab }))

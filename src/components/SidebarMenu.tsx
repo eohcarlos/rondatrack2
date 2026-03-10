@@ -10,7 +10,7 @@ import {
   Calendar, 
   Download, 
   Briefcase, 
-  Sparkles,
+  
   CalendarDays,
   User,
   Shield,
@@ -42,7 +42,6 @@ const menuItems: { value: string; label: string; icon: typeof BarChart3; color: 
   { value: 'absences', label: 'Faltas', icon: Calendar, color: 'text-destructive' },
   { value: 'schedule', label: 'Escala', icon: CalendarDays, color: 'text-primary' },
   { value: 'reports', label: 'Relatórios', icon: Download, color: 'text-accent' },
-  { value: 'ai', label: 'IA Reports', icon: Sparkles, color: 'text-primary' },
   { value: 'themes', label: 'Temas', icon: Palette, color: 'text-accent', isNew: true },
 ];
 
