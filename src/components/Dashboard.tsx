@@ -26,6 +26,7 @@ import {
   LazyReportsPanel,
   LazyScheduleTab,
   LazyThemesTab,
+  LazyExpensesTab,
   WithSuspense
 } from './LazyComponents';
 
