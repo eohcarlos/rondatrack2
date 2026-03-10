@@ -321,6 +321,65 @@ export type Database = {
           },
         ]
       }
+      expenses: {
+        Row: {
+          amount: number
+          company_id: string
+          created_at: string
+          created_by: string
+          date: string
+          id: string
+          license_plate: string | null
+          location: string | null
+          mileage: number | null
+          observations: string | null
+          receipt_url: string | null
+          type: string
+          updated_at: string
+          vehicle: string | null
+        }
+        Insert: {
+          amount?: number
+          company_id: string
+          created_at?: string
+          created_by: string
+          date?: string
+          id?: string
+          license_plate?: string | null
+          location?: string | null
+          mileage?: number | null
+          observations?: string | null
+          receipt_url?: string | null
+          type: string
+          updated_at?: string
+          vehicle?: string | null
+        }
+        Update: {
+          amount?: number
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          date?: string
+          id?: string
+          license_plate?: string | null
+          location?: string | null
+          mileage?: number | null
+          observations?: string | null
+          receipt_url?: string | null
+          type?: string
+          updated_at?: string
+          vehicle?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       positions: {
         Row: {
           company_id: string | null

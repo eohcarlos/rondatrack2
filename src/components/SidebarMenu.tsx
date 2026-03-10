@@ -10,14 +10,14 @@ import {
   Calendar, 
   Download, 
   Briefcase, 
-  
   CalendarDays,
   User,
   Shield,
   LogOut,
   ChevronRight,
   PanelLeftClose,
-  Palette
+  Palette,
+  Fuel
 } from 'lucide-react';
 
 interface SidebarMenuProps {
@@ -41,6 +41,7 @@ const menuItems: { value: string; label: string; icon: typeof BarChart3; color: 
   { value: 'worked-leaves', label: 'Folgas Trabalhadas', icon: Clock, color: 'text-primary' },
   { value: 'absences', label: 'Faltas', icon: Calendar, color: 'text-destructive' },
   { value: 'schedule', label: 'Escala', icon: CalendarDays, color: 'text-primary' },
+  { value: 'expenses', label: 'Gastos', icon: Fuel, color: 'text-accent' },
   { value: 'reports', label: 'Relatórios', icon: Download, color: 'text-accent' },
   { value: 'themes', label: 'Temas', icon: Palette, color: 'text-accent', isNew: true },
 ];
