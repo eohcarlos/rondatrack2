@@ -24,7 +24,6 @@ import {
   LazyWorkedLeavesTab,
   LazyAbsencesTab,
   LazyReportsPanel,
-  LazyAIReportsTab,
   LazyScheduleTab,
   LazyThemesTab,
   WithSuspense
