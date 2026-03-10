@@ -5,10 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Fuel, Receipt, Upload, Loader2, Trash2, Camera, MapPin, Car, Gauge, DollarSign, CalendarDays } from 'lucide-react';
+import { Fuel, Receipt, Upload, Loader2, Trash2, Camera, MapPin, Car, Gauge, DollarSign, CalendarDays, Eye, Paperclip, X, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -26,16 +26,40 @@ type Expense = {
   created_at: string;
 };
 
+// Format number to BRL string with comma
+const formatBRL = (value: string): string => {
+  // Remove everything except digits
+  const digits = value.replace(/\D/g, '');
+  if (!digits) return '';
+  const num = parseInt(digits, 10);
+  const reais = Math.floor(num / 100);
+  const centavos = num % 100;
+  return `${reais.toLocaleString('pt-BR')},${centavos.toString().padStart(2, '0')}`;
+};
+
+// Parse BRL formatted string to number
+const parseBRL = (value: string): number => {
+  const digits = value.replace(/\D/g, '');
+  if (!digits) return 0;
+  return parseInt(digits, 10) / 100;
+};
+
+// Format number to display as BRL
+const displayBRL = (value: number): string => {
+  return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
 export const ExpensesTab = () => {
   const [subTab, setSubTab] = useState<'abastecimento' | 'pedagio'>('abastecimento');
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const { toast } = useToast();
 
   // Form state
-  const [amount, setAmount] = useState('');
+  const [amountDisplay, setAmountDisplay] = useState('');
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [vehicle, setVehicle] = useState('');
   const [licensePlate, setLicensePlate] = useState('');
@@ -68,7 +92,7 @@ export const ExpensesTab = () => {
   }, [fetchExpenses]);
 
   const resetForm = () => {
-    setAmount('');
+    setAmountDisplay('');
     setDate(format(new Date(), 'yyyy-MM-dd'));
     setVehicle('');
     setLicensePlate('');
@@ -77,6 +101,11 @@ export const ExpensesTab = () => {
     setObservations('');
     setReceiptFile(null);
     setReceiptPreview(null);
+  };
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    setAmountDisplay(formatBRL(raw));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,11 +117,15 @@ export const ExpensesTab = () => {
     reader.readAsDataURL(file);
   };
 
+  const removeFile = () => {
+    setReceiptFile(null);
+    setReceiptPreview(null);
+  };
+
   const handleExtractFromImage = async () => {
     if (!receiptFile) return;
     setIsExtracting(true);
     try {
-      // Upload to storage first
       const fileName = `${Date.now()}_${receiptFile.name}`;
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('receipts')
@@ -103,7 +136,6 @@ export const ExpensesTab = () => {
       const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(uploadData.path);
       const imageUrl = urlData.publicUrl;
 
-      // Call AI extraction
       const { data: fnData, error: fnError } = await supabase.functions.invoke('extract-receipt', {
         body: { imageUrl, type: subTab },
       });
@@ -112,7 +144,10 @@ export const ExpensesTab = () => {
 
       if (fnData?.data) {
         const d = fnData.data;
-        if (d.amount != null) setAmount(String(d.amount));
+        if (d.amount != null) {
+          const cents = Math.round(d.amount * 100);
+          setAmountDisplay(formatBRL(cents.toString()));
+        }
         if (d.date) setDate(d.date);
         if (d.location) setLocation(d.location);
         if (d.vehicle) setVehicle(d.vehicle);
@@ -130,7 +165,8 @@ export const ExpensesTab = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount) {
+    const numericAmount = parseBRL(amountDisplay);
+    if (!numericAmount) {
       toast({ title: 'Valor obrigatório', variant: 'destructive' });
       return;
     }
@@ -158,7 +194,7 @@ export const ExpensesTab = () => {
         company_id: companyId,
         created_by: user.id,
         type: subTab,
-        amount: parseFloat(amount),
+        amount: numericAmount,
         date,
         vehicle: vehicle || null,
         license_plate: licensePlate || null,
@@ -185,6 +221,7 @@ export const ExpensesTab = () => {
       const { error } = await supabase.from('expenses').delete().eq('id', id);
       if (error) throw error;
       toast({ title: 'Gasto removido!' });
+      setSelectedExpense(null);
       fetchExpenses();
     } catch (error: any) {
       toast({ title: 'Erro', description: error.message, variant: 'destructive' });
@@ -217,7 +254,7 @@ export const ExpensesTab = () => {
           </div>
           <div className="text-right">
             <p className="text-sm text-white/70">Total geral</p>
-            <p className="text-3xl font-bold">R$ {totalAmount.toFixed(2)}</p>
+            <p className="text-3xl font-bold">R$ {displayBRL(totalAmount)}</p>
           </div>
         </div>
       </div>
@@ -245,7 +282,7 @@ export const ExpensesTab = () => {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Mês atual</p>
-                  <p className="text-lg font-bold text-foreground">R$ {currentMonthTotal.toFixed(2)}</p>
+                  <p className="text-lg font-bold text-foreground">R$ {displayBRL(currentMonthTotal)}</p>
                 </div>
               </CardContent>
             </Card>
@@ -272,38 +309,67 @@ export const ExpensesTab = () => {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Image upload */}
+                {/* Attachment upload */}
                 <div className="space-y-2">
                   <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Comprovante (foto)
+                    Anexar Comprovante
                   </Label>
-                  <div className="flex gap-2">
-                    <label className="flex-1 cursor-pointer">
-                      <div className="flex items-center justify-center gap-2 h-20 rounded-2xl border-2 border-dashed border-border hover:border-primary/50 transition-colors bg-muted/30">
+                  {receiptFile ? (
+                    <div className="rounded-2xl border border-border bg-muted/30 p-3">
+                      <div className="flex items-start gap-3">
                         {receiptPreview ? (
-                          <img src={receiptPreview} alt="Preview" className="h-16 w-auto rounded-xl object-cover" />
+                          <img src={receiptPreview} alt="Preview" className="h-20 w-20 rounded-xl object-cover flex-shrink-0" />
                         ) : (
-                          <>
-                            <Camera className="h-5 w-5 text-muted-foreground" />
-                            <span className="text-sm text-muted-foreground">Tirar foto ou selecionar</span>
-                          </>
+                          <div className="h-20 w-20 rounded-xl bg-muted flex items-center justify-center flex-shrink-0">
+                            <FileText className="h-8 w-8 text-muted-foreground" />
+                          </div>
                         )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">{receiptFile.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {(receiptFile.size / 1024).toFixed(1)} KB
+                          </p>
+                          <div className="flex gap-2 mt-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={handleExtractFromImage}
+                              disabled={isExtracting}
+                              className="rounded-xl gap-1 text-xs h-8"
+                            >
+                              {isExtracting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+                              {isExtracting ? 'Extraindo...' : 'Extrair com IA'}
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={removeFile}
+                              className="rounded-xl gap-1 text-xs h-8 text-destructive hover:text-destructive"
+                            >
+                              <X className="h-3 w-3" />
+                              Remover
+                            </Button>
+                          </div>
+                        </div>
                       </div>
-                      <input type="file" accept="image/*" capture="environment" onChange={handleFileChange} className="hidden" />
+                    </div>
+                  ) : (
+                    <label className="cursor-pointer block">
+                      <div className="flex flex-col items-center justify-center gap-2 h-24 rounded-2xl border-2 border-dashed border-border hover:border-primary/50 transition-colors bg-muted/20">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <Camera className="h-5 w-5 text-primary" />
+                          </div>
+                          <div className="h-10 w-10 rounded-xl bg-accent/10 flex items-center justify-center">
+                            <Paperclip className="h-5 w-5 text-accent" />
+                          </div>
+                        </div>
+                        <span className="text-sm text-muted-foreground">Tirar foto ou anexar arquivo</span>
+                      </div>
+                      <input type="file" accept="image/*,application/pdf" capture="environment" onChange={handleFileChange} className="hidden" />
                     </label>
-                  </div>
-                  {receiptFile && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleExtractFromImage}
-                      disabled={isExtracting}
-                      className="w-full rounded-xl gap-2"
-                    >
-                      {isExtracting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                      {isExtracting ? 'Extraindo com IA...' : 'Extrair dados com IA'}
-                    </Button>
                   )}
                 </div>
 
@@ -313,13 +379,13 @@ export const ExpensesTab = () => {
                       Valor (R$) *
                     </Label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <span className="absolute left-3 top-2.5 text-sm text-muted-foreground font-medium">R$</span>
                       <Input
-                        type="number"
-                        step="0.01"
-                        value={amount}
-                        onChange={e => setAmount(e.target.value)}
-                        className="pl-9 rounded-xl"
+                        type="text"
+                        inputMode="numeric"
+                        value={amountDisplay}
+                        onChange={handleAmountChange}
+                        className="pl-10 rounded-xl"
                         placeholder="0,00"
                         required
                       />
@@ -373,7 +439,7 @@ export const ExpensesTab = () => {
                     </Label>
                     <div className="relative">
                       <Gauge className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input type="number" value={mileage} onChange={e => setMileage(e.target.value)} className="pl-9 rounded-xl" placeholder="0" />
+                      <Input type="text" inputMode="numeric" value={mileage} onChange={e => setMileage(e.target.value.replace(/\D/g, ''))} className="pl-9 rounded-xl" placeholder="0" />
                     </div>
                   </div>
                 </div>
@@ -429,22 +495,27 @@ export const ExpensesTab = () => {
                         )}
                         <div>
                           <p className="font-semibold text-foreground">
-                            R$ {expense.amount?.toFixed(2)}
+                            R$ {displayBRL(expense.amount || 0)}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {format(new Date(expense.date + 'T12:00:00'), "dd 'de' MMMM", { locale: ptBR })}
                             {expense.location && ` • ${expense.location}`}
                           </p>
-                          {expense.vehicle && (
-                            <p className="text-xs text-muted-foreground">
-                              {expense.vehicle} {expense.license_plate && `• ${expense.license_plate}`}
-                            </p>
+                          {expense.receipt_url && (
+                            <span className="inline-flex items-center gap-1 text-xs text-primary mt-0.5">
+                              <Paperclip className="h-3 w-3" /> Comprovante anexado
+                            </span>
                           )}
                         </div>
                       </div>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(expense.id)} className="text-destructive hover:text-destructive">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button variant="ghost" size="icon" onClick={() => setSelectedExpense(expense)} className="text-primary hover:text-primary">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(expense.id)} className="text-destructive hover:text-destructive">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -453,6 +524,78 @@ export const ExpensesTab = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Detail Modal */}
+      <Dialog open={!!selectedExpense} onOpenChange={() => setSelectedExpense(null)}>
+        <DialogContent className="rounded-3xl max-w-md mx-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {selectedExpense?.type === 'abastecimento' ? <Fuel className="h-5 w-5 text-primary" /> : <Receipt className="h-5 w-5 text-primary" />}
+              Detalhes do {selectedExpense?.type === 'abastecimento' ? 'Abastecimento' : 'Pedágio'}
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedExpense && (
+            <div className="space-y-4">
+              {/* Amount highlight */}
+              <div className="rounded-2xl bg-primary/5 border border-primary/10 p-4 text-center">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">Valor</p>
+                <p className="text-3xl font-bold text-primary">R$ {displayBRL(selectedExpense.amount || 0)}</p>
+              </div>
+
+              {/* Info grid */}
+              <div className="space-y-3">
+                <DetailRow icon={<CalendarDays className="h-4 w-4" />} label="Data" value={format(new Date(selectedExpense.date + 'T12:00:00'), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })} />
+                {selectedExpense.vehicle && <DetailRow icon={<Car className="h-4 w-4" />} label="Veículo" value={selectedExpense.vehicle} />}
+                {selectedExpense.license_plate && <DetailRow icon={<FileText className="h-4 w-4" />} label="Placa" value={selectedExpense.license_plate} />}
+                {selectedExpense.location && <DetailRow icon={<MapPin className="h-4 w-4" />} label="Local" value={selectedExpense.location} />}
+                {selectedExpense.mileage != null && <DetailRow icon={<Gauge className="h-4 w-4" />} label="Quilometragem" value={`${selectedExpense.mileage.toLocaleString('pt-BR')} km`} />}
+                {selectedExpense.observations && <DetailRow icon={<FileText className="h-4 w-4" />} label="Observações" value={selectedExpense.observations} />}
+              </div>
+
+              {/* Receipt image */}
+              {selectedExpense.receipt_url && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                    <Paperclip className="h-3 w-3" /> Comprovante
+                  </p>
+                  <a href={selectedExpense.receipt_url} target="_blank" rel="noopener noreferrer">
+                    <img
+                      src={selectedExpense.receipt_url}
+                      alt="Comprovante"
+                      className="w-full rounded-2xl border border-border object-contain max-h-80 cursor-pointer hover:opacity-90 transition-opacity"
+                    />
+                  </a>
+                  <p className="text-xs text-center text-muted-foreground">Toque na imagem para abrir em tamanho completo</p>
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setSelectedExpense(null)}>
+                  Fechar
+                </Button>
+                <Button variant="destructive" className="rounded-xl gap-1" onClick={() => handleDelete(selectedExpense.id)}>
+                  <Trash2 className="h-4 w-4" /> Excluir
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
+
+// Detail row helper
+const DetailRow = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
+  <div className="flex items-start gap-3 rounded-xl bg-muted/30 p-3">
+    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 text-primary">
+      {icon}
+    </div>
+    <div>
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="text-sm font-medium text-foreground">{value}</p>
+    </div>
+  </div>
+);
