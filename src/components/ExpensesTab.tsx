@@ -286,15 +286,20 @@ export const ExpensesTab = () => {
 
         <TabsContent value={subTab} className="mt-4 space-y-6">
           {/* Stats */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <Card className="rounded-2xl border-border/50">
               <CardContent className="p-4 flex items-center gap-3">
                 <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
                   <DollarSign className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Mês atual</p>
-                  <p className="text-lg font-bold text-foreground">R$ {displayBRL(currentMonthTotal)}</p>
+                  <p className="text-xs text-muted-foreground">Mês Atual</p>
+                  <p className="text-base font-bold text-foreground">R$ {displayBRL(currentMonthTotal)}</p>
+                  {variation !== 0 && (
+                    <p className={`text-[10px] font-medium ${variation > 0 ? 'text-destructive' : 'text-accent'}`}>
+                      {variation > 0 ? '▲' : '▼'} {Math.abs(variation).toFixed(0)}% vs mês anterior
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -304,8 +309,33 @@ export const ExpensesTab = () => {
                   <CalendarDays className="h-5 w-5 text-accent" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Registros</p>
-                  <p className="text-lg font-bold text-foreground">{currentMonthExpenses.length}</p>
+                  <p className="text-xs text-muted-foreground">Registros (Mês)</p>
+                  <p className="text-base font-bold text-foreground">{currentMonthExpenses.length}</p>
+                  <p className="text-[10px] text-muted-foreground">de {expenses.length} total</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="rounded-2xl border-border/50">
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-secondary/50 flex items-center justify-center">
+                  <Fuel className="h-5 w-5 text-secondary-foreground" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Mês Anterior</p>
+                  <p className="text-base font-bold text-foreground">R$ {displayBRL(prevMonthTotal)}</p>
+                  <p className="text-[10px] text-muted-foreground">{prevMonthExpenses.length} registros</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="rounded-2xl border-border/50">
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Receipt className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Total Geral</p>
+                  <p className="text-base font-bold text-foreground">R$ {displayBRL(totalAmount)}</p>
+                  <p className="text-[10px] text-muted-foreground">{expenses.length} registros</p>
                 </div>
               </CardContent>
             </Card>
