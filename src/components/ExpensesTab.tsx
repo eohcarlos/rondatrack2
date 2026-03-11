@@ -229,12 +229,24 @@ export const ExpensesTab = () => {
   };
 
   const totalAmount = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
-  const currentMonthExpenses = expenses.filter(e => {
-    const d = new Date(e.date);
-    const now = new Date();
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-  });
+  
+  // Use string-based date parsing to avoid timezone issues
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  const currentMonthStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
+  
+  const currentMonthExpenses = expenses.filter(e => e.date.startsWith(currentMonthStr));
   const currentMonthTotal = currentMonthExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+  
+  // Previous month
+  const prevDate = new Date(currentYear, currentMonth - 2, 1);
+  const prevMonthStr = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, '0')}`;
+  const prevMonthExpenses = expenses.filter(e => e.date.startsWith(prevMonthStr));
+  const prevMonthTotal = prevMonthExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+  
+  // Variation
+  const variation = prevMonthTotal > 0 ? ((currentMonthTotal - prevMonthTotal) / prevMonthTotal) * 100 : 0;
 
   const typeLabel = subTab === 'abastecimento' ? 'Abastecimento' : 'Pedágio';
   const TypeIcon = subTab === 'abastecimento' ? Fuel : Receipt;
