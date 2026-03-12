@@ -408,438 +408,127 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
 
   const downloadPDF = async (data: any[], headers: string[], filename: string, employee: any) => {
     try {
-      const doc = new jsPDF('p', 'mm', 'a4');
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const margin = 14;
-      const contentWidth = pageWidth - margin * 2;
-
-      // ── Color palette ──
-      const isFT = reportType === 'ft';
-      const brand: [number, number, number] = isFT ? [16, 78, 183] : [190, 30, 45];
-      const brandDark: [number, number, number] = isFT ? [10, 52, 130] : [140, 20, 30];
-      const brandLight: [number, number, number] = isFT ? [235, 243, 255] : [255, 240, 240];
-      const brandAccent: [number, number, number] = isFT ? [59, 130, 246] : [239, 68, 68];
-      const dark: [number, number, number] = [17, 24, 39];
-      const gray: [number, number, number] = [107, 114, 128];
-      const lightGray: [number, number, number] = [243, 244, 246];
-      const white: [number, number, number] = [255, 255, 255];
-      const green: [number, number, number] = [16, 125, 72];
-      const greenLight: [number, number, number] = [220, 252, 231];
-
-      // ── Utility functions ──
-      const drawRoundedRect = (x: number, y: number, w: number, h: number, r: number, fill: [number, number, number], stroke?: [number, number, number]) => {
-        doc.setFillColor(...fill);
-        if (stroke) {
-          doc.setDrawColor(...stroke);
-          doc.setLineWidth(0.3);
-          doc.roundedRect(x, y, w, h, r, r, 'FD');
-        } else {
-          doc.roundedRect(x, y, w, h, r, r, 'F');
-        }
-      };
-
-      // ── COVER / HEADER ──
-      // Full-width gradient header
-      doc.setFillColor(...brandDark);
-      doc.rect(0, 0, pageWidth, 52, 'F');
-      doc.setFillColor(...brand);
-      doc.rect(0, 0, pageWidth, 48, 'F');
-
-      // Decorative diagonal stripe
-      doc.setFillColor(...brandAccent);
-      doc.triangle(pageWidth - 80, 0, pageWidth, 0, pageWidth, 48, 'F');
-
-      // Small decorative circles
-      doc.setFillColor(255, 255, 255);
-      doc.setGState(new (doc as any).GState({ opacity: 0.08 }));
-      doc.circle(30, 40, 25, 'F');
-      doc.circle(pageWidth - 50, 10, 18, 'F');
-      doc.setGState(new (doc as any).GState({ opacity: 1 }));
-
-      // Logo
+      // Usar orientação padrão (portrait) para PDF
+      const doc = new jsPDF();
+      
+      // Adicionar logotipo no canto direito
+      const logoUrl = '/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png';
+      
+      // Carregar a imagem como base64
       try {
-        const response = await fetch('/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png');
+        const response = await fetch(logoUrl);
         const blob = await response.blob();
         const reader = new FileReader();
+        
         await new Promise<void>((resolve, reject) => {
           reader.onload = () => {
-            doc.addImage(reader.result as string, 'PNG', pageWidth - 38, 6, 26, 26);
+            const base64 = reader.result as string;
+            // Adicionar logo no canto superior direito
+            doc.addImage(base64, 'PNG', 168, 6, 30, 30);
             resolve();
           };
           reader.onerror = reject;
           reader.readAsDataURL(blob);
         });
-      } catch { /* skip logo */ }
-
-      // Title
-      doc.setTextColor(...white);
-      doc.setFontSize(22);
+      } catch (logoError) {
+        console.warn('Não foi possível carregar o logotipo:', logoError);
+      }
+      
+      // Título
+      doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
-      doc.text(isFT ? 'FOLGAS TRABALHADAS' : 'RELATÓRIO DE FALTAS', margin + 2, 22);
+      doc.text(`Relatório de ${reportType === 'ft' ? 'Folgas Trabalhadas' : 'Faltas'}`, 20, 20);
       
+      doc.setFont('helvetica', 'normal');
       doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(255, 255, 255);
-      doc.setGState(new (doc as any).GState({ opacity: 0.85 }));
-      doc.text('Relatório para Departamento de RH', margin + 2, 30);
-      
-      const periodStr = startDate && endDate
-        ? `${format(startDate, 'dd/MM/yyyy')} a ${format(endDate, 'dd/MM/yyyy')}`
-        : 'Todos os registros';
-      doc.text(`Período: ${periodStr}`, margin + 2, 38);
-      doc.setGState(new (doc as any).GState({ opacity: 1 }));
 
-      // ── Info strip below header ──
-      let currentY = 58;
-      drawRoundedRect(margin, currentY, contentWidth, 18, 3, lightGray, [220, 220, 220]);
-      
-      doc.setTextColor(...gray);
-      doc.setFontSize(7);
-      doc.setFont('helvetica', 'normal');
-      
-      const infoItems = [
-        `📅 Gerado: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`,
-        `📊 ${data.length} registro(s)`,
-        employee ? `👤 ${employee.first_name} ${employee.last_name}` : '👥 Todos os funcionários',
-      ];
-      
-      const infoSpacing = contentWidth / infoItems.length;
-      infoItems.forEach((item, i) => {
-        doc.text(item, margin + 6 + (infoSpacing * i), currentY + 11);
-      });
+      let currentY = 32;
 
-      currentY += 26;
+      // Período
+      if (startDate && endDate) {
+        doc.text(`Período: ${format(startDate, 'dd/MM/yyyy')} a ${format(endDate, 'dd/MM/yyyy')}`, 20, currentY);
+        currentY += 7;
+      }
 
-      // ── Group data by employee ──
-      const sortedData = [...data].sort((a, b) => (a['Nome'] || '').localeCompare(b['Nome'] || '', 'pt-BR'));
-      
-      const groupedByEmployee: Record<string, any[]> = {};
-      sortedData.forEach(row => {
-        const name = row['Nome'] || 'Sem Nome';
-        if (!groupedByEmployee[name]) groupedByEmployee[name] = [];
-        groupedByEmployee[name].push(row);
-      });
-
-      const employeeNames = Object.keys(groupedByEmployee);
-      const isAllEmployees = exportAllEmployees || !employee;
-
-      // ── If all employees: render grouped sections ──
-      if (isAllEmployees && employeeNames.length > 1) {
-        
-        // HR Payment Summary Table (first page, before detail)
-        doc.setTextColor(...dark);
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.text('📋 RESUMO PARA PAGAMENTO', margin, currentY + 4);
-        currentY += 8;
-
-        const summaryHeaders = isFT 
-          ? ['#', 'Funcionário', 'Cargo', 'Condomínio', 'Qtd FTs', 'Valor Total']
-          : ['#', 'Funcionário', 'Cargo', 'Condomínio', 'Total Faltas', 'Principal Motivo'];
-        
-        const summaryData = employeeNames.map((name, idx) => {
-          const records = groupedByEmployee[name];
-          const firstRecord = records[0];
-          
-          if (isFT) {
-            const total = records.reduce((sum, r) => {
-              const match = (r['Valor'] || '').match(/R\$\s*([\d.,]+)/);
-              return sum + (match ? (parseFloat(match[1].replace(',', '.')) || 0) : 0);
-            }, 0);
-            return [
-              String(idx + 1),
-              name,
-              firstRecord['Cargo'] || '-',
-              firstRecord['Condomínio'] || '-',
-              String(records.length),
-              `R$ ${total.toFixed(2)}`
-            ];
-          } else {
-            // Find most common reason
-            const reasons: Record<string, number> = {};
-            records.forEach(r => {
-              const reason = r['Motivo'] || 'Outro';
-              reasons[reason] = (reasons[reason] || 0) + 1;
-            });
-            const topReason = Object.entries(reasons).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
-            return [
-              String(idx + 1),
-              name,
-              firstRecord['Cargo'] || '-',
-              firstRecord['Condomínio'] || '-',
-              String(records.length),
-              topReason
-            ];
-          }
-        });
-
-        // Grand total row
-        if (isFT) {
-          const grandTotal = data.reduce((sum, row) => {
-            const match = (row['Valor'] || '').match(/R\$\s*([\d.,]+)/);
-            return sum + (match ? (parseFloat(match[1].replace(',', '.')) || 0) : 0);
-          }, 0);
-          summaryData.push(['', '', '', 'TOTAL GERAL', String(data.length), `R$ ${grandTotal.toFixed(2)}`]);
-        } else {
-          summaryData.push(['', '', '', 'TOTAL GERAL', String(data.length), '']);
-        }
-
-        autoTable(doc, {
-          head: [summaryHeaders],
-          body: summaryData,
-          startY: currentY,
-          margin: { left: margin, right: margin },
-          styles: {
-            fontSize: 8,
-            cellPadding: { top: 4, right: 4, bottom: 4, left: 4 },
-            lineColor: [220, 225, 235],
-            lineWidth: 0.15,
-            textColor: dark,
-            font: 'helvetica',
-          },
-          headStyles: {
-            fillColor: brand,
-            textColor: white,
-            fontStyle: 'bold',
-            fontSize: 8,
-            cellPadding: { top: 5, right: 4, bottom: 5, left: 4 },
-          },
-          alternateRowStyles: {
-            fillColor: [249, 250, 252],
-          },
-          columnStyles: {
-            0: { cellWidth: 10, halign: 'center' },
-            1: { cellWidth: 38 },
-            2: { cellWidth: 28 },
-            3: { cellWidth: 36 },
-            4: { cellWidth: 18, halign: 'center', fontStyle: 'bold' },
-            5: { cellWidth: 'auto', halign: 'right', fontStyle: 'bold' },
-          },
-          willDrawCell: (hookData: any) => {
-            // Style the grand total row differently
-            if (hookData.section === 'body' && hookData.row.index === summaryData.length - 1) {
-              hookData.cell.styles.fillColor = isFT ? greenLight : brandLight;
-              hookData.cell.styles.textColor = isFT ? green : brand;
-              hookData.cell.styles.fontStyle = 'bold';
-              hookData.cell.styles.fontSize = 9;
-            }
-          },
-          didDrawPage: (hookData: any) => {
-            addPageFooter(doc, pageWidth, pageHeight, margin, gray);
-          },
-        });
-
-        // ── Detail pages per employee ──
-        employeeNames.forEach((empName, empIdx) => {
-          const records = groupedByEmployee[empName];
-          doc.addPage();
-          
-          // Employee section header
-          let ey = 14;
-          drawRoundedRect(margin, ey, contentWidth, 28, 4, brand);
-          
-          // Employee number badge
-          drawRoundedRect(margin + 4, ey + 4, 20, 20, 10, white);
-          doc.setTextColor(...brand);
-          doc.setFontSize(12);
-          doc.setFont('helvetica', 'bold');
-          doc.text(String(empIdx + 1), margin + 14, ey + 17, { align: 'center' });
-          
-          // Employee name & info
-          doc.setTextColor(...white);
-          doc.setFontSize(14);
-          doc.setFont('helvetica', 'bold');
-          doc.text(empName, margin + 28, ey + 12);
-          
-          doc.setFontSize(8);
-          doc.setFont('helvetica', 'normal');
-          doc.setGState(new (doc as any).GState({ opacity: 0.85 }));
-          const empInfo = `${records[0]['Cargo'] || ''} • ${records[0]['Condomínio'] || ''} • Turno: ${records[0]['Turno'] || '-'}`;
-          doc.text(empInfo, margin + 28, ey + 20);
-          doc.setGState(new (doc as any).GState({ opacity: 1 }));
-
-          // Employee subtotal badge
-          if (isFT) {
-            const empTotal = records.reduce((sum, r) => {
-              const match = (r['Valor'] || '').match(/R\$\s*([\d.,]+)/);
-              return sum + (match ? (parseFloat(match[1].replace(',', '.')) || 0) : 0);
-            }, 0);
-            const totalText = `R$ ${empTotal.toFixed(2)}`;
-            const tw = doc.getTextWidth(totalText) + 12;
-            drawRoundedRect(pageWidth - margin - tw - 4, ey + 5, tw + 4, 18, 3, white);
-            doc.setTextColor(...brand);
-            doc.setFontSize(11);
-            doc.setFont('helvetica', 'bold');
-            doc.text(totalText, pageWidth - margin - 6, ey + 17, { align: 'right' });
-          } else {
-            const countText = `${records.length} falta(s)`;
-            const tw = doc.getTextWidth(countText) + 12;
-            drawRoundedRect(pageWidth - margin - tw - 4, ey + 5, tw + 4, 18, 3, white);
-            doc.setTextColor(...brand);
-            doc.setFontSize(11);
-            doc.setFont('helvetica', 'bold');
-            doc.text(countText, pageWidth - margin - 6, ey + 17, { align: 'right' });
-          }
-
-          ey += 36;
-
-          // Employee detail table
-          const detailHeaders = isFT
-            ? ['Data', 'Turno', 'Condomínio', 'Supervisor(a)', 'Valor', 'Observações']
-            : ['Data', 'Turno', 'Condomínio', 'Supervisor(a)', 'Motivo', 'Observações'];
-          
-          const detailData = records.map(row => [
-            row['Data'],
-            row['Turno'] || '-',
-            row['Condomínio'],
-            row['Supervisor(a)'] || '-',
-            isFT ? row['Valor'] : row['Motivo'],
-            row['Observações']
-          ]);
-
-          autoTable(doc, {
-            head: [detailHeaders],
-            body: detailData,
-            startY: ey,
-            margin: { left: margin, right: margin },
-            styles: {
-              fontSize: 7.5,
-              cellPadding: { top: 3.5, right: 3, bottom: 3.5, left: 4 },
-              lineColor: [230, 233, 240],
-              lineWidth: 0.15,
-              textColor: dark,
-              font: 'helvetica',
-            },
-            headStyles: {
-              fillColor: [55, 65, 81],
-              textColor: white,
-              fontStyle: 'bold',
-              fontSize: 7.5,
-              cellPadding: { top: 4, right: 3, bottom: 4, left: 4 },
-            },
-            alternateRowStyles: {
-              fillColor: [249, 250, 252],
-            },
-            columnStyles: {
-              0: { cellWidth: 22 },
-              1: { cellWidth: 18 },
-              2: { cellWidth: 32 },
-              3: { cellWidth: 30 },
-              4: { cellWidth: 26 },
-              5: { cellWidth: 'auto' },
-            },
-            didDrawPage: () => {
-              addPageFooter(doc, pageWidth, pageHeight, margin, gray);
-            },
-          });
-
-          // Employee subtotal card after table
-          const detailFinalY = (doc as any).lastAutoTable?.finalY || ey + 40;
-          
-          if (detailFinalY + 20 < pageHeight - 25) {
-            if (isFT) {
-              const empTotal = records.reduce((sum, r) => {
-                const match = (r['Valor'] || '').match(/R\$\s*([\d.,]+)/);
-                return sum + (match ? (parseFloat(match[1].replace(',', '.')) || 0) : 0);
-              }, 0);
-              drawRoundedRect(margin, detailFinalY + 4, contentWidth, 14, 3, greenLight, [180, 230, 200]);
-              doc.setTextColor(...green);
-              doc.setFontSize(9);
-              doc.setFont('helvetica', 'bold');
-              doc.text(`✅ Subtotal ${empName}: R$ ${empTotal.toFixed(2)} (${records.length} FT${records.length > 1 ? 's' : ''})`, margin + 6, detailFinalY + 13);
-            } else {
-              drawRoundedRect(margin, detailFinalY + 4, contentWidth, 14, 3, brandLight, [240, 200, 200]);
-              doc.setTextColor(...brand);
-              doc.setFontSize(9);
-              doc.setFont('helvetica', 'bold');
-              doc.text(`⚠️ Total de faltas: ${records.length}`, margin + 6, detailFinalY + 13);
-            }
-          }
-        });
-
+      // Informações do funcionário ou indicação de todos
+      if (employee) {
+        doc.text(`Funcionário: ${employee.first_name} ${employee.last_name}`, 20, currentY);
+        currentY += 5;
+        doc.text(`Cargo: ${employee.positions?.title || 'Não informado'}`, 20, currentY);
+        currentY += 5;
+        doc.text(`Local: ${employee.condominiums?.name || 'Não informado'}`, 20, currentY);
+        currentY += 5;
       } else {
-        // ── Single employee or simple list ──
-        const pdfHeaders = isFT
-          ? ['Data', 'Nome', 'Cargo', 'Turno', 'Condomínio', 'Valor', 'Observações']
-          : ['Data', 'Nome', 'Cargo', 'Turno', 'Condomínio', 'Motivo', 'Observações'];
-        
-        const pdfData = sortedData.map(row => [
-          row['Data'],
-          row['Nome'],
-          row['Cargo'],
-          row['Turno'] || '-',
-          row['Condomínio'],
-          isFT ? row['Valor'] : row['Motivo'],
-          row['Observações']
-        ]);
+        doc.text(`Escopo: Todos os funcionários`, 20, currentY);
+        currentY += 5;
+      }
+      
+      doc.text(`Data de Geração: ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: ptBR })}`, 20, currentY);
+      currentY += 10;
 
-        autoTable(doc, {
-          head: [pdfHeaders],
-          body: pdfData,
-          startY: currentY,
-          margin: { left: margin, right: margin },
-          styles: {
-            fontSize: 7.5,
-            cellPadding: { top: 3.5, right: 3, bottom: 3.5, left: 4 },
-            lineColor: [226, 232, 240],
-            lineWidth: 0.15,
-            textColor: dark,
-            font: 'helvetica',
-          },
-          headStyles: {
-            fillColor: brand,
-            textColor: white,
-            fontStyle: 'bold',
-            fontSize: 7.5,
-            cellPadding: { top: 4, right: 3, bottom: 4, left: 4 },
-          },
-          alternateRowStyles: {
-            fillColor: [249, 250, 252],
-          },
-          columnStyles: {
-            0: { cellWidth: 20 },
-            1: { cellWidth: 30 },
-            2: { cellWidth: 22 },
-            3: { cellWidth: 16 },
-            4: { cellWidth: 30 },
-            5: { cellWidth: 24 },
-            6: { cellWidth: 'auto' },
-          },
-          didDrawPage: () => {
-            addPageFooter(doc, pageWidth, pageHeight, margin, gray);
-          },
-        });
+      // Tabela com colunas otimizadas para PDF portrait
+      // Usar colunas reduzidas para caber em portrait
+      const pdfHeaders = ['Data', 'Nome', 'Cargo', 'Turno', 'Condomínio', reportType === 'ft' ? 'Valor' : 'Motivo', 'Obs.'];
+      const pdfData = data.map(row => [
+        row['Data'],
+        row['Nome'],
+        row['Cargo'],
+        row['Turno'] || '-',
+        row['Condomínio'],
+        reportType === 'ft' ? row['Valor'] : row['Motivo'],
+        row['Observações']
+      ]);
 
-        // Summary card
-        const finalY = (doc as any).lastAutoTable?.finalY || currentY + 50;
-        const sy = finalY + 8 + 30 > pageHeight - 20 ? (() => { doc.addPage(); return 20; })() : finalY + 8;
+      autoTable(doc, {
+        head: [pdfHeaders],
+        body: pdfData,
+        startY: currentY,
+        styles: {
+          fontSize: 7,
+          cellPadding: 2,
+        },
+        headStyles: {
+          fillColor: reportType === 'absences' ? [220, 53, 69] : [59, 130, 246],
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+        },
+        alternateRowStyles: {
+          fillColor: [245, 247, 250],
+        },
+        columnStyles: {
+          0: { cellWidth: 20 }, // Data
+          1: { cellWidth: 30 }, // Nome
+          2: { cellWidth: 22 }, // Cargo
+          3: { cellWidth: 18 }, // Turno
+          4: { cellWidth: 30 }, // Condomínio
+          5: { cellWidth: 22 }, // Valor/Motivo
+          6: { cellWidth: 38 }, // Obs.
+        },
+      });
 
-        if (isFT) {
-          const totalValue = data.reduce((sum, row) => {
-            const match = (row['Valor'] || '').match(/R\$\s*([\d.,]+)/);
-            return sum + (match ? (parseFloat(match[1].replace(',', '.')) || 0) : 0);
-          }, 0);
-          drawRoundedRect(margin, sy, contentWidth, 22, 4, greenLight, [180, 230, 200]);
-          doc.setFillColor(...green);
-          doc.roundedRect(margin, sy, contentWidth, 3, 1.5, 1.5, 'F');
-          doc.setTextColor(...green);
-          doc.setFontSize(12);
-          doc.setFont('helvetica', 'bold');
-          doc.text(`💰 Valor Total: R$ ${totalValue.toFixed(2)}`, margin + 8, sy + 12);
-          doc.setFontSize(8);
-          doc.setFont('helvetica', 'normal');
-          doc.setTextColor(...gray);
-          doc.text(`${data.length} registro(s) no período`, margin + 8, sy + 19);
-        } else {
-          drawRoundedRect(margin, sy, contentWidth, 18, 4, brandLight, [240, 200, 200]);
-          doc.setFillColor(...brand);
-          doc.roundedRect(margin, sy, contentWidth, 3, 1.5, 1.5, 'F');
-          doc.setTextColor(...brand);
-          doc.setFontSize(12);
-          doc.setFont('helvetica', 'bold');
-          doc.text(`⚠️ Total de Faltas: ${data.length}`, margin + 8, sy + 12);
-        }
+      // Adicionar totais no final
+      const finalY = (doc as any).lastAutoTable?.finalY || currentY + 50;
+
+      if (reportType === 'ft') {
+        const totalValue = data.reduce((sum, row) => {
+          const valorStr = row['Valor'] || '';
+          const match = valorStr.match(/R\$\s*([\d.,]+)/);
+          if (match) {
+            const value = parseFloat(match[1].replace(',', '.'));
+            return sum + (isNaN(value) ? 0 : value);
+          }
+          return sum;
+        }, 0);
+
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Valor Total: R$ ${totalValue.toFixed(2)}`, 20, finalY + 10);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Total de Registros: ${data.length}`, 20, finalY + 18);
+      } else {
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Total de Registros: ${data.length}`, 20, finalY + 10);
       }
 
       doc.save(`${filename}.pdf`);
@@ -847,26 +536,6 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
       console.error('Erro ao gerar PDF:', error);
       throw new Error('Erro ao gerar arquivo PDF');
     }
-  };
-
-  const addPageFooter = (doc: jsPDF, pageWidth: number, pageHeight: number, margin: number, gray: [number, number, number]) => {
-    const pageNum = doc.getCurrentPageInfo().pageNumber;
-    const totalPages = (doc as any).internal.getNumberOfPages();
-    
-    // Footer line
-    doc.setDrawColor(210, 215, 225);
-    doc.setLineWidth(0.3);
-    doc.line(margin, pageHeight - 14, pageWidth - margin, pageHeight - 14);
-    
-    // Left: branding
-    doc.setFontSize(6.5);
-    doc.setTextColor(...gray);
-    doc.setFont('helvetica', 'normal');
-    doc.text('RondaTrack • Documento gerado automaticamente para uso do RH', margin, pageHeight - 8);
-    
-    // Right: page number
-    doc.setFontSize(7);
-    doc.text(`${pageNum}/${totalPages}`, pageWidth - margin, pageHeight - 8, { align: 'right' });
   };
 
   return (
