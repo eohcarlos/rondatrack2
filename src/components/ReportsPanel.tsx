@@ -408,66 +408,94 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
 
   const downloadPDF = async (data: any[], headers: string[], filename: string, employee: any) => {
     try {
-      // Usar orientação padrão (portrait) para PDF
       const doc = new jsPDF();
-      
-      // Adicionar logotipo no canto direito
-      const logoUrl = '/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png';
-      
-      // Carregar a imagem como base64
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 14;
+
+      // ── Color palette ──
+      const brandColor = reportType === 'ft' ? [37, 99, 235] : [220, 38, 38]; // blue / red
+      const brandLight = reportType === 'ft' ? [239, 246, 255] : [254, 242, 242];
+      const darkText: [number, number, number] = [30, 41, 59];
+      const mutedText: [number, number, number] = [100, 116, 139];
+      const white: [number, number, number] = [255, 255, 255];
+
+      // ── Header band ──
+      doc.setFillColor(brandColor[0], brandColor[1], brandColor[2]);
+      doc.roundedRect(0, 0, pageWidth, 44, 0, 0, 'F');
+
+      // Subtle accent bar
+      doc.setFillColor(255, 255, 255);
+      doc.setGState(new (doc as any).GState({ opacity: 0.12 }));
+      doc.roundedRect(0, 38, pageWidth, 6, 0, 0, 'F');
+      doc.setGState(new (doc as any).GState({ opacity: 1 }));
+
+      // Logo
       try {
-        const response = await fetch(logoUrl);
+        const response = await fetch('/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png');
         const blob = await response.blob();
         const reader = new FileReader();
-        
         await new Promise<void>((resolve, reject) => {
           reader.onload = () => {
-            const base64 = reader.result as string;
-            // Adicionar logo no canto superior direito
-            doc.addImage(base64, 'PNG', 168, 6, 30, 30);
+            doc.addImage(reader.result as string, 'PNG', pageWidth - 40, 5, 28, 28);
             resolve();
           };
           reader.onerror = reject;
           reader.readAsDataURL(blob);
         });
-      } catch (logoError) {
-        console.warn('Não foi possível carregar o logotipo:', logoError);
-      }
-      
-      // Título
-      doc.setFontSize(16);
+      } catch { /* skip logo */ }
+
+      // Title text on header
+      doc.setTextColor(...white);
+      doc.setFontSize(20);
       doc.setFont('helvetica', 'bold');
-      doc.text(`Relatório de ${reportType === 'ft' ? 'Folgas Trabalhadas' : 'Faltas'}`, 20, 20);
-      
+      const title = reportType === 'ft' ? 'Relatório de Folgas Trabalhadas' : 'Relatório de Faltas';
+      doc.text(title, margin + 2, 20);
+      doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
+      doc.text(`Gerado em ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`, margin + 2, 30);
 
-      let currentY = 32;
+      // ── Info cards row ──
+      let currentY = 54;
+      const cardH = 22;
+      const cardGap = 4;
+      const cardCount = employee ? 3 : 2;
+      const cardW = (pageWidth - margin * 2 - cardGap * (cardCount - 1)) / cardCount;
 
-      // Período
-      if (startDate && endDate) {
-        doc.text(`Período: ${format(startDate, 'dd/MM/yyyy')} a ${format(endDate, 'dd/MM/yyyy')}`, 20, currentY);
-        currentY += 7;
-      }
+      const drawInfoCard = (x: number, label: string, value: string, idx: number) => {
+        doc.setFillColor(brandLight[0], brandLight[1], brandLight[2]);
+        doc.roundedRect(x, currentY, cardW, cardH, 3, 3, 'F');
+        // Left accent line
+        doc.setFillColor(brandColor[0], brandColor[1], brandColor[2]);
+        doc.roundedRect(x, currentY, 3, cardH, 1.5, 1.5, 'F');
+        // Label
+        doc.setTextColor(...mutedText);
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'normal');
+        doc.text(label.toUpperCase(), x + 8, currentY + 8);
+        // Value
+        doc.setTextColor(...darkText);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text(value, x + 8, currentY + 16);
+      };
 
-      // Informações do funcionário ou indicação de todos
+      const periodStr = startDate && endDate
+        ? `${format(startDate, 'dd/MM/yyyy')} a ${format(endDate, 'dd/MM/yyyy')}`
+        : 'Todos os registros';
+
+      drawInfoCard(margin, 'Período', periodStr, 0);
+
       if (employee) {
-        doc.text(`Funcionário: ${employee.first_name} ${employee.last_name}`, 20, currentY);
-        currentY += 5;
-        doc.text(`Cargo: ${employee.positions?.title || 'Não informado'}`, 20, currentY);
-        currentY += 5;
-        doc.text(`Local: ${employee.condominiums?.name || 'Não informado'}`, 20, currentY);
-        currentY += 5;
+        drawInfoCard(margin + cardW + cardGap, 'Funcionário', `${employee.first_name} ${employee.last_name}`, 1);
+        drawInfoCard(margin + (cardW + cardGap) * 2, 'Cargo / Local', `${employee.positions?.title || '-'} • ${employee.condominiums?.name || '-'}`, 2);
       } else {
-        doc.text(`Escopo: Todos os funcionários`, 20, currentY);
-        currentY += 5;
+        drawInfoCard(margin + cardW + cardGap, 'Escopo', `Todos os funcionários (${data.length} registros)`, 1);
       }
-      
-      doc.text(`Data de Geração: ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: ptBR })}`, 20, currentY);
-      currentY += 10;
 
-      // Tabela com colunas otimizadas para PDF portrait
-      // Usar colunas reduzidas para caber em portrait
+      currentY += cardH + 10;
+
+      // ── Table ──
       const pdfHeaders = ['Data', 'Nome', 'Cargo', 'Turno', 'Condomínio', reportType === 'ft' ? 'Valor' : 'Motivo', 'Obs.'];
       const pdfData = data.map(row => [
         row['Data'],
@@ -483,52 +511,87 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         head: [pdfHeaders],
         body: pdfData,
         startY: currentY,
+        margin: { left: margin, right: margin },
         styles: {
-          fontSize: 7,
-          cellPadding: 2,
+          fontSize: 7.5,
+          cellPadding: { top: 3, right: 3, bottom: 3, left: 4 },
+          lineColor: [226, 232, 240],
+          lineWidth: 0.2,
+          textColor: darkText,
+          font: 'helvetica',
         },
         headStyles: {
-          fillColor: reportType === 'absences' ? [220, 53, 69] : [59, 130, 246],
-          textColor: [255, 255, 255],
+          fillColor: [brandColor[0], brandColor[1], brandColor[2]],
+          textColor: white,
           fontStyle: 'bold',
+          fontSize: 7.5,
+          cellPadding: { top: 4, right: 3, bottom: 4, left: 4 },
         },
         alternateRowStyles: {
-          fillColor: [245, 247, 250],
+          fillColor: [248, 250, 252],
         },
         columnStyles: {
-          0: { cellWidth: 20 }, // Data
-          1: { cellWidth: 30 }, // Nome
-          2: { cellWidth: 22 }, // Cargo
-          3: { cellWidth: 18 }, // Turno
-          4: { cellWidth: 30 }, // Condomínio
-          5: { cellWidth: 22 }, // Valor/Motivo
-          6: { cellWidth: 38 }, // Obs.
+          0: { cellWidth: 20 },
+          1: { cellWidth: 30 },
+          2: { cellWidth: 22 },
+          3: { cellWidth: 16 },
+          4: { cellWidth: 30 },
+          5: { cellWidth: 24 },
+          6: { cellWidth: 'auto' },
+        },
+        didDrawPage: (hookData: any) => {
+          // Page number footer on every page
+          const pageNum = doc.getCurrentPageInfo().pageNumber;
+          const totalPages = (doc as any).internal.getNumberOfPages();
+          doc.setFontSize(7);
+          doc.setTextColor(...mutedText);
+          doc.text(`Página ${pageNum} de ${totalPages}`, pageWidth - margin, pageHeight - 8, { align: 'right' });
+          // Footer line
+          doc.setDrawColor(226, 232, 240);
+          doc.setLineWidth(0.4);
+          doc.line(margin, pageHeight - 14, pageWidth - margin, pageHeight - 14);
+          doc.setFontSize(6.5);
+          doc.text('RondaTrack • Relatório gerado automaticamente', margin, pageHeight - 8);
         },
       });
 
-      // Adicionar totais no final
+      // ── Summary footer ──
       const finalY = (doc as any).lastAutoTable?.finalY || currentY + 50;
+      const summaryY = finalY + 8;
+
+      // Check if we need a new page for summary
+      if (summaryY + 30 > pageHeight - 20) {
+        doc.addPage();
+      }
+      const sy = summaryY + 30 > pageHeight - 20 ? 20 : summaryY;
+
+      // Summary card
+      doc.setFillColor(brandLight[0], brandLight[1], brandLight[2]);
+      doc.roundedRect(margin, sy, pageWidth - margin * 2, reportType === 'ft' ? 26 : 18, 3, 3, 'F');
+      // Top accent
+      doc.setFillColor(brandColor[0], brandColor[1], brandColor[2]);
+      doc.roundedRect(margin, sy, pageWidth - margin * 2, 3, 1.5, 1.5, 'F');
 
       if (reportType === 'ft') {
         const totalValue = data.reduce((sum, row) => {
-          const valorStr = row['Valor'] || '';
-          const match = valorStr.match(/R\$\s*([\d.,]+)/);
-          if (match) {
-            const value = parseFloat(match[1].replace(',', '.'));
-            return sum + (isNaN(value) ? 0 : value);
-          }
+          const match = (row['Valor'] || '').match(/R\$\s*([\d.,]+)/);
+          if (match) return sum + (parseFloat(match[1].replace(',', '.')) || 0);
           return sum;
         }, 0);
 
+        doc.setTextColor(...darkText);
         doc.setFontSize(11);
         doc.setFont('helvetica', 'bold');
-        doc.text(`Valor Total: R$ ${totalValue.toFixed(2)}`, 20, finalY + 10);
+        doc.text(`Valor Total: R$ ${totalValue.toFixed(2)}`, margin + 6, sy + 12);
+        doc.setFontSize(9);
         doc.setFont('helvetica', 'normal');
-        doc.text(`Total de Registros: ${data.length}`, 20, finalY + 18);
+        doc.setTextColor(...mutedText);
+        doc.text(`${data.length} registro(s) no período selecionado`, margin + 6, sy + 20);
       } else {
+        doc.setTextColor(...darkText);
         doc.setFontSize(11);
         doc.setFont('helvetica', 'bold');
-        doc.text(`Total de Registros: ${data.length}`, 20, finalY + 10);
+        doc.text(`Total de Faltas: ${data.length}`, margin + 6, sy + 12);
       }
 
       doc.save(`${filename}.pdf`);
