@@ -447,23 +447,65 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
                 </CardContent>
               </Card>
 
-              {/* Right: Quick Link */}
+              {/* Right: Premium Reports Card */}
               <Card 
-                className="border-0 rounded-3xl bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 shadow-xl cursor-pointer hover:shadow-2xl hover:shadow-slate-500/25 transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] group overflow-hidden relative"
+                className="border-0 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 shadow-xl cursor-pointer hover:shadow-2xl hover:shadow-slate-500/25 transition-all duration-300 hover:-translate-y-1 group overflow-hidden relative"
                 onClick={handleNavigateReports}
               >
                 <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iNCIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
-                <div className="absolute -top-12 -right-12 w-32 h-32 bg-amber-400/20 rounded-full blur-2xl" />
-                <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-amber-500/15 rounded-full blur-xl" />
-                <CardContent className="p-6 flex flex-col items-center justify-center h-full text-center relative z-10">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 backdrop-blur-sm flex items-center justify-center shadow-xl mb-4 group-hover:scale-110 transition-transform ring-4 ring-amber-400/30">
-                    <Download className="h-8 w-8 text-white" />
+                <div className="absolute -top-16 -right-16 w-40 h-40 bg-amber-400/15 rounded-full blur-3xl" />
+                <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl" />
+                <div className="absolute top-1/2 right-0 w-20 h-20 bg-amber-300/10 rounded-full blur-xl" />
+                <CardContent className="p-5 flex flex-col h-full relative z-10">
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-xl ring-2 ring-amber-400/30 group-hover:scale-110 transition-transform">
+                      <Download className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-400/15 text-amber-400 text-[10px] font-bold">
+                      <Zap className="h-3 w-3" />
+                      PRO
+                    </div>
                   </div>
-                  <h3 className="font-bold text-white text-lg mb-1">Relatórios</h3>
-                  <p className="text-sm text-white/80">Gerar e exportar dados</p>
-                  <div className="flex items-center gap-1 mt-3 text-amber-400 group-hover:gap-2 transition-all">
-                    <span className="text-xs font-medium">Acessar</span>
-                    <ChevronRight className="h-4 w-4" />
+
+                  <h3 className="font-bold text-white text-lg mb-0.5">Relatórios</h3>
+                  <p className="text-sm text-white/50 mb-4">Exporte dados completos</p>
+
+                  {/* Mini preview stats */}
+                  <div className="space-y-2 flex-1">
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-white/[0.06] border border-white/[0.05]">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-md bg-primary/20 flex items-center justify-center">
+                          <Clock className="h-3 w-3 text-primary" />
+                        </div>
+                        <span className="text-white/60 text-[11px]">FTs</span>
+                      </div>
+                      <span className="text-white font-bold text-sm">{stats.totalWorkedLeaves}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-white/[0.06] border border-white/[0.05]">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-md bg-destructive/20 flex items-center justify-center">
+                          <Calendar className="h-3 w-3 text-destructive" />
+                        </div>
+                        <span className="text-white/60 text-[11px]">Faltas</span>
+                      </div>
+                      <span className="text-white font-bold text-sm">{stats.totalAbsences}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-white/[0.06] border border-white/[0.05]">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-md bg-emerald-500/20 flex items-center justify-center">
+                          <DollarSign className="h-3 w-3 text-emerald-400" />
+                        </div>
+                        <span className="text-white/60 text-[11px]">Faturamento</span>
+                      </div>
+                      <span className="text-white font-bold text-sm">{formatCurrency(stats.totalWorkedLeavesRevenue)}</span>
+                    </div>
+                  </div>
+
+                  {/* CTA */}
+                  <div className="flex items-center justify-center gap-1.5 mt-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold text-sm shadow-lg shadow-amber-500/25 group-hover:shadow-amber-500/40 transition-all">
+                    <span>Gerar Relatório</span>
+                    <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </CardContent>
               </Card>
