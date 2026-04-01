@@ -490,7 +490,7 @@ export const CondominiumManagement = () => {
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <h3 className="text-lg font-semibold text-foreground">Condomínios Cadastrados</h3>
+              <h3 className="text-lg font-semibold text-foreground">Contratos Cadastrados</h3>
               <div className="px-3 py-1 rounded-full bg-gradient-to-r from-primary to-primary/70 text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/25">
                 {filteredCondominiums.length}
               </div>
