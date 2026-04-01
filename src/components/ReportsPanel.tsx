@@ -223,8 +223,8 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
       }
 
       headers = reportType === 'ft'
-        ? ['Data', 'Nome', 'Cargo', 'Supervisor(a)', 'Condomínio', 'Endereço', 'Turno', 'Local da FT', 'Valor', 'Observações', 'Data do Registro']
-        : ['Data', 'Nome', 'Cargo', 'Supervisor(a)', 'Condomínio', 'Endereço', 'Turno', 'Motivo', 'Observações', 'Data do Registro'];
+        ? ['Data', 'Nome', 'Cargo', 'Supervisor(a)', 'Contrato', 'Endereço', 'Turno', 'Local da FT', 'Valor', 'Observações', 'Data do Registro']
+        : ['Data', 'Nome', 'Cargo', 'Supervisor(a)', 'Contrato', 'Endereço', 'Turno', 'Motivo', 'Observações', 'Data do Registro'];
 
       if (!data || data.length === 0) {
         toast({
