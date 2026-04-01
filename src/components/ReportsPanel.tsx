@@ -470,16 +470,29 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
 
       // Tabela com colunas otimizadas para PDF portrait
       // Usar colunas reduzidas para caber em portrait
-      const pdfHeaders = ['Data', 'Nome', 'Cargo', 'Turno', 'Condomínio', reportType === 'ft' ? 'Valor' : 'Motivo', 'Obs.'];
-      const pdfData = data.map(row => [
-        row['Data'],
-        row['Nome'],
-        row['Cargo'],
-        row['Turno'] || '-',
-        row['Condomínio'],
-        reportType === 'ft' ? row['Valor'] : row['Motivo'],
-        row['Observações']
-      ]);
+      const pdfHeaders = reportType === 'ft' 
+        ? ['Data', 'Nome', 'Cargo', 'Turno', 'Condomínio', 'Local da FT', 'Valor', 'Obs.']
+        : ['Data', 'Nome', 'Cargo', 'Turno', 'Condomínio', 'Motivo', 'Obs.'];
+      const pdfData = data.map(row => reportType === 'ft' 
+        ? [
+          row['Data'],
+          row['Nome'],
+          row['Cargo'],
+          row['Turno'] || '-',
+          row['Condomínio'],
+          row['Local da FT'] || '-',
+          row['Valor'],
+          row['Observações']
+        ]
+        : [
+          row['Data'],
+          row['Nome'],
+          row['Cargo'],
+          row['Turno'] || '-',
+          row['Condomínio'],
+          row['Motivo'],
+          row['Observações']
+        ]);
 
       autoTable(doc, {
         head: [pdfHeaders],
