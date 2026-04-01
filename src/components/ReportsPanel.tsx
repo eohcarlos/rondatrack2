@@ -496,7 +496,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         : [
             { header: 'Data', key: 'Data', width: 22 },
             { header: 'Cargo', key: 'Cargo', width: 28 },
-            { header: 'Condominio', key: 'Condomínio', width: 35 },
+            { header: 'Contrato', key: 'Contrato', width: 35 },
             { header: 'Turno', key: 'Turno', width: 18 },
             { header: 'Supervisor', key: 'Supervisor(a)', width: 30 },
             { header: 'Motivo', key: 'Motivo', width: 28 },
