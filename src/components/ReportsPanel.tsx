@@ -914,7 +914,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
               <p>• Nome</p>
               <p>• Cargo</p>
               <p>• Supervisor(a)</p>
-              <p>• Condomínio</p>
+              <p>• Contrato</p>
               <p>• Endereço</p>
               <p>• Turno</p>
               {reportType === 'ft' ? <p>• Valor</p> : <p>• Motivo</p>}
