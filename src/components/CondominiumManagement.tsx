@@ -264,8 +264,8 @@ export const CondominiumManagement = () => {
         if (error) throw error;
 
         toast({
-          title: "Condomínio adicionado",
-          description: "O condomínio foi cadastrado com sucesso.",
+          title: "Contrato adicionado",
+          description: "O contrato foi cadastrado com sucesso.",
         });
       }
 
