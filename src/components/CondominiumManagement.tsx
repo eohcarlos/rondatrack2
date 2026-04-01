@@ -224,7 +224,7 @@ export const CondominiumManagement = () => {
     if (!formData.name.trim()) {
       toast({
         title: "Nome obrigatório",
-        description: "Por favor, informe o nome do condomínio.",
+        description: "Por favor, informe o nome do contrato.",
         variant: "destructive",
       });
       return;
