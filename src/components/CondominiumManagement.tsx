@@ -315,8 +315,8 @@ export const CondominiumManagement = () => {
       if (error) throw error;
 
       toast({
-        title: "Condomínio excluído",
-        description: "O condomínio foi removido do sistema.",
+        title: "Contrato excluído",
+        description: "O contrato foi removido do sistema.",
       });
 
       await loadCondominiums();
