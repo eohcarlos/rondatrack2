@@ -304,7 +304,7 @@ export const CondominiumManagement = () => {
       return;
     }
 
-    if (!confirm('Tem certeza que deseja excluir este condomínio?')) return;
+    if (!confirm('Tem certeza que deseja excluir este contrato?')) return;
 
     try {
       const { error } = await supabase
