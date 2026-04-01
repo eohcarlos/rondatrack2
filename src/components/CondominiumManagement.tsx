@@ -413,12 +413,12 @@ export const CondominiumManagement = () => {
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Nome do Condomínio *</Label>
+                  <Label htmlFor="name">Nome do Contrato *</Label>
                   <Input
                     id="name"
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="Ex: Condomínio Jardim das Flores"
+                    placeholder="Ex: Contrato Jardim das Flores"
                     className="rounded-xl h-11"
                     required
                   />
