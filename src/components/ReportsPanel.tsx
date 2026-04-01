@@ -125,7 +125,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         'Nome': `${item.employees?.first_name || ''} ${item.employees?.last_name || ''}`.trim(),
         'Cargo': item.employees?.positions?.title || '',
         'Supervisor(a)': item.supervisor_profile?.name || '',
-        'Condomínio': item.employees?.condominiums?.name || '',
+        'Contrato': item.employees?.condominiums?.name || '',
         'Endereço': item.employees?.condominiums?.address || '',
         'Turno': getShiftLabel(item.employees?.shift || ''),
         'Local da FT': item.location || 'Não informado',
@@ -172,7 +172,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         'Nome': `${item.employees?.first_name || ''} ${item.employees?.last_name || ''}`.trim(),
         'Cargo': item.employees?.positions?.title || '',
         'Supervisor(a)': item.supervisor_profile?.name || '',
-        'Condomínio': item.employees?.condominiums?.name || '',
+        'Contrato': item.employees?.condominiums?.name || '',
         'Endereço': item.employees?.condominiums?.address || '',
         'Turno': getShiftLabel(item.employees?.shift || ''),
         'Motivo': getReasonLabel(item.reason),
@@ -223,8 +223,8 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
       }
 
       headers = reportType === 'ft'
-        ? ['Data', 'Nome', 'Cargo', 'Supervisor(a)', 'Condomínio', 'Endereço', 'Turno', 'Local da FT', 'Valor', 'Observações', 'Data do Registro']
-        : ['Data', 'Nome', 'Cargo', 'Supervisor(a)', 'Condomínio', 'Endereço', 'Turno', 'Motivo', 'Observações', 'Data do Registro'];
+        ? ['Data', 'Nome', 'Cargo', 'Supervisor(a)', 'Contrato', 'Endereço', 'Turno', 'Local da FT', 'Valor', 'Observações', 'Data do Registro']
+        : ['Data', 'Nome', 'Cargo', 'Supervisor(a)', 'Contrato', 'Endereço', 'Turno', 'Motivo', 'Observações', 'Data do Registro'];
 
       if (!data || data.length === 0) {
         toast({
@@ -486,7 +486,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         ? [
             { header: 'Data', key: 'Data', width: 22 },
             { header: 'Cargo', key: 'Cargo', width: 28 },
-            { header: 'Condominio', key: 'Condomínio', width: 35 },
+            { header: 'Contrato', key: 'Contrato', width: 35 },
             { header: 'Turno', key: 'Turno', width: 18 },
             { header: 'Local FT', key: 'Local da FT', width: 32 },
             { header: 'Supervisor', key: 'Supervisor(a)', width: 30 },
@@ -496,7 +496,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         : [
             { header: 'Data', key: 'Data', width: 22 },
             { header: 'Cargo', key: 'Cargo', width: 28 },
-            { header: 'Condominio', key: 'Condomínio', width: 35 },
+            { header: 'Contrato', key: 'Contrato', width: 35 },
             { header: 'Turno', key: 'Turno', width: 18 },
             { header: 'Supervisor', key: 'Supervisor(a)', width: 30 },
             { header: 'Motivo', key: 'Motivo', width: 28 },
@@ -914,7 +914,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
               <p>• Nome</p>
               <p>• Cargo</p>
               <p>• Supervisor(a)</p>
-              <p>• Condomínio</p>
+              <p>• Contrato</p>
               <p>• Endereço</p>
               <p>• Turno</p>
               {reportType === 'ft' ? <p>• Valor</p> : <p>• Motivo</p>}
