@@ -398,7 +398,7 @@ export const CondominiumManagement = () => {
                 className="bg-white text-blue-600 hover:bg-white/90 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 font-semibold px-6"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Novo Condomínio
+                Novo Contrato
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md rounded-2xl border-0 shadow-2xl bg-card">
