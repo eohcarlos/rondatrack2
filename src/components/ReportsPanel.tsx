@@ -128,6 +128,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         'Condomínio': item.employees?.condominiums?.name || '',
         'Endereço': item.employees?.condominiums?.address || '',
         'Turno': getShiftLabel(item.employees?.shift || ''),
+        'Local da FT': item.location || 'Não informado',
         'Valor': item.amount ? `R$ ${Number(item.amount).toFixed(2)}` : 'Não informado',
         'Observações': item.observations || 'Sem observações',
         'Data do Registro': format(new Date(item.created_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })
