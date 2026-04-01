@@ -502,7 +502,7 @@ export const CondominiumManagement = () => {
               <div className="relative">
                 <div className="h-12 w-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
               </div>
-              <p className="text-muted-foreground text-sm">Carregando condomínios...</p>
+              <p className="text-muted-foreground text-sm">Carregando contratos...</p>
             </div>
           ) : filteredCondominiums.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-4">
