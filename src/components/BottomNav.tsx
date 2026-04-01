@@ -14,7 +14,7 @@ const items: Array<{
   { value: "dashboard", label: "Dashboard", Icon: BarChart3 },
   { value: "employees", label: "Funcionários", Icon: Users },
   { value: "positions", label: "Cargos", Icon: Briefcase },
-  { value: "condominiums", label: "Condomínios", Icon: Building2 },
+  { value: "condominiums", label: "Contratos", Icon: Building2 },
   { value: "worked-leaves", label: "FT", Icon: Clock },
   { value: "absences", label: "Faltas", Icon: Calendar },
   { value: "schedule", label: "Escala", Icon: CalendarDays },

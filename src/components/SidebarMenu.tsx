@@ -37,7 +37,7 @@ const menuItems: { value: string; label: string; icon: typeof BarChart3; color: 
   { value: 'dashboard', label: 'Dashboard', icon: BarChart3, color: 'text-primary' },
   { value: 'employees', label: 'Funcionários', icon: Users, color: 'text-accent' },
   { value: 'positions', label: 'Cargos', icon: Briefcase, color: 'text-warning' },
-  { value: 'condominiums', label: 'Condomínios', icon: Building2, color: 'text-warning' },
+  { value: 'condominiums', label: 'Contratos', icon: Building2, color: 'text-warning' },
   { value: 'worked-leaves', label: 'Folgas Trabalhadas', icon: Clock, color: 'text-primary' },
   { value: 'absences', label: 'Faltas', icon: Calendar, color: 'text-destructive' },
   { value: 'schedule', label: 'Escala', icon: CalendarDays, color: 'text-primary' },

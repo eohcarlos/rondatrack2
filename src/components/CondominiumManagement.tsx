@@ -555,7 +555,7 @@ export const CondominiumManagement = () => {
               <div className="h-14 w-14 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-3">
                 <Users className="h-7 w-7 text-muted-foreground/50" />
               </div>
-              <p className="text-muted-foreground">Nenhum funcionário ativo neste condomínio</p>
+              <p className="text-muted-foreground">Nenhum funcionário ativo neste contrato</p>
             </div>
           ) : (
             <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
