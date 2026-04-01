@@ -382,9 +382,9 @@ export const CondominiumManagement = () => {
             </div>
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-2">
-                Condomínios
+                Contratos
               </h2>
-              <p className="text-white/70 text-sm sm:text-base">Gerencie os condomínios do sistema</p>
+              <p className="text-white/70 text-sm sm:text-base">Gerencie os contratos do sistema</p>
             </div>
           </div>
 
