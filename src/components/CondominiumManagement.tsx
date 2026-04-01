@@ -510,9 +510,9 @@ export const CondominiumManagement = () => {
                 <Building2 className="h-8 w-8 text-muted-foreground/50" />
               </div>
               <div className="text-center">
-                <p className="text-muted-foreground font-medium">Nenhum condomínio encontrado</p>
+                <p className="text-muted-foreground font-medium">Nenhum contrato encontrado</p>
                 <p className="text-muted-foreground/70 text-sm mt-1">
-                  {searchTerm ? 'Tente uma busca diferente' : 'Adicione um novo condomínio para começar'}
+                  {searchTerm ? 'Tente uma busca diferente' : 'Adicione um novo contrato para começar'}
                 </p>
               </div>
             </div>
