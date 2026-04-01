@@ -92,6 +92,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
           observations,
           amount,
           work_shift,
+          location,
           created_at,
           employees (
             first_name,
@@ -127,6 +128,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         'Condomínio': item.employees?.condominiums?.name || '',
         'Endereço': item.employees?.condominiums?.address || '',
         'Turno': getShiftLabel(item.employees?.shift || ''),
+        'Local da FT': item.location || 'Não informado',
         'Valor': item.amount ? `R$ ${Number(item.amount).toFixed(2)}` : 'Não informado',
         'Observações': item.observations || 'Sem observações',
         'Data do Registro': format(new Date(item.created_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })
@@ -221,7 +223,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
       }
 
       headers = reportType === 'ft'
-        ? ['Data', 'Nome', 'Cargo', 'Supervisor(a)', 'Condomínio', 'Endereço', 'Turno', 'Valor', 'Observações', 'Data do Registro']
+        ? ['Data', 'Nome', 'Cargo', 'Supervisor(a)', 'Condomínio', 'Endereço', 'Turno', 'Local da FT', 'Valor', 'Observações', 'Data do Registro']
         : ['Data', 'Nome', 'Cargo', 'Supervisor(a)', 'Condomínio', 'Endereço', 'Turno', 'Motivo', 'Observações', 'Data do Registro'];
 
       if (!data || data.length === 0) {
@@ -468,16 +470,29 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
 
       // Tabela com colunas otimizadas para PDF portrait
       // Usar colunas reduzidas para caber em portrait
-      const pdfHeaders = ['Data', 'Nome', 'Cargo', 'Turno', 'Condomínio', reportType === 'ft' ? 'Valor' : 'Motivo', 'Obs.'];
-      const pdfData = data.map(row => [
-        row['Data'],
-        row['Nome'],
-        row['Cargo'],
-        row['Turno'] || '-',
-        row['Condomínio'],
-        reportType === 'ft' ? row['Valor'] : row['Motivo'],
-        row['Observações']
-      ]);
+      const pdfHeaders = reportType === 'ft' 
+        ? ['Data', 'Nome', 'Cargo', 'Turno', 'Condomínio', 'Local da FT', 'Valor', 'Obs.']
+        : ['Data', 'Nome', 'Cargo', 'Turno', 'Condomínio', 'Motivo', 'Obs.'];
+      const pdfData = data.map(row => reportType === 'ft' 
+        ? [
+          row['Data'],
+          row['Nome'],
+          row['Cargo'],
+          row['Turno'] || '-',
+          row['Condomínio'],
+          row['Local da FT'] || '-',
+          row['Valor'],
+          row['Observações']
+        ]
+        : [
+          row['Data'],
+          row['Nome'],
+          row['Cargo'],
+          row['Turno'] || '-',
+          row['Condomínio'],
+          row['Motivo'],
+          row['Observações']
+        ]);
 
       autoTable(doc, {
         head: [pdfHeaders],
