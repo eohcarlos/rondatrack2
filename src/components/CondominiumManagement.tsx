@@ -322,7 +322,7 @@ export const CondominiumManagement = () => {
       await loadCondominiums();
     } catch (error: any) {
       toast({
-        title: "Erro ao excluir condomínio",
+        title: "Erro ao excluir contrato",
         description: error.message,
         variant: "destructive",
       });
