@@ -276,7 +276,7 @@ export const CondominiumManagement = () => {
       setEditingCondominium(null);
     } catch (error: any) {
       toast({
-        title: "Erro ao salvar condomínio",
+        title: "Erro ao salvar contrato",
         description: error.message,
         variant: "destructive",
       });
