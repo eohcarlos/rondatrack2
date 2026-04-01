@@ -209,7 +209,7 @@ export const CondominiumManagement = () => {
       setCondominiums(condominiumsWithCount);
     } catch (error: any) {
       toast({
-        title: "Erro ao carregar condomínios",
+        title: "Erro ao carregar contratos",
         description: error.message,
         variant: "destructive",
       });
@@ -224,7 +224,7 @@ export const CondominiumManagement = () => {
     if (!formData.name.trim()) {
       toast({
         title: "Nome obrigatório",
-        description: "Por favor, informe o nome do condomínio.",
+        description: "Por favor, informe o nome do contrato.",
         variant: "destructive",
       });
       return;
@@ -253,7 +253,7 @@ export const CondominiumManagement = () => {
         if (error) throw error;
 
         toast({
-          title: "Condomínio atualizado",
+          title: "Contrato atualizado",
           description: "Os dados foram atualizados com sucesso.",
         });
       } else {
@@ -264,8 +264,8 @@ export const CondominiumManagement = () => {
         if (error) throw error;
 
         toast({
-          title: "Condomínio adicionado",
-          description: "O condomínio foi cadastrado com sucesso.",
+          title: "Contrato adicionado",
+          description: "O contrato foi cadastrado com sucesso.",
         });
       }
 
@@ -276,7 +276,7 @@ export const CondominiumManagement = () => {
       setEditingCondominium(null);
     } catch (error: any) {
       toast({
-        title: "Erro ao salvar condomínio",
+        title: "Erro ao salvar contrato",
         description: error.message,
         variant: "destructive",
       });
@@ -298,13 +298,13 @@ export const CondominiumManagement = () => {
     if (hasEmployees) {
       toast({
         title: "Não é possível excluir",
-        description: "Este condomínio possui funcionários cadastrados. Remova os funcionários primeiro.",
+        description: "Este contrato possui funcionários cadastrados. Remova os funcionários primeiro.",
         variant: "destructive",
       });
       return;
     }
 
-    if (!confirm('Tem certeza que deseja excluir este condomínio?')) return;
+    if (!confirm('Tem certeza que deseja excluir este contrato?')) return;
 
     try {
       const { error } = await supabase
@@ -315,14 +315,14 @@ export const CondominiumManagement = () => {
       if (error) throw error;
 
       toast({
-        title: "Condomínio excluído",
-        description: "O condomínio foi removido do sistema.",
+        title: "Contrato excluído",
+        description: "O contrato foi removido do sistema.",
       });
 
       await loadCondominiums();
     } catch (error: any) {
       toast({
-        title: "Erro ao excluir condomínio",
+        title: "Erro ao excluir contrato",
         description: error.message,
         variant: "destructive",
       });
@@ -382,9 +382,9 @@ export const CondominiumManagement = () => {
             </div>
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-2">
-                Condomínios
+                Contratos
               </h2>
-              <p className="text-white/70 text-sm sm:text-base">Gerencie os condomínios do sistema</p>
+              <p className="text-white/70 text-sm sm:text-base">Gerencie os contratos do sistema</p>
             </div>
           </div>
 
@@ -398,27 +398,27 @@ export const CondominiumManagement = () => {
                 className="bg-white text-blue-600 hover:bg-white/90 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 font-semibold px-6"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Novo Condomínio
+                Novo Contrato
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md rounded-2xl border-0 shadow-2xl bg-card">
               <DialogHeader>
                 <DialogTitle className="text-xl">
-                  {editingCondominium ? 'Editar Condomínio' : 'Novo Condomínio'}
+                  {editingCondominium ? 'Editar Contrato' : 'Novo Contrato'}
                 </DialogTitle>
                 <DialogDescription>
-                  Preencha os dados do condomínio
+                  Preencha os dados do contrato
                 </DialogDescription>
               </DialogHeader>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Nome do Condomínio *</Label>
+                  <Label htmlFor="name">Nome do Contrato *</Label>
                   <Input
                     id="name"
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="Ex: Condomínio Jardim das Flores"
+                    placeholder="Ex: Contrato Jardim das Flores"
                     className="rounded-xl h-11"
                     required
                   />
@@ -430,7 +430,7 @@ export const CondominiumManagement = () => {
                     id="address"
                     value={formData.address}
                     onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                    placeholder="Endereço completo do condomínio"
+                    placeholder="Endereço completo do contrato"
                     className="rounded-xl"
                     rows={3}
                   />
@@ -475,7 +475,7 @@ export const CondominiumManagement = () => {
       <div className="relative max-w-md">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input
-          placeholder="Buscar condomínios..."
+          placeholder="Buscar contratos..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="pl-12 h-12 bg-card border-0 shadow-lg rounded-2xl text-base"
@@ -490,7 +490,7 @@ export const CondominiumManagement = () => {
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <h3 className="text-lg font-semibold text-foreground">Condomínios Cadastrados</h3>
+              <h3 className="text-lg font-semibold text-foreground">Contratos Cadastrados</h3>
               <div className="px-3 py-1 rounded-full bg-gradient-to-r from-primary to-primary/70 text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/25">
                 {filteredCondominiums.length}
               </div>
@@ -502,7 +502,7 @@ export const CondominiumManagement = () => {
               <div className="relative">
                 <div className="h-12 w-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
               </div>
-              <p className="text-muted-foreground text-sm">Carregando condomínios...</p>
+              <p className="text-muted-foreground text-sm">Carregando contratos...</p>
             </div>
           ) : filteredCondominiums.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-4">
@@ -510,9 +510,9 @@ export const CondominiumManagement = () => {
                 <Building2 className="h-8 w-8 text-muted-foreground/50" />
               </div>
               <div className="text-center">
-                <p className="text-muted-foreground font-medium">Nenhum condomínio encontrado</p>
+                <p className="text-muted-foreground font-medium">Nenhum contrato encontrado</p>
                 <p className="text-muted-foreground/70 text-sm mt-1">
-                  {searchTerm ? 'Tente uma busca diferente' : 'Adicione um novo condomínio para começar'}
+                  {searchTerm ? 'Tente uma busca diferente' : 'Adicione um novo contrato para começar'}
                 </p>
               </div>
             </div>
@@ -555,7 +555,7 @@ export const CondominiumManagement = () => {
               <div className="h-14 w-14 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-3">
                 <Users className="h-7 w-7 text-muted-foreground/50" />
               </div>
-              <p className="text-muted-foreground">Nenhum funcionário ativo neste condomínio</p>
+              <p className="text-muted-foreground">Nenhum funcionário ativo neste contrato</p>
             </div>
           ) : (
             <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
