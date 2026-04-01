@@ -209,7 +209,7 @@ export const CondominiumManagement = () => {
       setCondominiums(condominiumsWithCount);
     } catch (error: any) {
       toast({
-        title: "Erro ao carregar condomínios",
+        title: "Erro ao carregar contratos",
         description: error.message,
         variant: "destructive",
       });
