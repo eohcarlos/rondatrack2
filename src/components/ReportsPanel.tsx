@@ -410,140 +410,250 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
 
   const downloadPDF = async (data: any[], headers: string[], filename: string, employee: any) => {
     try {
-      // Usar orientação padrão (portrait) para PDF
-      const doc = new jsPDF();
+      const doc = new jsPDF('landscape', 'mm', 'a4');
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
       
-      // Adicionar logotipo no canto direito
-      const logoUrl = '/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png';
-      
-      // Carregar a imagem como base64
+      // Carregar logo
       try {
+        const logoUrl = '/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png';
         const response = await fetch(logoUrl);
         const blob = await response.blob();
         const reader = new FileReader();
-        
         await new Promise<void>((resolve, reject) => {
           reader.onload = () => {
             const base64 = reader.result as string;
-            // Adicionar logo no canto superior direito
-            doc.addImage(base64, 'PNG', 168, 6, 30, 30);
+            doc.addImage(base64, 'PNG', pageWidth - 40, 5, 28, 28);
             resolve();
           };
           reader.onerror = reject;
           reader.readAsDataURL(blob);
         });
-      } catch (logoError) {
-        console.warn('Não foi possível carregar o logotipo:', logoError);
+      } catch (e) {
+        console.warn('Logo nao carregado:', e);
       }
-      
-      // Título
-      doc.setFontSize(16);
+
+      // Cabecalho
+      const accentColor = reportType === 'ft' ? [59, 130, 246] : [220, 53, 69];
+      doc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
+      doc.rect(14, 8, 4, 22, 'F');
+
+      doc.setFontSize(18);
       doc.setFont('helvetica', 'bold');
-      doc.text(`Relatório de ${reportType === 'ft' ? 'Folgas Trabalhadas' : 'Faltas'}`, 20, 20);
-      
+      doc.setTextColor(30, 30, 30);
+      doc.text(reportType === 'ft' ? 'Relatorio de Folgas Trabalhadas' : 'Relatorio de Faltas', 22, 18);
+
+      doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-
-      let currentY = 32;
-
-      // Período
-      if (startDate && endDate) {
-        doc.text(`Período: ${format(startDate, 'dd/MM/yyyy')} a ${format(endDate, 'dd/MM/yyyy')}`, 20, currentY);
-        currentY += 7;
-      }
-
-      // Informações do funcionário ou indicação de todos
-      if (employee) {
-        doc.text(`Funcionário: ${employee.first_name} ${employee.last_name}`, 20, currentY);
-        currentY += 5;
-        doc.text(`Cargo: ${employee.positions?.title || 'Não informado'}`, 20, currentY);
-        currentY += 5;
-        doc.text(`Local: ${employee.condominiums?.name || 'Não informado'}`, 20, currentY);
-        currentY += 5;
-      } else {
-        doc.text(`Escopo: Todos os funcionários`, 20, currentY);
-        currentY += 5;
-      }
+      doc.setTextColor(100, 100, 100);
       
-      doc.text(`Data de Geração: ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: ptBR })}`, 20, currentY);
-      currentY += 10;
+      let infoLine = '';
+      if (startDate && endDate) {
+        infoLine += `Periodo: ${format(startDate, 'dd/MM/yyyy')} a ${format(endDate, 'dd/MM/yyyy')}`;
+      }
+      infoLine += `    Gerado em: ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: ptBR })}`;
+      if (employee) {
+        infoLine += `    Funcionario: ${employee.first_name} ${employee.last_name}`;
+      }
+      doc.text(infoLine, 22, 26);
 
-      // Tabela com colunas otimizadas para PDF portrait
-      // Usar colunas reduzidas para caber em portrait
-      const pdfHeaders = reportType === 'ft' 
-        ? ['Data', 'Nome', 'Cargo', 'Turno', 'Condomínio', 'Local da FT', 'Valor', 'Obs.']
-        : ['Data', 'Nome', 'Cargo', 'Turno', 'Condomínio', 'Motivo', 'Obs.'];
-      const pdfData = data.map(row => reportType === 'ft' 
-        ? [
-          row['Data'],
-          row['Nome'],
-          row['Cargo'],
-          row['Turno'] || '-',
-          row['Condomínio'],
-          row['Local da FT'] || '-',
-          row['Valor'],
-          row['Observações']
-        ]
-        : [
-          row['Data'],
-          row['Nome'],
-          row['Cargo'],
-          row['Turno'] || '-',
-          row['Condomínio'],
-          row['Motivo'],
-          row['Observações']
-        ]);
+      // Linha separadora
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.3);
+      doc.line(14, 34, pageWidth - 14, 34);
 
-      autoTable(doc, {
-        head: [pdfHeaders],
-        body: pdfData,
-        startY: currentY,
-        styles: {
-          fontSize: 7,
-          cellPadding: 2,
-        },
-        headStyles: {
-          fillColor: reportType === 'absences' ? [220, 53, 69] : [59, 130, 246],
-          textColor: [255, 255, 255],
-          fontStyle: 'bold',
-        },
-        alternateRowStyles: {
-          fillColor: [245, 247, 250],
-        },
-        columnStyles: {
-          0: { cellWidth: 20 }, // Data
-          1: { cellWidth: 30 }, // Nome
-          2: { cellWidth: 22 }, // Cargo
-          3: { cellWidth: 18 }, // Turno
-          4: { cellWidth: 30 }, // Condomínio
-          5: { cellWidth: 22 }, // Valor/Motivo
-          6: { cellWidth: 38 }, // Obs.
-        },
+      let currentY = 38;
+
+      // Ordenar por nome
+      const sortedData = [...data].sort((a, b) => 
+        (a['Nome'] || '').localeCompare(b['Nome'] || '', 'pt-BR')
+      );
+
+      // Agrupar por funcionario
+      const grouped: Record<string, any[]> = {};
+      sortedData.forEach(row => {
+        const name = row['Nome'] || 'Sem nome';
+        if (!grouped[name]) grouped[name] = [];
+        grouped[name].push(row);
       });
 
-      // Adicionar totais no final
-      const finalY = (doc as any).lastAutoTable?.finalY || currentY + 50;
+      const employeeNames = Object.keys(grouped);
+      let grandTotal = 0;
+      let grandCount = 0;
+
+      // Definir colunas para o PDF
+      const colDefs = reportType === 'ft'
+        ? [
+            { header: 'Data', key: 'Data', width: 22 },
+            { header: 'Cargo', key: 'Cargo', width: 28 },
+            { header: 'Condominio', key: 'Condomínio', width: 35 },
+            { header: 'Turno', key: 'Turno', width: 18 },
+            { header: 'Local FT', key: 'Local da FT', width: 32 },
+            { header: 'Supervisor', key: 'Supervisor(a)', width: 30 },
+            { header: 'Valor (R$)', key: 'Valor', width: 22 },
+            { header: 'Observacoes', key: 'Observações', width: 'auto' as any },
+          ]
+        : [
+            { header: 'Data', key: 'Data', width: 22 },
+            { header: 'Cargo', key: 'Cargo', width: 28 },
+            { header: 'Condominio', key: 'Condomínio', width: 35 },
+            { header: 'Turno', key: 'Turno', width: 18 },
+            { header: 'Supervisor', key: 'Supervisor(a)', width: 30 },
+            { header: 'Motivo', key: 'Motivo', width: 28 },
+            { header: 'Observacoes', key: 'Observações', width: 'auto' as any },
+          ];
+
+      // Calcular largura auto
+      const fixedWidth = colDefs.reduce((s, c) => s + (typeof c.width === 'number' ? c.width : 0), 0);
+      const availableWidth = pageWidth - 28; // margins
+      const autoWidth = availableWidth - fixedWidth;
+      const finalWidths = colDefs.map(c => typeof c.width === 'number' ? c.width : Math.max(autoWidth, 30));
+
+      employeeNames.forEach((empName, empIndex) => {
+        const records = grouped[empName];
+        const recordCount = records.length;
+        
+        // Calcular subtotal
+        let subtotal = 0;
+        if (reportType === 'ft') {
+          subtotal = records.reduce((sum, row) => {
+            const valorStr = row['Valor'] || '';
+            const match = valorStr.match(/R\$\s*([\d.,]+)/);
+            if (match) {
+              const value = parseFloat(match[1].replace(',', '.'));
+              return sum + (isNaN(value) ? 0 : value);
+            }
+            return sum;
+          }, 0);
+          grandTotal += subtotal;
+        }
+        grandCount += recordCount;
+
+        // Estimar espaco necessario: header(8) + rows(5.5 each) + subtotal(8) + spacing(6)
+        const neededSpace = 8 + (recordCount * 5.5) + 8 + 6;
+        if (currentY + neededSpace > pageHeight - 20 && currentY > 40) {
+          doc.addPage();
+          currentY = 16;
+        }
+
+        // Nome do funcionario como header do grupo
+        doc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
+        doc.rect(14, currentY - 1, pageWidth - 28, 7, 'F');
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(255, 255, 255);
+        doc.text(`${empName}  -  ${recordCount} registro${recordCount > 1 ? 's' : ''}`, 17, currentY + 4);
+        currentY += 9;
+
+        // Tabela do funcionario
+        const tableHeaders = colDefs.map(c => c.header);
+        const tableData = records.map(row => 
+          colDefs.map(c => {
+            let val = row[c.key] || '-';
+            // Limpar simbolos do valor
+            if (c.key === 'Valor') {
+              val = val.replace('R$ ', '').replace('R$', '').trim();
+              if (val === 'Nao informado') val = '-';
+            }
+            if (val === 'Sem observacoes' || val === 'Sem observações') val = '-';
+            if (val === 'Nao informado' || val === 'Não informado') val = '-';
+            return val;
+          })
+        );
+
+        const columnStyles: Record<number, any> = {};
+        finalWidths.forEach((w, i) => {
+          columnStyles[i] = { cellWidth: w };
+        });
+
+        autoTable(doc, {
+          head: [tableHeaders],
+          body: tableData,
+          startY: currentY,
+          margin: { left: 14, right: 14 },
+          styles: {
+            fontSize: 7,
+            cellPadding: 1.5,
+            lineColor: [220, 220, 220],
+            lineWidth: 0.2,
+            textColor: [40, 40, 40],
+            overflow: 'ellipsize',
+          },
+          headStyles: {
+            fillColor: [240, 242, 245],
+            textColor: [60, 60, 60],
+            fontStyle: 'bold',
+            fontSize: 7,
+            lineWidth: 0.2,
+            lineColor: [200, 200, 200],
+          },
+          alternateRowStyles: {
+            fillColor: [250, 250, 252],
+          },
+          columnStyles,
+          tableLineColor: [220, 220, 220],
+          tableLineWidth: 0.2,
+        });
+
+        currentY = (doc as any).lastAutoTable?.finalY || currentY + 20;
+
+        // Subtotal do funcionario
+        if (reportType === 'ft') {
+          doc.setFillColor(245, 247, 250);
+          doc.rect(14, currentY, pageWidth - 28, 7, 'F');
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
+          doc.text(`Subtotal ${empName}: R$ ${subtotal.toFixed(2).replace('.', ',')}  |  ${recordCount} FT${recordCount > 1 ? 's' : ''}`, 17, currentY + 4.5);
+        } else {
+          doc.setFillColor(245, 247, 250);
+          doc.rect(14, currentY, pageWidth - 28, 7, 'F');
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
+          doc.text(`Subtotal ${empName}: ${recordCount} falta${recordCount > 1 ? 's' : ''}`, 17, currentY + 4.5);
+        }
+        currentY += 7;
+
+        // Espaco entre funcionarios
+        if (empIndex < employeeNames.length - 1) {
+          currentY += 4;
+        }
+      });
+
+      // Total geral
+      if (currentY + 16 > pageHeight - 10) {
+        doc.addPage();
+        currentY = 16;
+      }
+
+      currentY += 4;
+      doc.setDrawColor(accentColor[0], accentColor[1], accentColor[2]);
+      doc.setLineWidth(0.8);
+      doc.line(14, currentY, pageWidth - 14, currentY);
+      currentY += 6;
+
+      doc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
+      doc.rect(14, currentY - 2, pageWidth - 28, 10, 'F');
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(255, 255, 255);
 
       if (reportType === 'ft') {
-        const totalValue = data.reduce((sum, row) => {
-          const valorStr = row['Valor'] || '';
-          const match = valorStr.match(/R\$\s*([\d.,]+)/);
-          if (match) {
-            const value = parseFloat(match[1].replace(',', '.'));
-            return sum + (isNaN(value) ? 0 : value);
-          }
-          return sum;
-        }, 0);
-
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'bold');
-        doc.text(`Valor Total: R$ ${totalValue.toFixed(2)}`, 20, finalY + 10);
-        doc.setFont('helvetica', 'normal');
-        doc.text(`Total de Registros: ${data.length}`, 20, finalY + 18);
+        doc.text(`TOTAL GERAL: R$ ${grandTotal.toFixed(2).replace('.', ',')}   |   ${grandCount} registros   |   ${employeeNames.length} funcionario${employeeNames.length > 1 ? 's' : ''}`, 20, currentY + 5);
       } else {
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'bold');
-        doc.text(`Total de Registros: ${data.length}`, 20, finalY + 10);
+        doc.text(`TOTAL GERAL: ${grandCount} faltas   |   ${employeeNames.length} funcionario${employeeNames.length > 1 ? 's' : ''}`, 20, currentY + 5);
+      }
+
+      // Rodape em todas as paginas
+      const totalPages = doc.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(160, 160, 160);
+        doc.text(`RondaTrack - Pagina ${i} de ${totalPages}`, 14, pageHeight - 6);
+        doc.text(format(new Date(), 'dd/MM/yyyy HH:mm'), pageWidth - 45, pageHeight - 6);
       }
 
       doc.save(`${filename}.pdf`);
