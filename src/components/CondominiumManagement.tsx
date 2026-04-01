@@ -298,7 +298,7 @@ export const CondominiumManagement = () => {
     if (hasEmployees) {
       toast({
         title: "Não é possível excluir",
-        description: "Este condomínio possui funcionários cadastrados. Remova os funcionários primeiro.",
+        description: "Este contrato possui funcionários cadastrados. Remova os funcionários primeiro.",
         variant: "destructive",
       });
       return;
