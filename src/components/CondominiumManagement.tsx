@@ -404,10 +404,10 @@ export const CondominiumManagement = () => {
             <DialogContent className="max-w-md rounded-2xl border-0 shadow-2xl bg-card">
               <DialogHeader>
                 <DialogTitle className="text-xl">
-                  {editingCondominium ? 'Editar Condomínio' : 'Novo Condomínio'}
+                  {editingCondominium ? 'Editar Contrato' : 'Novo Contrato'}
                 </DialogTitle>
                 <DialogDescription>
-                  Preencha os dados do condomínio
+                  Preencha os dados do contrato
                 </DialogDescription>
               </DialogHeader>
 
