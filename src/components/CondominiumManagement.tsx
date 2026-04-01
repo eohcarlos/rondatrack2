@@ -253,7 +253,7 @@ export const CondominiumManagement = () => {
         if (error) throw error;
 
         toast({
-          title: "Condomínio atualizado",
+          title: "Contrato atualizado",
           description: "Os dados foram atualizados com sucesso.",
         });
       } else {
