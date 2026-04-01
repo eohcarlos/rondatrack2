@@ -92,6 +92,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
           observations,
           amount,
           work_shift,
+          location,
           created_at,
           employees (
             first_name,
