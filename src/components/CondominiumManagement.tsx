@@ -430,7 +430,7 @@ export const CondominiumManagement = () => {
                     id="address"
                     value={formData.address}
                     onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                    placeholder="Endereço completo do condomínio"
+                    placeholder="Endereço completo do contrato"
                     className="rounded-xl"
                     rows={3}
                   />
