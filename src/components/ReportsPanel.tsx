@@ -125,7 +125,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         'Nome': `${item.employees?.first_name || ''} ${item.employees?.last_name || ''}`.trim(),
         'Cargo': item.employees?.positions?.title || '',
         'Supervisor(a)': item.supervisor_profile?.name || '',
-        'Condomínio': item.employees?.condominiums?.name || '',
+        'Contrato': item.employees?.condominiums?.name || '',
         'Endereço': item.employees?.condominiums?.address || '',
         'Turno': getShiftLabel(item.employees?.shift || ''),
         'Local da FT': item.location || 'Não informado',
