@@ -307,29 +307,42 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
             <div className="grid grid-cols-2 gap-3">
               <button 
                 onClick={handleNavigateFT}
-                className="group flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98]"
+                className="group relative flex items-center justify-center gap-2.5 px-4 py-4 rounded-2xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98] overflow-hidden"
               >
-                <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Plus className="h-4 w-4" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+                <div className="relative flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Plus className="h-4 w-4" />
+                  </div>
+                  <div className="text-left">
+                    <span className="text-sm font-bold block leading-tight">Registrar FT</span>
+                    <span className="text-[10px] text-white/60 font-medium">Folga Trabalhada</span>
+                  </div>
                 </div>
-                <span className="text-sm">Registrar FT</span>
               </button>
 
               <button 
                 onClick={handleNavigateAbsence}
-                className="group flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground font-semibold shadow-lg shadow-destructive/25 hover:shadow-xl hover:shadow-destructive/30 hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98]"
+                className="group relative flex items-center justify-center gap-2.5 px-4 py-4 rounded-2xl bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground font-semibold shadow-lg shadow-destructive/25 hover:shadow-xl hover:shadow-destructive/30 hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98] overflow-hidden"
               >
-                <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Plus className="h-4 w-4" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+                <div className="relative flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Plus className="h-4 w-4" />
+                  </div>
+                  <div className="text-left">
+                    <span className="text-sm font-bold block leading-tight">Registrar Falta</span>
+                    <span className="text-[10px] text-white/60 font-medium">Ausência</span>
+                  </div>
                 </div>
-                <span className="text-sm">Registrar Falta</span>
               </button>
             </div>
 
-            {/* Primary Stats Grid - Premium Cards with Trends */}
+            {/* Primary Stats Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
               {/* FTs do Mês */}
               <Card className="relative overflow-hidden border-0 rounded-3xl bg-card shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-primary/50 rounded-t-3xl" />
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <CardContent className="p-4 lg:p-5 relative">
                   <div className="flex items-start justify-between mb-3">
@@ -348,6 +361,7 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
 
               {/* Faltas do Mês */}
               <Card className="relative overflow-hidden border-0 rounded-3xl bg-card shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-destructive to-destructive/50 rounded-t-3xl" />
                 <div className="absolute inset-0 bg-gradient-to-br from-destructive/5 via-transparent to-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <CardContent className="p-4 lg:p-5 relative">
                   <div className="flex items-start justify-between mb-3">
@@ -366,6 +380,7 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
 
               {/* Faturamento do Mês */}
               <Card className="relative overflow-hidden border-0 rounded-3xl bg-card shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-t-3xl" />
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <CardContent className="p-4 lg:p-5 relative">
                   <div className="flex items-start justify-between mb-3">
@@ -387,6 +402,7 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
 
               {/* Funcionários */}
               <Card className="relative overflow-hidden border-0 rounded-3xl bg-card shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-accent to-accent/50 rounded-t-3xl" />
                 <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <CardContent className="p-4 lg:p-5 relative">
                   <div className="flex items-start justify-between mb-3">
@@ -410,34 +426,36 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
             {/* Secondary Stats + Actions Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {/* Left: More Stats */}
-              <Card className="lg:col-span-2 border-0 rounded-3xl bg-card/50 backdrop-blur-sm shadow-lg">
-                <CardHeader className="pb-2">
+              <Card className="lg:col-span-2 border-0 rounded-3xl bg-card shadow-lg overflow-hidden">
+                <CardHeader className="pb-2 bg-gradient-to-r from-primary/5 to-accent/5">
                   <CardTitle className="text-base font-semibold flex items-center gap-2">
-                    <Activity className="h-4 w-4 text-primary" />
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                      <Activity className="h-4 w-4 text-primary-foreground" />
+                    </div>
                     Resumo Geral
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-4">
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-violet-500/10 to-violet-600/5 border border-violet-500/15 hover:border-violet-500/30 transition-colors">
+                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-violet-500/10 to-violet-600/5 border border-violet-500/15 hover:border-violet-500/30 hover:shadow-md transition-all duration-200">
                       <p className="text-2xl font-extrabold text-violet-600 dark:text-violet-400">
                         <AnimatedNumber value={stats.previousMonthWorkedLeaves} duration={1100} />
                       </p>
                       <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">FTs mês anterior</p>
                     </div>
-                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-rose-500/10 to-rose-600/5 border border-rose-500/15 hover:border-rose-500/30 transition-colors">
+                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-rose-500/10 to-rose-600/5 border border-rose-500/15 hover:border-rose-500/30 hover:shadow-md transition-all duration-200">
                       <p className="text-2xl font-extrabold text-rose-600 dark:text-rose-400">
                         <AnimatedNumber value={stats.previousMonthAbsences} duration={1000} />
                       </p>
                       <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">Faltas mês anterior</p>
                     </div>
-                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-cyan-600/5 border border-cyan-500/15 hover:border-cyan-500/30 transition-colors">
+                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-cyan-600/5 border border-cyan-500/15 hover:border-cyan-500/30 hover:shadow-md transition-all duration-200">
                       <p className="text-2xl font-extrabold text-cyan-600 dark:text-cyan-400">
                         <AnimatedNumber value={stats.totalCondominiums} duration={900} />
                       </p>
-                      <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">Condomínios</p>
+                      <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">Contratos</p>
                     </div>
-                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/15 hover:border-amber-500/30 transition-colors">
+                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/15 hover:border-amber-500/30 hover:shadow-md transition-all duration-200">
                       <p className="text-xl font-extrabold text-amber-600 dark:text-amber-400">
                         <AnimatedCurrency value={stats.totalWorkedLeavesRevenue} duration={1400} />
                       </p>
@@ -457,7 +475,6 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
                 <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl" />
                 <div className="absolute top-1/2 right-0 w-20 h-20 bg-amber-300/10 rounded-full blur-xl" />
                 <CardContent className="p-5 flex flex-col h-full relative z-10">
-                  {/* Header */}
                   <div className="flex items-center justify-between mb-4">
                     <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-xl ring-2 ring-amber-400/30 group-hover:scale-110 transition-transform">
                       <Download className="h-6 w-6 text-white" />
@@ -471,39 +488,37 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
                   <h3 className="font-bold text-white text-lg mb-0.5">Relatórios</h3>
                   <p className="text-sm text-white/50 mb-4">Exporte dados completos</p>
 
-                  {/* Mini preview stats */}
                   <div className="space-y-2 flex-1">
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-white/[0.06] border border-white/[0.05]">
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.06] border border-white/[0.05]">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-md bg-primary/20 flex items-center justify-center">
-                          <Clock className="h-3 w-3 text-primary" />
+                        <div className="w-7 h-7 rounded-lg bg-primary/20 flex items-center justify-center">
+                          <Clock className="h-3.5 w-3.5 text-primary" />
                         </div>
-                        <span className="text-white/60 text-[11px]">FTs</span>
+                        <span className="text-white/60 text-xs">FTs</span>
                       </div>
                       <span className="text-white font-bold text-sm">{stats.totalWorkedLeaves}</span>
                     </div>
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-white/[0.06] border border-white/[0.05]">
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.06] border border-white/[0.05]">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-md bg-destructive/20 flex items-center justify-center">
-                          <Calendar className="h-3 w-3 text-destructive" />
+                        <div className="w-7 h-7 rounded-lg bg-destructive/20 flex items-center justify-center">
+                          <Calendar className="h-3.5 w-3.5 text-destructive" />
                         </div>
-                        <span className="text-white/60 text-[11px]">Faltas</span>
+                        <span className="text-white/60 text-xs">Faltas</span>
                       </div>
                       <span className="text-white font-bold text-sm">{stats.totalAbsences}</span>
                     </div>
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-white/[0.06] border border-white/[0.05]">
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.06] border border-white/[0.05]">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-md bg-emerald-500/20 flex items-center justify-center">
-                          <DollarSign className="h-3 w-3 text-emerald-400" />
+                        <div className="w-7 h-7 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                          <DollarSign className="h-3.5 w-3.5 text-emerald-400" />
                         </div>
-                        <span className="text-white/60 text-[11px]">Faturamento</span>
+                        <span className="text-white/60 text-xs">Faturamento</span>
                       </div>
                       <span className="text-white font-bold text-sm">{formatCurrency(stats.totalWorkedLeavesRevenue)}</span>
                     </div>
                   </div>
 
-                  {/* CTA */}
-                  <div className="flex items-center justify-center gap-1.5 mt-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold text-sm shadow-lg shadow-amber-500/25 group-hover:shadow-amber-500/40 transition-all">
+                  <div className="flex items-center justify-center gap-1.5 mt-4 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold text-sm shadow-lg shadow-amber-500/25 group-hover:shadow-amber-500/40 transition-all">
                     <span>Gerar Relatório</span>
                     <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
                   </div>
