@@ -427,7 +427,7 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {/* Left: More Stats */}
               <Card className="lg:col-span-2 border-0 rounded-3xl bg-card shadow-lg overflow-hidden">
-                <CardHeader className="pb-2 bg-gradient-to-r from-primary/5 to-accent/5">
+                <CardHeader className="pb-3 bg-gradient-to-r from-primary/5 to-accent/5">
                   <CardTitle className="text-base font-semibold flex items-center gap-2">
                     <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
                       <Activity className="h-4 w-4 text-primary-foreground" />
@@ -437,30 +437,25 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
                 </CardHeader>
                 <CardContent className="pt-4">
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-violet-500/10 to-violet-600/5 border border-violet-500/15 hover:border-violet-500/30 hover:shadow-md transition-all duration-200">
-                      <p className="text-2xl font-extrabold text-violet-600 dark:text-violet-400">
-                        <AnimatedNumber value={stats.previousMonthWorkedLeaves} duration={1100} />
-                      </p>
-                      <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">FTs mês anterior</p>
-                    </div>
-                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-rose-500/10 to-rose-600/5 border border-rose-500/15 hover:border-rose-500/30 hover:shadow-md transition-all duration-200">
-                      <p className="text-2xl font-extrabold text-rose-600 dark:text-rose-400">
-                        <AnimatedNumber value={stats.previousMonthAbsences} duration={1000} />
-                      </p>
-                      <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">Faltas mês anterior</p>
-                    </div>
-                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-cyan-600/5 border border-cyan-500/15 hover:border-cyan-500/30 hover:shadow-md transition-all duration-200">
-                      <p className="text-2xl font-extrabold text-cyan-600 dark:text-cyan-400">
-                        <AnimatedNumber value={stats.totalCondominiums} duration={900} />
-                      </p>
-                      <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">Contratos</p>
-                    </div>
-                    <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/15 hover:border-amber-500/30 hover:shadow-md transition-all duration-200">
-                      <p className="text-xl font-extrabold text-amber-600 dark:text-amber-400">
-                        <AnimatedCurrency value={stats.totalWorkedLeavesRevenue} duration={1400} />
-                      </p>
-                      <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">Fat. Total FT</p>
-                    </div>
+                    {[
+                      { label: 'FTs mês anterior', value: stats.previousMonthWorkedLeaves, icon: Clock, gradient: 'from-violet-500 to-purple-600', bg: 'from-violet-500/10 to-purple-500/5', isCurrency: false },
+                      { label: 'Faltas mês anterior', value: stats.previousMonthAbsences, icon: Calendar, gradient: 'from-rose-500 to-pink-600', bg: 'from-rose-500/10 to-pink-500/5', isCurrency: false },
+                      { label: 'Contratos', value: stats.totalCondominiums, icon: Building2, gradient: 'from-cyan-500 to-blue-600', bg: 'from-cyan-500/10 to-blue-500/5', isCurrency: false },
+                      { label: 'Fat. Total FT', value: stats.totalWorkedLeavesRevenue, icon: DollarSign, gradient: 'from-amber-500 to-orange-600', bg: 'from-amber-500/10 to-orange-500/5', isCurrency: true },
+                    ].map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <div key={item.label} className={`relative overflow-hidden p-4 rounded-2xl bg-gradient-to-br ${item.bg} border border-border/50 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group`}>
+                          <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${item.gradient} flex items-center justify-center mb-3 shadow-md group-hover:scale-110 transition-transform`}>
+                            <Icon className="h-4 w-4 text-white" />
+                          </div>
+                          <p className="text-xl font-extrabold text-foreground">
+                            {item.isCurrency ? <AnimatedCurrency value={item.value} duration={1400} /> : <AnimatedNumber value={item.value} duration={1100} />}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground mt-1 font-medium">{item.label}</p>
+                        </div>
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>
