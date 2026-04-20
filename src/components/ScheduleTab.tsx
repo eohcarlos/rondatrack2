@@ -151,9 +151,11 @@ export const ScheduleTab = () => {
     return schedules.filter(s => s.date === activeDay);
   }, [schedules, activeDay]);
 
-  const diurnoSchedules = useMemo(() => sortByOrder(schedulesForDay.filter(s => s.shift === 'diurno'), activeDay, 'diurno'), [schedulesForDay, sortByOrder, activeDay]);
-  const noturnoSchedules = useMemo(() => sortByOrder(schedulesForDay.filter(s => s.shift === 'noturno'), activeDay, 'noturno'), [schedulesForDay, sortByOrder, activeDay]);
-  const dobraSchedules = useMemo(() => sortByOrder(schedulesForDay.filter(s => s.shift === 'dobra'), activeDay, 'dobra'), [schedulesForDay, sortByOrder, activeDay]);
+  const visibleSchedulesForDay = useMemo(() => schedulesForDay.filter(s => !s.picked_up_at), [schedulesForDay]);
+
+  const diurnoSchedules = useMemo(() => sortByOrder(visibleSchedulesForDay.filter(s => s.shift === 'diurno'), activeDay, 'diurno'), [visibleSchedulesForDay, sortByOrder, activeDay]);
+  const noturnoSchedules = useMemo(() => sortByOrder(visibleSchedulesForDay.filter(s => s.shift === 'noturno'), activeDay, 'noturno'), [visibleSchedulesForDay, sortByOrder, activeDay]);
+  const dobraSchedules = useMemo(() => sortByOrder(visibleSchedulesForDay.filter(s => s.shift === 'dobra'), activeDay, 'dobra'), [visibleSchedulesForDay, sortByOrder, activeDay]);
 
   const handleAddSchedule = async () => {
     if (!selectedEmployee || !selectedShift || !activeDay) {
