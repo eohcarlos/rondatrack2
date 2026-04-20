@@ -378,8 +378,18 @@ export const ScheduleTab = () => {
     const isFirst = index === 0;
     const isLast = index === list.length - 1;
 
+    const isPickedUp = !!entry.picked_up_at;
+    const pickedTime = isPickedUp ? format(new Date(entry.picked_up_at!), 'HH:mm') : null;
+
     return (
-      <div key={entry.id} className={`flex items-center justify-between p-3 rounded-xl border ${shiftConf?.color || 'border-border'} transition-all hover:shadow-md`}>
+      <div
+        key={entry.id}
+        className={`flex items-center justify-between p-3 rounded-xl border transition-all hover:shadow-md ${
+          isPickedUp
+            ? 'bg-emerald-500/5 border-emerald-500/40 dark:bg-emerald-500/10'
+            : shiftConf?.color || 'border-border'
+        }`}
+      >
         <div className="flex items-center gap-2 min-w-0 flex-1">
           <div className="flex flex-col gap-0.5 shrink-0">
             <Button
@@ -407,9 +417,17 @@ export const ScheduleTab = () => {
             <span className="text-[11px] font-bold">{index + 1}</span>
           </div>
           <div className="min-w-0">
-            <p className="font-semibold text-foreground text-sm truncate">
-              {entry.employees?.first_name} {entry.employees?.last_name}
-            </p>
+            <div className="flex items-center gap-1.5">
+              <p className={`font-semibold text-sm truncate ${isPickedUp ? 'text-emerald-700 dark:text-emerald-400' : 'text-foreground'}`}>
+                {entry.employees?.first_name} {entry.employees?.last_name}
+              </p>
+              {isPickedUp && (
+                <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 text-[10px] px-1.5 py-0 h-4">
+                  <CheckCircle2 className="h-2.5 w-2.5 mr-0.5" />
+                  {pickedTime}
+                </Badge>
+              )}
+            </div>
             <div className="flex items-center gap-2 flex-wrap">
               {entry.employees?.positions?.title && (
                 <span className="text-xs text-muted-foreground">{entry.employees.positions.title}</span>
@@ -426,9 +444,24 @@ export const ScheduleTab = () => {
             )}
           </div>
         </div>
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10 shrink-0" onClick={() => handleDelete(entry.id)}>
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-1 shrink-0">
+          <Button
+            variant={isPickedUp ? 'outline' : 'default'}
+            size="sm"
+            className={`h-8 px-2 ${
+              isPickedUp
+                ? 'border-emerald-500/40 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/10'
+                : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+            }`}
+            onClick={() => handleTogglePickup(entry)}
+            title={isPickedUp ? 'Desfazer confirmação' : 'Confirmar embarque'}
+          >
+            {isPickedUp ? <RotateCcw className="h-3.5 w-3.5" /> : <><Check className="h-3.5 w-3.5 mr-1" /><span className="text-xs">Buscar</span></>}
+          </Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => handleDelete(entry.id)}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     );
   };
