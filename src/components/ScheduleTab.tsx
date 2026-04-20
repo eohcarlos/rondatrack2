@@ -602,6 +602,26 @@ export const ScheduleTab = () => {
             <p className="text-[10px] text-blue-200">Dobra</p>
           </div>
         </div>
+
+        {/* Pickup tracker */}
+        {schedulesForDay.length > 0 && (
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <div className="bg-emerald-500/20 border border-emerald-300/30 rounded-xl p-2.5 flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-emerald-200" />
+              <div>
+                <p className="text-xl font-bold leading-none">{schedulesForDay.filter(s => s.picked_up_at).length}</p>
+                <p className="text-[10px] text-emerald-100">Buscados</p>
+              </div>
+            </div>
+            <div className="bg-amber-500/20 border border-amber-300/30 rounded-xl p-2.5 flex items-center gap-2">
+              <Clock className="h-5 w-5 text-amber-200" />
+              <div>
+                <p className="text-xl font-bold leading-none">{schedulesForDay.filter(s => !s.picked_up_at).length}</p>
+                <p className="text-[10px] text-amber-100">Faltam buscar</p>
+              </div>
+            </div>
+          </div>
+        )}
       </CardHeader>
 
       <CardContent className="p-4">
