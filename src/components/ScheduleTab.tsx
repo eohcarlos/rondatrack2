@@ -587,19 +587,19 @@ export const ScheduleTab = () => {
                 </TabsContent>
 
                 <TabsContent value="diurno" className="space-y-2 mt-4">
-                  {diurnoSchedules.length > 0 ? diurnoSchedules.map(renderScheduleCard) : (
+                  {diurnoSchedules.length > 0 ? diurnoSchedules.map((e, i) => renderScheduleCard(e, i, diurnoSchedules)) : (
                     <p className="text-center text-muted-foreground py-8">Nenhum funcionário no turno diurno</p>
                   )}
                 </TabsContent>
 
                 <TabsContent value="noturno" className="space-y-2 mt-4">
-                  {noturnoSchedules.length > 0 ? noturnoSchedules.map(renderScheduleCard) : (
+                  {noturnoSchedules.length > 0 ? noturnoSchedules.map((e, i) => renderScheduleCard(e, i, noturnoSchedules)) : (
                     <p className="text-center text-muted-foreground py-8">Nenhum funcionário no turno noturno</p>
                   )}
                 </TabsContent>
 
                 <TabsContent value="dobra" className="space-y-2 mt-4">
-                  {dobraSchedules.length > 0 ? dobraSchedules.map(renderScheduleCard) : (
+                  {dobraSchedules.length > 0 ? dobraSchedules.map((e, i) => renderScheduleCard(e, i, dobraSchedules)) : (
                     <p className="text-center text-muted-foreground py-8">Nenhum funcionário na dobra</p>
                   )}
                 </TabsContent>
