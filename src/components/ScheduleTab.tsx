@@ -151,9 +151,11 @@ export const ScheduleTab = () => {
     return schedules.filter(s => s.date === activeDay);
   }, [schedules, activeDay]);
 
-  const diurnoSchedules = useMemo(() => sortByOrder(schedulesForDay.filter(s => s.shift === 'diurno'), activeDay, 'diurno'), [schedulesForDay, sortByOrder, activeDay]);
-  const noturnoSchedules = useMemo(() => sortByOrder(schedulesForDay.filter(s => s.shift === 'noturno'), activeDay, 'noturno'), [schedulesForDay, sortByOrder, activeDay]);
-  const dobraSchedules = useMemo(() => sortByOrder(schedulesForDay.filter(s => s.shift === 'dobra'), activeDay, 'dobra'), [schedulesForDay, sortByOrder, activeDay]);
+  const visibleSchedulesForDay = useMemo(() => schedulesForDay.filter(s => !s.picked_up_at), [schedulesForDay]);
+
+  const diurnoSchedules = useMemo(() => sortByOrder(visibleSchedulesForDay.filter(s => s.shift === 'diurno'), activeDay, 'diurno'), [visibleSchedulesForDay, sortByOrder, activeDay]);
+  const noturnoSchedules = useMemo(() => sortByOrder(visibleSchedulesForDay.filter(s => s.shift === 'noturno'), activeDay, 'noturno'), [visibleSchedulesForDay, sortByOrder, activeDay]);
+  const dobraSchedules = useMemo(() => sortByOrder(visibleSchedulesForDay.filter(s => s.shift === 'dobra'), activeDay, 'dobra'), [visibleSchedulesForDay, sortByOrder, activeDay]);
 
   const handleAddSchedule = async () => {
     if (!selectedEmployee || !selectedShift || !activeDay) {
@@ -215,9 +217,9 @@ export const ScheduleTab = () => {
     }
   };
 
-  const handleTogglePickup = async (entry: ScheduleEntry) => {
-    const isPickedUp = !!entry.picked_up_at;
-    const newValue = isPickedUp ? null : new Date().toISOString();
+  const handleConfirmPickup = async (entry: ScheduleEntry) => {
+    if (entry.picked_up_at) return;
+    const newValue = new Date().toISOString();
 
     // Optimistic update
     setSchedules(prev => prev.map(s => s.id === entry.id ? { ...s, picked_up_at: newValue } : s));
@@ -229,13 +231,13 @@ export const ScheduleTab = () => {
         .eq('id', entry.id);
       if (error) throw error;
       toast({
-        title: isPickedUp ? 'Confirmação removida' : '✅ Funcionário confirmado!',
-        description: isPickedUp ? undefined : `Horário registrado: ${format(new Date(newValue!), 'HH:mm')}`,
+        title: '✅ Funcionário confirmado!',
+        description: `Horário registrado: ${format(new Date(newValue), 'HH:mm')}`,
       });
     } catch (error: any) {
       // Revert
-      setSchedules(prev => prev.map(s => s.id === entry.id ? { ...s, picked_up_at: entry.picked_up_at } : s));
-      toast({ title: 'Erro ao atualizar', description: error.message, variant: 'destructive' });
+      setSchedules(prev => prev.map(s => s.id === entry.id ? { ...s, picked_up_at: null } : s));
+      toast({ title: 'Erro ao confirmar', description: error.message, variant: 'destructive' });
     }
   };
 
@@ -446,17 +448,13 @@ export const ScheduleTab = () => {
         </div>
         <div className="flex items-center gap-1 shrink-0">
           <Button
-            variant={isPickedUp ? 'outline' : 'default'}
             size="sm"
-            className={`h-8 px-2 ${
-              isPickedUp
-                ? 'border-emerald-500/40 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/10'
-                : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-            }`}
-            onClick={() => handleTogglePickup(entry)}
-            title={isPickedUp ? 'Desfazer confirmação' : 'Confirmar embarque'}
+            className="h-8 px-2 bg-emerald-600 hover:bg-emerald-700 text-white"
+            onClick={() => handleConfirmPickup(entry)}
+            title="Confirmar embarque"
           >
-            {isPickedUp ? <RotateCcw className="h-3.5 w-3.5" /> : <><Check className="h-3.5 w-3.5 mr-1" /><span className="text-xs">Buscar</span></>}
+            <Check className="h-3.5 w-3.5 mr-1" />
+            <span className="text-xs">Confirmar</span>
           </Button>
           <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => handleDelete(entry.id)}>
             <Trash2 className="h-4 w-4" />
