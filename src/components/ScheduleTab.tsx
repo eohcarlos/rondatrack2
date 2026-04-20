@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { CalendarDays, Sun, Moon, Clock, Plus, Trash2, Download, Users, Building2, ArrowUp, ArrowDown } from 'lucide-react';
+import { CalendarDays, Sun, Moon, Clock, Plus, Trash2, Download, Users, Building2, ArrowUp, ArrowDown, Check, CheckCircle2, RotateCcw } from 'lucide-react';
 import { format, addDays, startOfWeek, isSameDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import jsPDF from 'jspdf';
@@ -26,6 +26,7 @@ interface ScheduleEntry {
   condominium_id: string | null;
   observations: string | null;
   created_by: string;
+  picked_up_at: string | null;
   employees?: { first_name: string; last_name: string | null; positions?: { title: string } };
   condominiums?: { name: string } | null;
 }
@@ -214,6 +215,30 @@ export const ScheduleTab = () => {
     }
   };
 
+  const handleTogglePickup = async (entry: ScheduleEntry) => {
+    const isPickedUp = !!entry.picked_up_at;
+    const newValue = isPickedUp ? null : new Date().toISOString();
+
+    // Optimistic update
+    setSchedules(prev => prev.map(s => s.id === entry.id ? { ...s, picked_up_at: newValue } : s));
+
+    try {
+      const { error } = await supabase
+        .from('schedules')
+        .update({ picked_up_at: newValue })
+        .eq('id', entry.id);
+      if (error) throw error;
+      toast({
+        title: isPickedUp ? 'Confirmação removida' : '✅ Funcionário confirmado!',
+        description: isPickedUp ? undefined : `Horário registrado: ${format(new Date(newValue!), 'HH:mm')}`,
+      });
+    } catch (error: any) {
+      // Revert
+      setSchedules(prev => prev.map(s => s.id === entry.id ? { ...s, picked_up_at: entry.picked_up_at } : s));
+      toast({ title: 'Erro ao atualizar', description: error.message, variant: 'destructive' });
+    }
+  };
+
   const generatePDF = () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
@@ -353,8 +378,18 @@ export const ScheduleTab = () => {
     const isFirst = index === 0;
     const isLast = index === list.length - 1;
 
+    const isPickedUp = !!entry.picked_up_at;
+    const pickedTime = isPickedUp ? format(new Date(entry.picked_up_at!), 'HH:mm') : null;
+
     return (
-      <div key={entry.id} className={`flex items-center justify-between p-3 rounded-xl border ${shiftConf?.color || 'border-border'} transition-all hover:shadow-md`}>
+      <div
+        key={entry.id}
+        className={`flex items-center justify-between p-3 rounded-xl border transition-all hover:shadow-md ${
+          isPickedUp
+            ? 'bg-emerald-500/5 border-emerald-500/40 dark:bg-emerald-500/10'
+            : shiftConf?.color || 'border-border'
+        }`}
+      >
         <div className="flex items-center gap-2 min-w-0 flex-1">
           <div className="flex flex-col gap-0.5 shrink-0">
             <Button
@@ -382,9 +417,17 @@ export const ScheduleTab = () => {
             <span className="text-[11px] font-bold">{index + 1}</span>
           </div>
           <div className="min-w-0">
-            <p className="font-semibold text-foreground text-sm truncate">
-              {entry.employees?.first_name} {entry.employees?.last_name}
-            </p>
+            <div className="flex items-center gap-1.5">
+              <p className={`font-semibold text-sm truncate ${isPickedUp ? 'text-emerald-700 dark:text-emerald-400' : 'text-foreground'}`}>
+                {entry.employees?.first_name} {entry.employees?.last_name}
+              </p>
+              {isPickedUp && (
+                <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 text-[10px] px-1.5 py-0 h-4">
+                  <CheckCircle2 className="h-2.5 w-2.5 mr-0.5" />
+                  {pickedTime}
+                </Badge>
+              )}
+            </div>
             <div className="flex items-center gap-2 flex-wrap">
               {entry.employees?.positions?.title && (
                 <span className="text-xs text-muted-foreground">{entry.employees.positions.title}</span>
@@ -401,9 +444,24 @@ export const ScheduleTab = () => {
             )}
           </div>
         </div>
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10 shrink-0" onClick={() => handleDelete(entry.id)}>
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-1 shrink-0">
+          <Button
+            variant={isPickedUp ? 'outline' : 'default'}
+            size="sm"
+            className={`h-8 px-2 ${
+              isPickedUp
+                ? 'border-emerald-500/40 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/10'
+                : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+            }`}
+            onClick={() => handleTogglePickup(entry)}
+            title={isPickedUp ? 'Desfazer confirmação' : 'Confirmar embarque'}
+          >
+            {isPickedUp ? <RotateCcw className="h-3.5 w-3.5" /> : <><Check className="h-3.5 w-3.5 mr-1" /><span className="text-xs">Buscar</span></>}
+          </Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => handleDelete(entry.id)}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     );
   };
@@ -544,6 +602,26 @@ export const ScheduleTab = () => {
             <p className="text-[10px] text-blue-200">Dobra</p>
           </div>
         </div>
+
+        {/* Pickup tracker */}
+        {schedulesForDay.length > 0 && (
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <div className="bg-emerald-500/20 border border-emerald-300/30 rounded-xl p-2.5 flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-emerald-200" />
+              <div>
+                <p className="text-xl font-bold leading-none">{schedulesForDay.filter(s => s.picked_up_at).length}</p>
+                <p className="text-[10px] text-emerald-100">Buscados</p>
+              </div>
+            </div>
+            <div className="bg-amber-500/20 border border-amber-300/30 rounded-xl p-2.5 flex items-center gap-2">
+              <Clock className="h-5 w-5 text-amber-200" />
+              <div>
+                <p className="text-xl font-bold leading-none">{schedulesForDay.filter(s => !s.picked_up_at).length}</p>
+                <p className="text-[10px] text-amber-100">Faltam buscar</p>
+              </div>
+            </div>
+          </div>
+        )}
       </CardHeader>
 
       <CardContent className="p-4">
