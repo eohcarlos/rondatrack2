@@ -102,13 +102,57 @@ export const ScheduleTab = () => {
     [employees]
   );
 
+  // Persistent ordering map: key = `${date}|${shift}` → array of schedule IDs
+  const ORDER_KEY = 'schedule-order-v1';
+  const [orderMap, setOrderMap] = useState<Record<string, string[]>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem(ORDER_KEY) || '{}');
+    } catch {
+      return {};
+    }
+  });
+
+  const persistOrder = useCallback((next: Record<string, string[]>) => {
+    setOrderMap(next);
+    localStorage.setItem(ORDER_KEY, JSON.stringify(next));
+  }, []);
+
+  const sortByOrder = useCallback((list: ScheduleEntry[], date: string, shift: string) => {
+    const key = `${date}|${shift}`;
+    const order = orderMap[key] || [];
+    const indexOf = (id: string) => {
+      const i = order.indexOf(id);
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i;
+    };
+    return [...list].sort((a, b) => {
+      const ia = indexOf(a.id);
+      const ib = indexOf(b.id);
+      if (ia !== ib) return ia - ib;
+      // fallback: by employee name
+      const na = `${a.employees?.first_name || ''} ${a.employees?.last_name || ''}`.trim().toLowerCase();
+      const nb = `${b.employees?.first_name || ''} ${b.employees?.last_name || ''}`.trim().toLowerCase();
+      return na.localeCompare(nb);
+    });
+  }, [orderMap]);
+
+  const moveEntry = useCallback((entries: ScheduleEntry[], id: string, direction: -1 | 1, date: string, shift: string) => {
+    const ids = entries.map(e => e.id);
+    const idx = ids.indexOf(id);
+    if (idx === -1) return;
+    const newIdx = idx + direction;
+    if (newIdx < 0 || newIdx >= ids.length) return;
+    [ids[idx], ids[newIdx]] = [ids[newIdx], ids[idx]];
+    const key = `${date}|${shift}`;
+    persistOrder({ ...orderMap, [key]: ids });
+  }, [orderMap, persistOrder]);
+
   const schedulesForDay = useMemo(() => {
     return schedules.filter(s => s.date === activeDay);
   }, [schedules, activeDay]);
 
-  const diurnoSchedules = useMemo(() => schedulesForDay.filter(s => s.shift === 'diurno'), [schedulesForDay]);
-  const noturnoSchedules = useMemo(() => schedulesForDay.filter(s => s.shift === 'noturno'), [schedulesForDay]);
-  const dobraSchedules = useMemo(() => schedulesForDay.filter(s => s.shift === 'dobra'), [schedulesForDay]);
+  const diurnoSchedules = useMemo(() => sortByOrder(schedulesForDay.filter(s => s.shift === 'diurno'), activeDay, 'diurno'), [schedulesForDay, sortByOrder, activeDay]);
+  const noturnoSchedules = useMemo(() => sortByOrder(schedulesForDay.filter(s => s.shift === 'noturno'), activeDay, 'noturno'), [schedulesForDay, sortByOrder, activeDay]);
+  const dobraSchedules = useMemo(() => sortByOrder(schedulesForDay.filter(s => s.shift === 'dobra'), activeDay, 'dobra'), [schedulesForDay, sortByOrder, activeDay]);
 
   const handleAddSchedule = async () => {
     if (!selectedEmployee || !selectedShift || !activeDay) {
