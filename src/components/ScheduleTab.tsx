@@ -26,6 +26,7 @@ interface ScheduleEntry {
   condominium_id: string | null;
   observations: string | null;
   created_by: string;
+  picked_up_at: string | null;
   employees?: { first_name: string; last_name: string | null; positions?: { title: string } };
   condominiums?: { name: string } | null;
 }
