@@ -215,7 +215,29 @@ export const ScheduleTab = () => {
     }
   };
 
-  const generatePDF = () => {
+  const handleTogglePickup = async (entry: ScheduleEntry) => {
+    const isPickedUp = !!entry.picked_up_at;
+    const newValue = isPickedUp ? null : new Date().toISOString();
+
+    // Optimistic update
+    setSchedules(prev => prev.map(s => s.id === entry.id ? { ...s, picked_up_at: newValue } : s));
+
+    try {
+      const { error } = await supabase
+        .from('schedules')
+        .update({ picked_up_at: newValue })
+        .eq('id', entry.id);
+      if (error) throw error;
+      toast({
+        title: isPickedUp ? 'Confirmação removida' : '✅ Funcionário confirmado!',
+        description: isPickedUp ? undefined : `Horário registrado: ${format(new Date(newValue!), 'HH:mm')}`,
+      });
+    } catch (error: any) {
+      // Revert
+      setSchedules(prev => prev.map(s => s.id === entry.id ? { ...s, picked_up_at: entry.picked_up_at } : s));
+      toast({ title: 'Erro ao atualizar', description: error.message, variant: 'destructive' });
+    }
+  };
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
