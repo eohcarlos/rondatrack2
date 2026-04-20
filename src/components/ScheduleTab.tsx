@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { CalendarDays, Sun, Moon, Clock, Plus, Trash2, Download, Users, Building2 } from 'lucide-react';
+import { CalendarDays, Sun, Moon, Clock, Plus, Trash2, Download, Users, Building2, ArrowUp, ArrowDown } from 'lucide-react';
 import { format, addDays, startOfWeek, isSameDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import jsPDF from 'jspdf';
