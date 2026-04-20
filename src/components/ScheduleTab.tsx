@@ -347,15 +347,39 @@ export const ScheduleTab = () => {
     toast({ title: 'PDF gerado com sucesso!' });
   };
 
-  const renderScheduleCard = (entry: ScheduleEntry) => {
+  const renderScheduleCard = (entry: ScheduleEntry, index: number, list: ScheduleEntry[]) => {
     const shiftConf = SHIFT_CONFIG[entry.shift as keyof typeof SHIFT_CONFIG];
     const ShiftIcon = shiftConf?.icon || Clock;
+    const isFirst = index === 0;
+    const isLast = index === list.length - 1;
 
     return (
       <div key={entry.id} className={`flex items-center justify-between p-3 rounded-xl border ${shiftConf?.color || 'border-border'} transition-all hover:shadow-md`}>
-        <div className="flex items-center gap-3 min-w-0">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${shiftConf?.badge || 'bg-muted'}`}>
-            <ShiftIcon className="h-5 w-5" />
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <div className="flex flex-col gap-0.5 shrink-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              disabled={isFirst}
+              onClick={() => moveEntry(list, entry.id, -1, entry.date, entry.shift)}
+              title="Mover para cima"
+            >
+              <ArrowUp className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              disabled={isLast}
+              onClick={() => moveEntry(list, entry.id, 1, entry.date, entry.shift)}
+              title="Mover para baixo"
+            >
+              <ArrowDown className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+          <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${shiftConf?.badge || 'bg-muted'}`}>
+            <span className="text-[11px] font-bold">{index + 1}</span>
           </div>
           <div className="min-w-0">
             <p className="font-semibold text-foreground text-sm truncate">
@@ -377,7 +401,7 @@ export const ScheduleTab = () => {
             )}
           </div>
         </div>
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => handleDelete(entry.id)}>
+        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10 shrink-0" onClick={() => handleDelete(entry.id)}>
           <Trash2 className="h-4 w-4" />
         </Button>
       </div>
@@ -395,7 +419,7 @@ export const ScheduleTab = () => {
         </div>
         {entries.length > 0 ? (
           <div className="space-y-2 pl-1">
-            {entries.map(renderScheduleCard)}
+            {entries.map((e, i) => renderScheduleCard(e, i, entries))}
           </div>
         ) : (
           <p className="text-xs text-muted-foreground text-center py-3">Nenhum funcionário escalado</p>
