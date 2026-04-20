@@ -217,9 +217,9 @@ export const ScheduleTab = () => {
     }
   };
 
-  const handleTogglePickup = async (entry: ScheduleEntry) => {
-    const isPickedUp = !!entry.picked_up_at;
-    const newValue = isPickedUp ? null : new Date().toISOString();
+  const handleConfirmPickup = async (entry: ScheduleEntry) => {
+    if (entry.picked_up_at) return;
+    const newValue = new Date().toISOString();
 
     // Optimistic update
     setSchedules(prev => prev.map(s => s.id === entry.id ? { ...s, picked_up_at: newValue } : s));
@@ -231,13 +231,13 @@ export const ScheduleTab = () => {
         .eq('id', entry.id);
       if (error) throw error;
       toast({
-        title: isPickedUp ? 'Confirmação removida' : '✅ Funcionário confirmado!',
-        description: isPickedUp ? undefined : `Horário registrado: ${format(new Date(newValue!), 'HH:mm')}`,
+        title: '✅ Funcionário confirmado!',
+        description: `Horário registrado: ${format(new Date(newValue), 'HH:mm')}`,
       });
     } catch (error: any) {
       // Revert
-      setSchedules(prev => prev.map(s => s.id === entry.id ? { ...s, picked_up_at: entry.picked_up_at } : s));
-      toast({ title: 'Erro ao atualizar', description: error.message, variant: 'destructive' });
+      setSchedules(prev => prev.map(s => s.id === entry.id ? { ...s, picked_up_at: null } : s));
+      toast({ title: 'Erro ao confirmar', description: error.message, variant: 'destructive' });
     }
   };
 
