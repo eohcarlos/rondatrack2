@@ -494,6 +494,7 @@ export type Database = {
           employee_id: string
           id: string
           observations: string | null
+          picked_up_at: string | null
           shift: string
           updated_at: string
         }
@@ -506,6 +507,7 @@ export type Database = {
           employee_id: string
           id?: string
           observations?: string | null
+          picked_up_at?: string | null
           shift: string
           updated_at?: string
         }
@@ -518,6 +520,7 @@ export type Database = {
           employee_id?: string
           id?: string
           observations?: string | null
+          picked_up_at?: string | null
           shift?: string
           updated_at?: string
         }
