@@ -413,76 +413,195 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
       const doc = new jsPDF('landscape', 'mm', 'a4');
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
-      
-      // Carregar logo
+
+      // Paleta premium
+      const isFT = reportType === 'ft';
+      const brand: [number, number, number] = isFT ? [79, 70, 229] : [225, 29, 72];      // indigo / rose
+      const brandDark: [number, number, number] = isFT ? [49, 46, 129] : [136, 19, 55];
+      const accent: [number, number, number] = isFT ? [139, 92, 246] : [251, 113, 133]; // violet / pink
+      const ink: [number, number, number] = [17, 24, 39];
+      const sub: [number, number, number] = [107, 114, 128];
+      const soft: [number, number, number] = [243, 244, 246];
+      const line: [number, number, number] = [229, 231, 235];
+
+      // Tentar logo
+      let logoBase64: string | null = null;
       try {
         const logoUrl = '/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png';
         const response = await fetch(logoUrl);
         const blob = await response.blob();
-        const reader = new FileReader();
-        await new Promise<void>((resolve, reject) => {
-          reader.onload = () => {
-            const base64 = reader.result as string;
-            doc.addImage(base64, 'PNG', pageWidth - 40, 5, 28, 28);
-            resolve();
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
+        logoBase64 = await new Promise<string>((resolve, reject) => {
+          const r = new FileReader();
+          r.onload = () => resolve(r.result as string);
+          r.onerror = reject;
+          r.readAsDataURL(blob);
         });
-      } catch (e) {
-        console.warn('Logo nao carregado:', e);
-      }
+      } catch (e) { /* logo opcional */ }
 
-      // Cabecalho
-      const accentColor = reportType === 'ft' ? [59, 130, 246] : [220, 53, 69];
-      doc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
-      doc.rect(14, 8, 4, 22, 'F');
-
-      doc.setFontSize(18);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(30, 30, 30);
-      doc.text(reportType === 'ft' ? 'Relatorio de Folgas Trabalhadas' : 'Relatorio de Faltas', 22, 18);
-
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(100, 100, 100);
-      
-      let infoLine = '';
-      if (startDate && endDate) {
-        infoLine += `Periodo: ${format(startDate, 'dd/MM/yyyy')} a ${format(endDate, 'dd/MM/yyyy')}`;
-      }
-      infoLine += `    Gerado em: ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: ptBR })}`;
-      if (employee) {
-        infoLine += `    Funcionario: ${employee.first_name} ${employee.last_name}`;
-      }
-      doc.text(infoLine, 22, 26);
-
-      // Linha separadora
-      doc.setDrawColor(200, 200, 200);
-      doc.setLineWidth(0.3);
-      doc.line(14, 34, pageWidth - 14, 34);
-
-      let currentY = 38;
-
-      // Ordenar por nome
-      const sortedData = [...data].sort((a, b) => 
+      // ---------- Pré-cálculos ----------
+      const sortedData = [...data].sort((a, b) =>
         (a['Nome'] || '').localeCompare(b['Nome'] || '', 'pt-BR')
       );
-
-      // Agrupar por funcionario
       const grouped: Record<string, any[]> = {};
       sortedData.forEach(row => {
         const name = row['Nome'] || 'Sem nome';
         if (!grouped[name]) grouped[name] = [];
         grouped[name].push(row);
       });
-
       const employeeNames = Object.keys(grouped);
+
       let grandTotal = 0;
       let grandCount = 0;
+      const subtotals: Record<string, number> = {};
+      employeeNames.forEach(name => {
+        const records = grouped[name];
+        grandCount += records.length;
+        if (isFT) {
+          const sub = records.reduce((s, row) => {
+            const m = (row['Valor'] || '').match(/R\$\s*([\d.,]+)/);
+            if (m) {
+              const v = parseFloat(m[1].replace(',', '.'));
+              return s + (isNaN(v) ? 0 : v);
+            }
+            return s;
+          }, 0);
+          subtotals[name] = sub;
+          grandTotal += sub;
+        }
+      });
 
-      // Definir colunas para o PDF
-      const colDefs = reportType === 'ft'
+      // ---------- Helpers ----------
+      const drawGradientBar = (x: number, y: number, w: number, h: number, c1: number[], c2: number[]) => {
+        const steps = 60;
+        for (let i = 0; i < steps; i++) {
+          const t = i / (steps - 1);
+          const r = Math.round(c1[0] + (c2[0] - c1[0]) * t);
+          const g = Math.round(c1[1] + (c2[1] - c1[1]) * t);
+          const b = Math.round(c1[2] + (c2[2] - c1[2]) * t);
+          doc.setFillColor(r, g, b);
+          doc.rect(x + (w / steps) * i, y, w / steps + 0.5, h, 'F');
+        }
+      };
+
+      const drawHeader = () => {
+        // Faixa superior gradiente
+        drawGradientBar(0, 0, pageWidth, 16, brand, accent);
+        // Marca / título no topo
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.setTextColor(255, 255, 255);
+        doc.text('RONDATRACK 2', 14, 10);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.text(isFT ? 'Folgas Trabalhadas' : 'Registro de Faltas', pageWidth - 14, 10, { align: 'right' });
+      };
+
+      const drawFooter = (pageNum: number, totalPages: number) => {
+        doc.setDrawColor(line[0], line[1], line[2]);
+        doc.setLineWidth(0.2);
+        doc.line(14, pageHeight - 10, pageWidth - 14, pageHeight - 10);
+        doc.setFontSize(7.5);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(sub[0], sub[1], sub[2]);
+        doc.text('RondaTrack 2  ·  Relatório confidencial', 14, pageHeight - 5);
+        doc.text(format(new Date(), 'dd/MM/yyyy HH:mm', { locale: ptBR }), pageWidth / 2, pageHeight - 5, { align: 'center' });
+        doc.text(`Página ${pageNum} de ${totalPages}`, pageWidth - 14, pageHeight - 5, { align: 'right' });
+      };
+
+      // ---------- CAPA ----------
+      // Fundo gradiente suave
+      drawGradientBar(0, 0, pageWidth, pageHeight, brand, brandDark);
+      // Overlay decorativo (círculos translúcidos via cinza)
+      doc.setFillColor(255, 255, 255);
+      doc.setGState(new (doc as any).GState({ opacity: 0.08 }));
+      doc.circle(pageWidth - 30, 30, 50, 'F');
+      doc.circle(40, pageHeight - 30, 70, 'F');
+      doc.setGState(new (doc as any).GState({ opacity: 1 }));
+
+      // Logo
+      if (logoBase64) {
+        try { doc.addImage(logoBase64, 'PNG', 24, 24, 22, 22); } catch {}
+      }
+
+      // Tag
+      doc.setFillColor(255, 255, 255);
+      doc.setGState(new (doc as any).GState({ opacity: 0.18 }));
+      doc.roundedRect(24, 56, 60, 9, 4, 4, 'F');
+      doc.setGState(new (doc as any).GState({ opacity: 1 }));
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.text(isFT ? 'RELATÓRIO DE FOLGAS TRABALHADAS' : 'RELATÓRIO DE FALTAS', 28, 62);
+
+      // Título
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(34);
+      doc.setTextColor(255, 255, 255);
+      doc.text(isFT ? 'Folgas Trabalhadas' : 'Faltas Registradas', 24, 88);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(13);
+      doc.setTextColor(255, 255, 255);
+      const periodText = startDate && endDate
+        ? `${format(startDate, "dd 'de' MMMM", { locale: ptBR })} a ${format(endDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}`
+        : 'Todos os registros';
+      doc.text(periodText, 24, 98);
+
+      // Cards de resumo na capa
+      const cardY = 115;
+      const cardH = 32;
+      const gap = 6;
+      const cardW = (pageWidth - 48 - gap * 2) / 3;
+
+      const drawSummaryCard = (x: number, label: string, value: string, sublabel?: string) => {
+        doc.setFillColor(255, 255, 255);
+        doc.setGState(new (doc as any).GState({ opacity: 0.95 }));
+        doc.roundedRect(x, cardY, cardW, cardH, 4, 4, 'F');
+        doc.setGState(new (doc as any).GState({ opacity: 1 }));
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(sub[0], sub[1], sub[2]);
+        doc.text(label.toUpperCase(), x + 6, cardY + 8);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(20);
+        doc.setTextColor(brand[0], brand[1], brand[2]);
+        doc.text(value, x + 6, cardY + 20);
+        if (sublabel) {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.setTextColor(sub[0], sub[1], sub[2]);
+          doc.text(sublabel, x + 6, cardY + 27);
+        }
+      };
+
+      drawSummaryCard(24, 'Registros', String(grandCount), `${employeeNames.length} funcionário${employeeNames.length !== 1 ? 's' : ''}`);
+      drawSummaryCard(24 + cardW + gap, isFT ? 'Valor total' : 'Período', isFT ? `R$ ${grandTotal.toFixed(2).replace('.', ',')}` : `${employeeNames.length}`, isFT ? 'Soma do período' : 'Funcionário(s) com faltas');
+      drawSummaryCard(24 + (cardW + gap) * 2, 'Funcionários', String(employeeNames.length), employee ? `${employee.first_name} ${employee.last_name}` : 'Todos');
+
+      // Rodapé da capa
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(255, 255, 255);
+      doc.text(`Gerado em ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`, 24, pageHeight - 16);
+      doc.text('RondaTrack 2', pageWidth - 24, pageHeight - 16, { align: 'right' });
+
+      // ---------- PÁGINAS DE DADOS ----------
+      doc.addPage();
+      drawHeader();
+      let currentY = 26;
+
+      // Subtítulo de seção
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.setTextColor(ink[0], ink[1], ink[2]);
+      doc.text('Detalhamento por funcionário', 14, currentY);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(sub[0], sub[1], sub[2]);
+      doc.text(periodText, 14, currentY + 5);
+      currentY += 12;
+
+      // Definir colunas
+      const colDefs = isFT
         ? [
             { header: 'Data', key: 'Data', width: 22 },
             { header: 'Cargo', key: 'Cargo', width: 28 },
@@ -491,7 +610,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
             { header: 'Local FT', key: 'Local da FT', width: 32 },
             { header: 'Supervisor', key: 'Supervisor(a)', width: 30 },
             { header: 'Valor (R$)', key: 'Valor', width: 22 },
-            { header: 'Observacoes', key: 'Observações', width: 'auto' as any },
+            { header: 'Observações', key: 'Observações', width: 'auto' as any },
           ]
         : [
             { header: 'Data', key: 'Data', width: 22 },
@@ -500,60 +619,82 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
             { header: 'Turno', key: 'Turno', width: 18 },
             { header: 'Supervisor', key: 'Supervisor(a)', width: 30 },
             { header: 'Motivo', key: 'Motivo', width: 28 },
-            { header: 'Observacoes', key: 'Observações', width: 'auto' as any },
+            { header: 'Observações', key: 'Observações', width: 'auto' as any },
           ];
 
-      // Calcular largura auto
       const fixedWidth = colDefs.reduce((s, c) => s + (typeof c.width === 'number' ? c.width : 0), 0);
-      const availableWidth = pageWidth - 28; // margins
+      const availableWidth = pageWidth - 28;
       const autoWidth = availableWidth - fixedWidth;
       const finalWidths = colDefs.map(c => typeof c.width === 'number' ? c.width : Math.max(autoWidth, 30));
 
       employeeNames.forEach((empName, empIndex) => {
         const records = grouped[empName];
         const recordCount = records.length;
-        
-        // Calcular subtotal
-        let subtotal = 0;
-        if (reportType === 'ft') {
-          subtotal = records.reduce((sum, row) => {
-            const valorStr = row['Valor'] || '';
-            const match = valorStr.match(/R\$\s*([\d.,]+)/);
-            if (match) {
-              const value = parseFloat(match[1].replace(',', '.'));
-              return sum + (isNaN(value) ? 0 : value);
-            }
-            return sum;
-          }, 0);
-          grandTotal += subtotal;
-        }
-        grandCount += recordCount;
+        const subtotal = subtotals[empName] || 0;
 
-        // Estimar espaco necessario: header(8) + rows(5.5 each) + subtotal(8) + spacing(6)
-        const neededSpace = 8 + (recordCount * 5.5) + 8 + 6;
-        if (currentY + neededSpace > pageHeight - 20 && currentY > 40) {
+        const neededSpace = 14 + (recordCount * 6) + 10 + 8;
+        if (currentY + neededSpace > pageHeight - 18 && currentY > 30) {
           doc.addPage();
-          currentY = 16;
+          drawHeader();
+          currentY = 26;
         }
 
-        // Nome do funcionario como header do grupo
-        doc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
-        doc.rect(14, currentY - 1, pageWidth - 28, 7, 'F');
-        doc.setFontSize(9);
+        // Cabeçalho do grupo: card com nome + iniciais
+        const groupH = 12;
+        // Sombra fake
+        doc.setFillColor(brand[0], brand[1], brand[2]);
+        doc.roundedRect(14, currentY, pageWidth - 28, groupH, 3, 3, 'F');
+
+        // Iniciais avatar
+        const initials = empName.split(' ').filter(Boolean).slice(0, 2).map(n => n[0]?.toUpperCase()).join('');
+        doc.setFillColor(255, 255, 255);
+        doc.setGState(new (doc as any).GState({ opacity: 0.22 }));
+        doc.circle(22, currentY + 6, 3.6, 'F');
+        doc.setGState(new (doc as any).GState({ opacity: 1 }));
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(255, 255, 255);
+        doc.text(initials || '?', 22, currentY + 7.2, { align: 'center' });
+
+        // Nome
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.setTextColor(255, 255, 255);
+        doc.text(empName, 28, currentY + 7.5);
+
+        // Badge contagem
+        const countLabel = `${recordCount} ${isFT ? 'FT' : 'falta'}${recordCount > 1 ? 's' : ''}`;
+        const badgeW = doc.getTextWidth(countLabel) + 8;
+        doc.setFillColor(255, 255, 255);
+        doc.setGState(new (doc as any).GState({ opacity: 0.22 }));
+        doc.roundedRect(pageWidth - 14 - badgeW - (isFT ? 42 : 0), currentY + 3, badgeW, 6, 2.5, 2.5, 'F');
+        doc.setGState(new (doc as any).GState({ opacity: 1 }));
+        doc.setFontSize(8);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(255, 255, 255);
-        doc.text(`${empName}  -  ${recordCount} registro${recordCount > 1 ? 's' : ''}`, 17, currentY + 4);
-        currentY += 9;
+        doc.text(countLabel, pageWidth - 14 - badgeW / 2 - (isFT ? 42 : 0), currentY + 7, { align: 'center' });
 
-        // Tabela do funcionario
+        if (isFT) {
+          const valLabel = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+          const vW = doc.getTextWidth(valLabel) + 8;
+          doc.setFillColor(255, 255, 255);
+          doc.roundedRect(pageWidth - 14 - vW, currentY + 3, vW, 6, 2.5, 2.5, 'F');
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(brand[0], brand[1], brand[2]);
+          doc.text(valLabel, pageWidth - 14 - vW / 2, currentY + 7, { align: 'center' });
+        }
+
+        currentY += groupH + 1.5;
+
+        // Tabela
         const tableHeaders = colDefs.map(c => c.header);
-        const tableData = records.map(row => 
+        const tableData = records.map(row =>
           colDefs.map(c => {
             let val = row[c.key] || '-';
-            // Limpar simbolos do valor
             if (c.key === 'Valor') {
-              val = val.replace('R$ ', '').replace('R$', '').trim();
-              if (val === 'Nao informado') val = '-';
+              val = String(val).replace('R$ ', '').replace('R$', '').trim();
+              if (val === 'Nao informado' || val === 'Não informado') val = '-';
             }
             if (val === 'Sem observacoes' || val === 'Sem observações') val = '-';
             if (val === 'Nao informado' || val === 'Não informado') val = '-';
@@ -564,6 +705,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
         const columnStyles: Record<number, any> = {};
         finalWidths.forEach((w, i) => {
           columnStyles[i] = { cellWidth: w };
+          if (colDefs[i].key === 'Valor') columnStyles[i].halign = 'right';
         });
 
         autoTable(doc, {
@@ -572,88 +714,86 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
           startY: currentY,
           margin: { left: 14, right: 14 },
           styles: {
-            fontSize: 7,
-            cellPadding: 1.5,
-            lineColor: [220, 220, 220],
-            lineWidth: 0.2,
-            textColor: [40, 40, 40],
-            overflow: 'ellipsize',
+            fontSize: 7.5,
+            cellPadding: 2.2,
+            lineColor: line,
+            lineWidth: 0.15,
+            textColor: ink,
+            overflow: 'linebreak',
+            valign: 'middle',
           },
           headStyles: {
-            fillColor: [240, 242, 245],
-            textColor: [60, 60, 60],
+            fillColor: soft,
+            textColor: sub,
             fontStyle: 'bold',
             fontSize: 7,
-            lineWidth: 0.2,
-            lineColor: [200, 200, 200],
+            lineWidth: 0.15,
+            lineColor: line,
+            cellPadding: 2.5,
           },
           alternateRowStyles: {
             fillColor: [250, 250, 252],
           },
           columnStyles,
-          tableLineColor: [220, 220, 220],
-          tableLineWidth: 0.2,
+          tableLineColor: line,
+          tableLineWidth: 0.15,
+          didDrawPage: () => {
+            // Quando autoTable pula página, redesenha o header
+            const pageNumber = (doc as any).internal.getNumberOfPages();
+            if (pageNumber > 2) {
+              const cur = doc.getCurrentPageInfo().pageNumber;
+              if (cur > 2) {
+                drawHeader();
+              }
+            }
+          },
         });
 
         currentY = (doc as any).lastAutoTable?.finalY || currentY + 20;
+        currentY += 4;
 
-        // Subtotal do funcionario
-        if (reportType === 'ft') {
-          doc.setFillColor(245, 247, 250);
-          doc.rect(14, currentY, pageWidth - 28, 7, 'F');
-          doc.setFontSize(8);
-          doc.setFont('helvetica', 'bold');
-          doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
-          doc.text(`Subtotal ${empName}: R$ ${subtotal.toFixed(2).replace('.', ',')}  |  ${recordCount} FT${recordCount > 1 ? 's' : ''}`, 17, currentY + 4.5);
-        } else {
-          doc.setFillColor(245, 247, 250);
-          doc.rect(14, currentY, pageWidth - 28, 7, 'F');
-          doc.setFontSize(8);
-          doc.setFont('helvetica', 'bold');
-          doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
-          doc.text(`Subtotal ${empName}: ${recordCount} falta${recordCount > 1 ? 's' : ''}`, 17, currentY + 4.5);
-        }
-        currentY += 7;
-
-        // Espaco entre funcionarios
-        if (empIndex < employeeNames.length - 1) {
-          currentY += 4;
-        }
+        if (empIndex < employeeNames.length - 1) currentY += 2;
       });
 
-      // Total geral
-      if (currentY + 16 > pageHeight - 10) {
+      // ---------- TOTAL GERAL ----------
+      if (currentY + 26 > pageHeight - 16) {
         doc.addPage();
-        currentY = 16;
+        drawHeader();
+        currentY = 30;
       }
 
       currentY += 4;
-      doc.setDrawColor(accentColor[0], accentColor[1], accentColor[2]);
-      doc.setLineWidth(0.8);
-      doc.line(14, currentY, pageWidth - 14, currentY);
-      currentY += 6;
+      const totalH = 22;
+      drawGradientBar(14, currentY, pageWidth - 28, totalH, brand, accent);
+      doc.setFillColor(255, 255, 255);
+      doc.setGState(new (doc as any).GState({ opacity: 0.12 }));
+      doc.circle(pageWidth - 30, currentY + totalH / 2, 18, 'F');
+      doc.setGState(new (doc as any).GState({ opacity: 1 }));
 
-      doc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
-      doc.rect(14, currentY - 2, pageWidth - 28, 10, 'F');
-      doc.setFontSize(11);
-      doc.setFont('helvetica', 'bold');
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
       doc.setTextColor(255, 255, 255);
+      doc.text('TOTAL GERAL', 22, currentY + 8);
 
-      if (reportType === 'ft') {
-        doc.text(`TOTAL GERAL: R$ ${grandTotal.toFixed(2).replace('.', ',')}   |   ${grandCount} registros   |   ${employeeNames.length} funcionario${employeeNames.length > 1 ? 's' : ''}`, 20, currentY + 5);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(16);
+      if (isFT) {
+        doc.text(`R$ ${grandTotal.toFixed(2).replace('.', ',')}`, 22, currentY + 17);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.text(`${grandCount} registros · ${employeeNames.length} funcionário${employeeNames.length > 1 ? 's' : ''}`, pageWidth - 22, currentY + 13, { align: 'right' });
       } else {
-        doc.text(`TOTAL GERAL: ${grandCount} faltas   |   ${employeeNames.length} funcionario${employeeNames.length > 1 ? 's' : ''}`, 20, currentY + 5);
+        doc.text(`${grandCount} faltas`, 22, currentY + 17);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.text(`${employeeNames.length} funcionário${employeeNames.length > 1 ? 's' : ''}`, pageWidth - 22, currentY + 13, { align: 'right' });
       }
 
-      // Rodape em todas as paginas
+      // ---------- Footer em todas as páginas (exceto capa) ----------
       const totalPages = doc.getNumberOfPages();
-      for (let i = 1; i <= totalPages; i++) {
+      for (let i = 2; i <= totalPages; i++) {
         doc.setPage(i);
-        doc.setFontSize(7);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(160, 160, 160);
-        doc.text(`RondaTrack - Pagina ${i} de ${totalPages}`, 14, pageHeight - 6);
-        doc.text(format(new Date(), 'dd/MM/yyyy HH:mm'), pageWidth - 45, pageHeight - 6);
+        drawFooter(i - 1, totalPages - 1);
       }
 
       doc.save(`${filename}.pdf`);
@@ -662,6 +802,7 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
       throw new Error('Erro ao gerar arquivo PDF');
     }
   };
+
 
   return (
     <div className="space-y-6">
