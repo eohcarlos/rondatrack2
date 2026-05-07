@@ -216,30 +216,43 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Senha
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3.5 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    className="pl-10 pr-11 rounded-2xl h-11 border-border/60 bg-muted/30 focus:bg-background transition-colors"
-                    placeholder="••••••••"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-3 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
+              {!isForgotPassword && (
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Senha
+                  </Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      className="pl-10 pr-11 rounded-2xl h-11 border-border/60 bg-muted/30 focus:bg-background transition-colors"
+                      placeholder="••••••••"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  {!isSignUp && (
+                    <div className="flex justify-end pt-1">
+                      <button
+                        type="button"
+                        onClick={() => setIsForgotPassword(true)}
+                        className="text-xs text-primary font-medium hover:text-primary/80 transition-colors"
+                      >
+                        Esqueci minha senha
+                      </button>
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
 
               <Button
                 type="submit"
