@@ -11,6 +11,7 @@ import { ReportsPage } from "./pages/Reports";
 import { WorkedLeavesPage } from "./pages/WorkedLeaves";
 import { AbsencesPage } from "./pages/Absences";
 import { AdminPage } from "./pages/Admin";
+import ResetPassword from "./pages/ResetPassword";
 import { useEnsureScrollable } from "@/hooks/useEnsureScrollable";
 import { ThemeProvider } from "@/hooks/useThemeContext";
 
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/dashboard/ft" element={<WorkedLeavesPage />} />
             <Route path="/dashboard/absence" element={<AbsencesPage />} />
             <Route path="/dashboard/admin" element={<AdminPage />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

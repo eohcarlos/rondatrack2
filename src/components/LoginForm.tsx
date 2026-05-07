@@ -17,12 +17,37 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [role, setRole] = useState<'supervisor' | 'gestor' | 'gerente'>('supervisor');
   const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast({ title: 'Informe seu email', variant: 'destructive' });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast({
+        title: 'Email enviado!',
+        description: 'Verifique sua caixa de entrada para redefinir sua senha.',
+      });
+      setIsForgotPassword(false);
+    } catch (error: any) {
+      toast({ title: 'Erro', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,14 +130,18 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
               RondaTrack 2
             </h1>
             <p className="text-muted-foreground mt-2 text-sm">
-              {isSignUp ? 'Crie sua conta para acessar o sistema' : 'Sistema de controle de folgas e faltas'}
+              {isForgotPassword
+                ? 'Enviaremos um link de recuperação para seu email'
+                : isSignUp
+                ? 'Crie sua conta para acessar o sistema'
+                : 'Sistema de controle de folgas e faltas'}
             </p>
           </div>
 
           {/* Form */}
           <div className="px-8 pb-10">
-            <form onSubmit={handleAuth} className="space-y-5">
-              {isSignUp && (
+            <form onSubmit={isForgotPassword ? handleForgotPassword : handleAuth} className="space-y-5">
+              {isSignUp && !isForgotPassword && (
                 <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
@@ -187,30 +216,43 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Senha
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3.5 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    className="pl-10 pr-11 rounded-2xl h-11 border-border/60 bg-muted/30 focus:bg-background transition-colors"
-                    placeholder="••••••••"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-3 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
+              {!isForgotPassword && (
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Senha
+                  </Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      className="pl-10 pr-11 rounded-2xl h-11 border-border/60 bg-muted/30 focus:bg-background transition-colors"
+                      placeholder="••••••••"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  {!isSignUp && (
+                    <div className="flex justify-end pt-1">
+                      <button
+                        type="button"
+                        onClick={() => setIsForgotPassword(true)}
+                        className="text-xs text-primary font-medium hover:text-primary/80 transition-colors"
+                      >
+                        Esqueci minha senha
+                      </button>
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
 
               <Button
                 type="submit"
@@ -223,7 +265,7 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
                     <div className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
                     Carregando...
                   </div>
-                ) : isSignUp ? 'Criar Conta' : 'Entrar'}
+                ) : isForgotPassword ? 'Enviar link de recuperação' : isSignUp ? 'Criar Conta' : 'Entrar'}
               </Button>
             </form>
 
@@ -237,13 +279,23 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setIsSignUp(!isSignUp)}
-                className="text-sm text-primary font-medium hover:text-primary/80 transition-colors"
-              >
-                {isSignUp ? 'Já tem uma conta? Faça login' : 'Não tem conta? Registre-se'}
-              </button>
+              {isForgotPassword ? (
+                <button
+                  type="button"
+                  onClick={() => setIsForgotPassword(false)}
+                  className="text-sm text-primary font-medium hover:text-primary/80 transition-colors"
+                >
+                  Voltar para o login
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setIsSignUp(!isSignUp)}
+                  className="text-sm text-primary font-medium hover:text-primary/80 transition-colors"
+                >
+                  {isSignUp ? 'Já tem uma conta? Faça login' : 'Não tem conta? Registre-se'}
+                </button>
+              )}
             </div>
           </div>
         </div>
