@@ -97,7 +97,7 @@ const ResetPassword = () => {
                   />
                 </div>
               </div>
-              <Button type="submit" variant="hero" className="w-full rounded-2xl h-12 text-base font-semibold shadow-xl shadow-primary/25" disabled={isLoading || !isRecovery}>
+              <Button type="submit" variant="hero" className="w-full rounded-2xl h-12 text-base font-semibold text-white shadow-xl shadow-primary/25" disabled={isLoading}>
                 {isLoading ? 'Salvando...' : 'Redefinir senha'}
               </Button>
             </form>
