@@ -140,8 +140,8 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
 
           {/* Form */}
           <div className="px-8 pb-10">
-            <form onSubmit={handleAuth} className="space-y-5">
-              {isSignUp && (
+            <form onSubmit={isForgotPassword ? handleForgotPassword : handleAuth} className="space-y-5">
+              {isSignUp && !isForgotPassword && (
                 <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
