@@ -11,6 +11,7 @@ import { ReportsPage } from "./pages/Reports";
 import { WorkedLeavesPage } from "./pages/WorkedLeaves";
 import { AbsencesPage } from "./pages/Absences";
 import { AdminPage } from "./pages/Admin";
+import ResetPassword from "./pages/ResetPassword";
 import { useEnsureScrollable } from "@/hooks/useEnsureScrollable";
 import { ThemeProvider } from "@/hooks/useThemeContext";
 
