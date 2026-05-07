@@ -265,7 +265,7 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
                     <div className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
                     Carregando...
                   </div>
-                ) : isSignUp ? 'Criar Conta' : 'Entrar'}
+                ) : isForgotPassword ? 'Enviar link de recuperação' : isSignUp ? 'Criar Conta' : 'Entrar'}
               </Button>
             </form>
 
@@ -279,13 +279,23 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setIsSignUp(!isSignUp)}
-                className="text-sm text-primary font-medium hover:text-primary/80 transition-colors"
-              >
-                {isSignUp ? 'Já tem uma conta? Faça login' : 'Não tem conta? Registre-se'}
-              </button>
+              {isForgotPassword ? (
+                <button
+                  type="button"
+                  onClick={() => setIsForgotPassword(false)}
+                  className="text-sm text-primary font-medium hover:text-primary/80 transition-colors"
+                >
+                  Voltar para o login
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setIsSignUp(!isSignUp)}
+                  className="text-sm text-primary font-medium hover:text-primary/80 transition-colors"
+                >
+                  {isSignUp ? 'Já tem uma conta? Faça login' : 'Não tem conta? Registre-se'}
+                </button>
+              )}
             </div>
           </div>
         </div>
