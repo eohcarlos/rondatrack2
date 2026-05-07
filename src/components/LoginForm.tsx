@@ -130,7 +130,11 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
               RondaTrack 2
             </h1>
             <p className="text-muted-foreground mt-2 text-sm">
-              {isSignUp ? 'Crie sua conta para acessar o sistema' : 'Sistema de controle de folgas e faltas'}
+              {isForgotPassword
+                ? 'Enviaremos um link de recuperação para seu email'
+                : isSignUp
+                ? 'Crie sua conta para acessar o sistema'
+                : 'Sistema de controle de folgas e faltas'}
             </p>
           </div>
 
