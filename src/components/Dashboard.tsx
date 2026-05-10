@@ -8,6 +8,7 @@ import { Menu, LogOut, Plus, Download, Clock, Users, Building2, Calendar, Shield
 import { DashboardCharts } from './DashboardCharts';
 import { PWAInstallPrompt } from './PWAInstallPrompt';
 import { MainHeroCard } from './MainHeroCard';
+import { BottomNav } from './BottomNav';
 
 import { SidebarMenu } from './SidebarMenu';
 
@@ -580,6 +581,7 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
       </main>
       
       <PWAInstallPrompt />
+      <BottomNav activeTab={activeTab} onChange={setActiveTab} />
       </div>
     </>
   );
