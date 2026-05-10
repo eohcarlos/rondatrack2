@@ -305,7 +305,7 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
             />
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="hidden sm:grid grid-cols-2 gap-3">
               <button 
                 onClick={handleNavigateFT}
                 className="group relative flex items-center justify-center gap-2.5 px-4 py-4 rounded-2xl bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98] overflow-hidden"
@@ -427,7 +427,7 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
             {/* Secondary Stats + Actions Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {/* Left: More Stats */}
-              <Card className="lg:col-span-2 border-0 rounded-3xl bg-card shadow-lg overflow-hidden">
+              <Card className="lg:col-span-2 sm:col-span-1 col-span-1 border-0 rounded-3xl bg-card shadow-lg overflow-hidden">
                 <CardHeader className="pb-3 bg-gradient-to-r from-primary/5 to-accent/5">
                   <CardTitle className="text-base font-semibold flex items-center gap-2">
                     <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
@@ -463,7 +463,7 @@ export const Dashboard = memo(({ onLogout, onGoHome, companyName }: DashboardPro
 
               {/* Right: Premium Reports Card */}
               <Card 
-                className="border-0 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 shadow-xl cursor-pointer hover:shadow-2xl hover:shadow-slate-500/25 transition-all duration-300 hover:-translate-y-1 group overflow-hidden relative"
+                className="hidden sm:flex flex-col border-0 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 shadow-xl cursor-pointer hover:shadow-2xl hover:shadow-slate-500/25 transition-all duration-300 hover:-translate-y-1 group overflow-hidden relative"
                 onClick={handleNavigateReports}
               >
                 <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iNCIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
