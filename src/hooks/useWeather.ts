@@ -52,17 +52,40 @@ const getPosition = (): Promise<GeolocationPosition> =>
   });
 
 const reverseGeocode = async (lat: number, lon: number): Promise<string> => {
+  // Primary: BigDataCloud (free, no key, accurate city names)
+  try {
+    const res = await fetch(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=pt`
+    );
+    if (res.ok) {
+      const d = await res.json();
+      const city = d.city || d.locality || d.principalSubdivision;
+      if (city) {
+        const state = d.principalSubdivisionCode?.replace('BR-', '') || '';
+        return state ? `${city}, ${state}` : city;
+      }
+    }
+  } catch {}
+  // Fallback: Open-Meteo forward search by coords (approximate)
   try {
     const res = await fetch(
       `https://geocoding-api.open-meteo.com/v1/reverse?latitude=${lat}&longitude=${lon}&language=pt&count=1`
     );
-    if (!res.ok) return '';
-    const data = await res.json();
-    const r = data?.results?.[0];
-    return r ? `${r.name}${r.admin1 ? ', ' + r.admin1 : ''}` : '';
-  } catch {
-    return '';
-  }
+    if (res.ok) {
+      const data = await res.json();
+      const r = data?.results?.[0];
+      if (r) return `${r.name}${r.admin1 ? ', ' + r.admin1 : ''}`;
+    }
+  } catch {}
+  // Last resort: IP-based city
+  try {
+    const res = await fetch('https://ipapi.co/json/');
+    if (res.ok) {
+      const d = await res.json();
+      if (d.city) return `${d.city}${d.region_code ? ', ' + d.region_code : ''}`;
+    }
+  } catch {}
+  return '';
 };
 
 const FALLBACK = { lat: -23.5505, lon: -46.6333, city: 'São Paulo, SP' };
@@ -76,14 +99,25 @@ export const useWeather = () => {
     setError(null);
     let lat = FALLBACK.lat;
     let lon = FALLBACK.lon;
-    let cityFallback = FALLBACK.city;
+    let usedFallback = true;
     try {
       const pos = await getPosition();
       lat = pos.coords.latitude;
       lon = pos.coords.longitude;
-      cityFallback = '';
+      usedFallback = false;
     } catch {
-      // use fallback
+      // try IP-based coords before defaulting
+      try {
+        const r = await fetch('https://ipapi.co/json/');
+        if (r.ok) {
+          const d = await r.json();
+          if (typeof d.latitude === 'number' && typeof d.longitude === 'number') {
+            lat = d.latitude;
+            lon = d.longitude;
+            usedFallback = false;
+          }
+        }
+      } catch {}
     }
 
     try {
@@ -94,7 +128,7 @@ export const useWeather = () => {
       const c = json.current;
       const isDay = c.is_day === 1;
       const { condition, icon } = mapWmo(c.weather_code, isDay);
-      const city = cityFallback || (await reverseGeocode(lat, lon)) || 'Sua localização';
+      const city = (await reverseGeocode(lat, lon)) || (usedFallback ? FALLBACK.city : 'Sua região');
       setData({
         temperature: Math.round(c.temperature_2m),
         feelsLike: Math.round(c.apparent_temperature),
