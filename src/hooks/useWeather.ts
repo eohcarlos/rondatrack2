@@ -99,14 +99,25 @@ export const useWeather = () => {
     setError(null);
     let lat = FALLBACK.lat;
     let lon = FALLBACK.lon;
-    let cityFallback = FALLBACK.city;
+    let usedFallback = true;
     try {
       const pos = await getPosition();
       lat = pos.coords.latitude;
       lon = pos.coords.longitude;
-      cityFallback = '';
+      usedFallback = false;
     } catch {
-      // use fallback
+      // try IP-based coords before defaulting
+      try {
+        const r = await fetch('https://ipapi.co/json/');
+        if (r.ok) {
+          const d = await r.json();
+          if (typeof d.latitude === 'number' && typeof d.longitude === 'number') {
+            lat = d.latitude;
+            lon = d.longitude;
+            usedFallback = false;
+          }
+        }
+      } catch {}
     }
 
     try {
