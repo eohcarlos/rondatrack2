@@ -128,7 +128,7 @@ export const useWeather = () => {
       const c = json.current;
       const isDay = c.is_day === 1;
       const { condition, icon } = mapWmo(c.weather_code, isDay);
-      const city = cityFallback || (await reverseGeocode(lat, lon)) || 'Sua localização';
+      const city = (await reverseGeocode(lat, lon)) || (usedFallback ? FALLBACK.city : 'Sua região');
       setData({
         temperature: Math.round(c.temperature_2m),
         feelsLike: Math.round(c.apparent_temperature),
