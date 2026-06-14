@@ -245,6 +245,23 @@ export const WorkedLeaveForm = ({ onClose, onSuccess, editData }: WorkedLeaveFor
 
         if (error) throw error;
 
+        // Push notification (best-effort, non-blocking)
+        try {
+          const emp = employees.find((e) => e.id === selectedEmployee);
+          const empName = emp?.name || 'Funcionário';
+          const [y, m, d] = date.split('-');
+          const formattedDate = `${d}/${m}/${y}`;
+          await supabase.functions.invoke('send-push-notification', {
+            body: {
+              title: 'Nova FT registrada',
+              message: `${empName} — ${formattedDate} (${workShift})`,
+              url: `${window.location.origin}/dashboard/ft`,
+            },
+          });
+        } catch (notifyErr) {
+          console.error('Push notification failed:', notifyErr);
+        }
+
         toast({
           title: "FT registrada com sucesso!",
           description: "A folga trabalhada foi adicionada ao sistema.",
