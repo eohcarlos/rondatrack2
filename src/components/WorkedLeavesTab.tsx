@@ -413,30 +413,39 @@ export const WorkedLeavesTab = memo(() => {
     setSelectedEmployeeId(null);
   }, []);
 
-  const exportToExcel = useCallback(() => {
+  const exportToExcel = useCallback(async () => {
     try {
-      const dataToExport = filteredWorkedLeaves.map(item => ({
-        'Data': formatDate(item.date),
-        'Nome': `${item.employees.first_name} ${item.employees.last_name}`,
-        'Cargo': item.employees.positions?.title || 'N/A',
-        'Supervisor(a)': item.supervisor?.name || 'N/A',
-        'Condomínio': item.employees.condominiums?.name || 'N/A',
-        'Valor': item.amount ? `R$ ${Number(item.amount).toFixed(2)}` : 'Não informado',
-        'Observações': item.observations || 'Sem observações',
-        'Data do Registro': formatDate(item.created_at.split('T')[0])
+      const sorted = [...filteredWorkedLeaves].sort((a, b) => {
+        const na = `${a.employees.first_name} ${a.employees.last_name}`;
+        const nb = `${b.employees.first_name} ${b.employees.last_name}`;
+        return na.localeCompare(nb, 'pt-BR');
+      });
+
+      const headers = ['Data', 'Nome', 'Cargo', 'Supervisor(a)', 'Contrato', 'Valor', 'Observações', 'Data do Registro'];
+      const rows = sorted.map((item) => ({
+        type: 'data' as const,
+        cells: [
+          formatDate(item.date),
+          `${item.employees.first_name} ${item.employees.last_name}`,
+          item.employees.positions?.title || 'N/A',
+          item.supervisor?.name || 'N/A',
+          item.employees.condominiums?.name || 'N/A',
+          item.amount ? `R$ ${Number(item.amount).toFixed(2)}` : 'Não informado',
+          item.observations || 'Sem observações',
+          formatDate(item.created_at.split('T')[0]),
+        ],
       }));
 
-      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Folgas Trabalhadas');
-
-      worksheet['!cols'] = [
-        { wch: 14 }, { wch: 28 }, { wch: 22 }, { wch: 28 },
-        { wch: 28 }, { wch: 18 }, { wch: 40 }, { wch: 20 }
-      ];
-
       const today = new Date().toISOString().split('T')[0];
-      XLSX.writeFile(workbook, `Relatorio_FT_${today}.xlsx`);
+      await exportStyledExcel({
+        fileName: `Relatorio_FT_${today}.xlsx`,
+        sheetName: 'Folgas Trabalhadas',
+        titleLines: ['Relatório de Folgas Trabalhadas', `Gerado em ${formatDate(today)}`],
+        headers,
+        rows,
+        categoryColumns: ['Supervisor(a)', 'Contrato', 'Cargo'],
+        rotatingColumns: ['Nome'],
+      });
 
       toast({ title: "Exportação concluída", description: "Relatório em Excel baixado!" });
     } catch (error: any) {
