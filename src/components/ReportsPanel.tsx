@@ -12,7 +12,7 @@ import autoTable from 'jspdf-autotable';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { getCurrentCompanyId } from '@/lib/company';
-import * as XLSX from 'xlsx';
+import { exportStyledExcel, type StyledRow } from '@/lib/excelExport';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
@@ -276,10 +276,12 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
     return labels[reason] || reason;
   };
 
-  const downloadExcel = (data: any[], headers: string[], filename: string) => {
+  const downloadExcel = async (data: any[], headers: string[], filename: string) => {
+    const isFT = reportType === 'ft';
+
     // Calcular valor total para relatório de FT
     let totalValue = 0;
-    if (reportType === 'ft') {
+    if (isFT) {
       totalValue = data.reduce((sum, row) => {
         const valorStr = row['Valor'] || '';
         const match = valorStr.match(/R\$\s*([\d.,]+)/);
@@ -291,12 +293,11 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
       }, 0);
     }
 
-    // Adicionar informações do período no início
     const periodInfo = startDate && endDate
       ? `Período: ${format(startDate, 'dd/MM/yyyy')} a ${format(endDate, 'dd/MM/yyyy')}`
       : 'Período: Todos os registros';
 
-    const reportTitle = reportType === 'ft' ? 'Relatório de Folgas Trabalhadas' : 'Relatório de Faltas';
+    const reportTitle = isFT ? 'Relatório de Folgas Trabalhadas' : 'Relatório de Faltas';
     const generatedAt = `Gerado em: ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: ptBR })}`;
 
     // Ordenar dados por nome do funcionário
@@ -306,14 +307,12 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
       return nameA.localeCompare(nameB, 'pt-BR');
     });
 
-    // Agrupar dados por funcionário e adicionar subtotal + linha em branco entre cada um
-    const groupedData: any[][] = [];
+    const rows: StyledRow[] = [];
     let currentEmployee = '';
     let employeeRecords: any[] = [];
-    
-    const addEmployeeSubtotal = () => {
-      if (employeeRecords.length > 0 && reportType === 'ft') {
-        // Calcular subtotal do funcionário
+
+    const pushSubtotal = () => {
+      if (employeeRecords.length > 0 && isFT) {
         const subtotal = employeeRecords.reduce((sum, row) => {
           const valorStr = row['Valor'] || '';
           const match = valorStr.match(/R\$\s*([\d.,]+)/);
@@ -323,90 +322,55 @@ export const ReportsPanel = ({ onClose }: ReportsPanelProps) => {
           }
           return sum;
         }, 0);
-        
-        // Adicionar linha de subtotal
-        const subtotalRow = headers.map((header) => {
-          if (header === 'Nome') return `Subtotal: ${currentEmployee}`;
-          if (header === 'Valor') return `R$ ${subtotal.toFixed(2)}`;
+        const cells = headers.map((h) => {
+          if (h === 'Nome') return `Subtotal: ${currentEmployee}`;
+          if (h === 'Valor') return `R$ ${subtotal.toFixed(2)}`;
           return '';
         });
-        groupedData.push(subtotalRow);
+        rows.push({ type: 'subtotal', cells });
       }
     };
-    
+
     sortedData.forEach((row) => {
       const employeeName = row['Nome'];
-      
-      // Se mudou de funcionário
       if (employeeName !== currentEmployee) {
-        // Adicionar subtotal do funcionário anterior (se houver)
-        addEmployeeSubtotal();
-        
-        // Adicionar linha em branco entre funcionários (se não for o primeiro)
-        if (currentEmployee !== '') {
-          groupedData.push(headers.map(() => '')); // Linha em branco
-        }
-        
+        pushSubtotal();
+        if (currentEmployee !== '') rows.push({ type: 'blank', cells: [] });
         currentEmployee = employeeName;
         employeeRecords = [];
       }
-      
-      groupedData.push(headers.map(header => row[header] || ''));
+      rows.push({ type: 'data', cells: headers.map((h) => row[h] ?? '') });
       employeeRecords.push(row);
     });
-    
-    // Adicionar subtotal do último funcionário
-    addEmployeeSubtotal();
+    pushSubtotal();
 
-    // Criar worksheet com os dados
-    const worksheetData = [
-      [reportTitle],
-      [periodInfo],
-      [generatedAt],
-      [], // Linha vazia
-      headers,
-      ...groupedData
-    ];
-
-    // Adicionar linha de total para FT
-    if (reportType === 'ft') {
-      worksheetData.push([]); // Linha vazia
-      worksheetData.push(['', '', '', '', '', '', '', `VALOR TOTAL: R$ ${totalValue.toFixed(2)}`, '', '']);
-      worksheetData.push([`Total de Registros: ${data.length}`, '', '', '', '', '', '', '', '', '']);
+    // Total geral
+    rows.push({ type: 'blank', cells: [] });
+    if (isFT) {
+      const totalCells = headers.map((h) => {
+        if (h === 'Nome') return `TOTAL GERAL — ${data.length} registros`;
+        if (h === 'Valor') return `R$ ${totalValue.toFixed(2)}`;
+        return '';
+      });
+      rows.push({ type: 'total', cells: totalCells });
     } else {
-      worksheetData.push([]); // Linha vazia
-      worksheetData.push([`Total de Registros: ${data.length}`, '', '', '', '', '', '', '', '', '']);
+      const totalCells = headers.map((h) =>
+        h === 'Nome' ? `TOTAL GERAL — ${data.length} registros` : ''
+      );
+      rows.push({ type: 'total', cells: totalCells });
     }
 
-    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-
-    // Calcular largura automática das colunas considerando todos os dados
-    const colWidths = headers.map((header, colIndex) => {
-      const headerLength = header.length;
-      const dataLengths = worksheetData.slice(4).map(row => String(row[colIndex] || '').length);
-      const maxDataLength = Math.max(...dataLengths, 0);
-      return { wch: Math.max(headerLength, maxDataLength, 12) + 4 };
-    });
-    worksheet['!cols'] = colWidths;
-
-    // Mesclar células do título
-    worksheet['!merges'] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: headers.length - 1 } },
-      { s: { r: 1, c: 0 }, e: { r: 1, c: headers.length - 1 } },
-      { s: { r: 2, c: 0 }, e: { r: 2, c: headers.length - 1 } },
-    ];
-
-    // Criar workbook e adicionar a worksheet
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Relatório');
-
-    // Exportar para arquivo .xlsx
-    XLSX.writeFile(workbook, `${filename}.xlsx`, { 
-      bookType: 'xlsx',
-      type: 'binary',
-      cellStyles: true
+    await exportStyledExcel({
+      fileName: `${filename}.xlsx`,
+      sheetName: 'Relatório',
+      titleLines: [reportTitle, periodInfo, generatedAt],
+      headers,
+      rows,
+      categoryColumns: ['Supervisor(a)', 'Contrato', 'Cargo', 'Turno', 'Motivo'].filter((c) => headers.includes(c)),
+      rotatingColumns: ['Nome'],
     });
   };
+
 
   const downloadPDF = async (data: any[], headers: string[], filename: string, employee: any) => {
     try {
