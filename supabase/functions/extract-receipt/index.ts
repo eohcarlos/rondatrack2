@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,11 +10,40 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    // --- Auth ---
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+    const supabaseClient = createClient(SUPABASE_URL, Deno.env.get('SUPABASE_ANON_KEY')!);
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const { imageUrl, type } = await req.json();
-    if (!imageUrl) throw new Error("imageUrl is required");
+    if (typeof imageUrl !== 'string' || !imageUrl) {
+      return new Response(JSON.stringify({ error: 'imageUrl é obrigatório' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // --- SSRF protection: only allow URLs that point at our own Supabase storage receipts bucket ---
+    const allowedPrefix = `${SUPABASE_URL}/storage/v1/object/`;
+    if (!imageUrl.startsWith(allowedPrefix) || !imageUrl.includes('/receipts/')) {
+      return new Response(JSON.stringify({ error: 'imageUrl não permitido' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     const typeLabel = type === "pedagio" ? "pedágio" : "abastecimento";
 
@@ -93,7 +123,6 @@ serve(async (req) => {
     if (toolCall) {
       extracted = JSON.parse(toolCall.function.arguments);
     } else {
-      // Fallback: try to parse from content
       const content = data.choices?.[0]?.message?.content || "";
       try {
         extracted = JSON.parse(content);
