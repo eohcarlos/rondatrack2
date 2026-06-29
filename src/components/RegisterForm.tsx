@@ -18,7 +18,6 @@ export const RegisterForm = ({ onBack }: RegisterFormProps) => {
     lastName: '',
     email: '',
     password: '',
-    role: ''
   });
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -30,7 +29,7 @@ export const RegisterForm = ({ onBack }: RegisterFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.role) {
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password) {
       toast({
         title: "Campos obrigatórios",
         description: "Por favor, preencha todos os campos.",
@@ -52,7 +51,8 @@ export const RegisterForm = ({ onBack }: RegisterFormProps) => {
           data: {
             first_name: formData.firstName,
             last_name: formData.lastName,
-            role: formData.role
+            // role is forced to 'supervisor' server-side by handle_new_user trigger
+            // to prevent privilege self-assignment.
           }
         }
       });
@@ -71,7 +71,6 @@ export const RegisterForm = ({ onBack }: RegisterFormProps) => {
         lastName: '',
         email: '',
         password: '',
-        role: ''
       });
 
     } catch (error: any) {
@@ -158,19 +157,6 @@ export const RegisterForm = ({ onBack }: RegisterFormProps) => {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="role">Cargo *</Label>
-              <Select onValueChange={(value) => handleInputChange('role', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione seu cargo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="supervisor">Supervisor</SelectItem>
-                  <SelectItem value="gestor">Gestor</SelectItem>
-                  <SelectItem value="gerente">Gerente</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
 
             <div className="space-y-4 pt-4">
               <Button

@@ -20,7 +20,6 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [role, setRole] = useState<'supervisor' | 'gestor' | 'gerente'>('supervisor');
   const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -62,8 +61,9 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
             data: {
               first_name: firstName,
               last_name: lastName,
-              role: role,
               company_id: companyId
+              // role is set server-side to 'supervisor' by handle_new_user trigger
+              // to prevent privilege self-assignment.
             }
           }
         });
@@ -180,21 +180,6 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="role" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Cargo
-                    </Label>
-                    <Select value={role} onValueChange={(value: 'supervisor' | 'gestor' | 'gerente') => setRole(value)}>
-                      <SelectTrigger className="rounded-2xl h-11 border-border/60 bg-muted/30 focus:bg-background">
-                        <SelectValue placeholder="Selecione seu cargo" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-2xl">
-                        <SelectItem value="supervisor" className="rounded-xl">Supervisor</SelectItem>
-                        <SelectItem value="gestor" className="rounded-xl">Gestor</SelectItem>
-                        <SelectItem value="gerente" className="rounded-xl">Gerente</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
                 </div>
               )}
 

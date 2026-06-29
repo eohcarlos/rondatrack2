@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Lock } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AccessCodeFormProps {
   onSuccess: () => void;
@@ -20,23 +21,71 @@ export const AccessCodeForm = ({ onSuccess }: AccessCodeFormProps) => {
     setIsLoading(true);
 
     try {
-      if (!accessCode.trim()) {
+      const entered = accessCode.trim();
+      if (!entered) {
         toast({
-          title: "Código de acesso inválido",
-          description: "Digite o código de acesso correto para acessar o sistema.",
+          title: "Código inválido",
+          description: "Digite o código de acesso.",
           variant: "destructive",
         });
         return;
       }
 
-      // Set access code in localStorage to remember the user has entered it
+      // Server-side validation: code must match the user's company.code in the database.
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Sessão expirada",
+          description: "Faça login novamente.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('company_id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (profileError || !profile?.company_id) {
+        toast({
+          title: "Erro",
+          description: "Empresa não vinculada ao seu perfil.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data: company, error: companyError } = await supabase
+        .from('companies')
+        .select('id, code')
+        .eq('id', profile.company_id)
+        .maybeSingle();
+
+      if (companyError || !company) {
+        toast({
+          title: "Erro",
+          description: "Não foi possível validar o código.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (company.code.trim() !== entered) {
+        toast({
+          title: "Código de acesso incorreto",
+          description: "O código informado não confere com o cadastrado para sua empresa.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       localStorage.setItem('accessCodeVerified', 'true');
-      
       toast({
         title: "Acesso liberado!",
         description: "Bem-vindo ao RondaTrack2.",
       });
-      
       onSuccess();
     } catch (error: any) {
       toast({
