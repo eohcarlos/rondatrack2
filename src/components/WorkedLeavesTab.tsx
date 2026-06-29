@@ -16,7 +16,7 @@ import { EmployeeDetailsModal } from './EmployeeDetailsModal';
 import { WorkedLeaveDetailsModal } from './WorkedLeaveDetailsModal';
 import { WorkedLeaveForm, WorkedLeaveEditData } from './WorkedLeaveForm';
 import { getCurrentCompanyId } from '@/lib/company';
-import * as XLSX from 'xlsx';
+import { exportStyledExcel } from '@/lib/excelExport';
 
 interface WorkedLeave {
   id: string;
