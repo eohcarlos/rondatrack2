@@ -12,7 +12,7 @@ import autoTable from 'jspdf-autotable';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { getCurrentCompanyId } from '@/lib/company';
-import * as XLSX from 'xlsx';
+import { exportStyledExcel, type StyledRow } from '@/lib/excelExport';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
