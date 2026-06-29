@@ -79,13 +79,24 @@ export const ExpensesTab = () => {
         .order('date', { ascending: false });
 
       if (error) throw error;
-      setExpenses((data as unknown as Expense[]) || []);
+
+      // The `receipt_url` column now stores a private storage path. Resolve to signed URLs.
+      const raw = (data as unknown as Expense[]) || [];
+      const resolved = await Promise.all(raw.map(async (exp) => {
+        if (!exp.receipt_url || /^https?:\/\//i.test(exp.receipt_url)) return exp;
+        const { data: signed } = await supabase.storage
+          .from('receipts')
+          .createSignedUrl(exp.receipt_url, 60 * 60);
+        return { ...exp, receipt_url: signed?.signedUrl ?? null };
+      }));
+      setExpenses(resolved);
     } catch (error: any) {
       toast({ title: 'Erro ao carregar gastos', description: error.message, variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
   }, [subTab, toast]);
+
 
   useEffect(() => {
     fetchExpenses();
@@ -126,18 +137,24 @@ export const ExpensesTab = () => {
     if (!receiptFile) return;
     setIsExtracting(true);
     try {
-      const fileName = `${Date.now()}_${receiptFile.name}`;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuário não autenticado');
+
+      const safeName = receiptFile.name.replace(/[^\w.\-]+/g, '_');
+      const path = `${user.id}/${Date.now()}_${safeName}`;
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('receipts')
-        .upload(fileName, receiptFile);
+        .upload(path, receiptFile);
 
       if (uploadError) throw uploadError;
 
-      const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(uploadData.path);
-      const imageUrl = urlData.publicUrl;
+      const { data: signed, error: signErr } = await supabase.storage
+        .from('receipts')
+        .createSignedUrl(uploadData.path, 60 * 10);
+      if (signErr || !signed?.signedUrl) throw signErr ?? new Error('Falha ao gerar URL temporária');
 
       const { data: fnData, error: fnError } = await supabase.functions.invoke('extract-receipt', {
-        body: { imageUrl, type: subTab },
+        body: { imageUrl: signed.signedUrl, type: subTab },
       });
 
       if (fnError) throw fnError;
@@ -163,6 +180,7 @@ export const ExpensesTab = () => {
     }
   };
 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const numericAmount = parseBRL(amountDisplay);
@@ -179,16 +197,17 @@ export const ExpensesTab = () => {
       const companyId = localStorage.getItem('companyId');
       if (!companyId) throw new Error('Empresa não encontrada');
 
-      let receiptUrl: string | null = null;
+      let receiptPath: string | null = null;
       if (receiptFile) {
-        const fileName = `${Date.now()}_${receiptFile.name}`;
+        const safeName = receiptFile.name.replace(/[^\w.\-]+/g, '_');
+        const path = `${user.id}/${Date.now()}_${safeName}`;
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('receipts')
-          .upload(fileName, receiptFile);
+          .upload(path, receiptFile);
         if (uploadError) throw uploadError;
-        const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(uploadData.path);
-        receiptUrl = urlData.publicUrl;
+        receiptPath = uploadData.path;
       }
+
 
       const { error } = await supabase.from('expenses').insert({
         company_id: companyId,
@@ -201,7 +220,7 @@ export const ExpensesTab = () => {
         location: location || null,
         mileage: mileage ? parseFloat(mileage) : null,
         observations: observations || null,
-        receipt_url: receiptUrl,
+        receipt_url: receiptPath,
       } as any);
 
       if (error) throw error;
