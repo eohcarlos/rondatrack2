@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rondatrack-v2';
+const CACHE_NAME = 'rondatrack-v3';
 const STATIC_ASSETS = [
   '/lovable-uploads/b183aeaf-2480-4887-9cfa-8436f7579f9b.png',
   '/manifest.json'
@@ -13,16 +13,12 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate - clean old caches
+// Activate - nuke ALL old caches to recover users stuck on stale SW bundles
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
-      );
-    }).then(() => self.clients.claim())
+    caches.keys()
+      .then((cacheNames) => Promise.all(cacheNames.map((name) => caches.delete(name))))
+      .then(() => self.clients.claim())
   );
 });
 
